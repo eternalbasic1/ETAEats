@@ -1,0 +1,83 @@
+# ----- Python / Django -------------------------------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.eggs/
+build/
+dist/
+
+.venv/
+venv/
+env/
+ENV/
+
+# Django
+*.log
+db.sqlite3
+db.sqlite3-journal
+local_settings.py
+
+# Migrations: keep them; uncomment to exclude if generated per-dev
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+
+# Collected artefacts
+backend/staticfiles/
+backend/media/
+
+# ----- Node / Next.js / Turborepo --------------------------------------
+node_modules/
+.pnpm-store/
+.next/
+out/
+.turbo/
+dist/
+build/
+coverage/
+
+# pnpm / yarn / npm logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.pnpm-debug.log
+
+# ----- Tooling caches --------------------------------------------------
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.cache/
+.eslintcache
+.stylelintcache
+
+# ----- Environment / secrets -------------------------------------------
+.env
+.env.*
+!.env.example
+
+firebase-key.json
+*.pem
+*.p12
+*.key
+credentials.json
+service-account*.json
+
+# ----- IDE / OS --------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+
+.DS_Store
+Thumbs.db
