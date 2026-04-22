@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status as http_status
 from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.exceptions import PermissionDenied
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -96,7 +97,18 @@ class CheckoutView(APIView):
     def post(self, request):
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        cart = get_object_or_404(Cart, pk=serializer.validated_data['cart_id'], user=request.user)
+
+        cart = get_object_or_404(Cart, pk=serializer.validated_data['cart_id'])
+
+        # Cart may be anonymous (user=null) if the passenger logged in after
+        # adding items. Assign it to the authenticated user now, or reject if
+        # it already belongs to someone else.
+        if cart.user_id is None:
+            cart.user = request.user
+            cart.save(update_fields=['user'])
+        elif cart.user_id != request.user.id:
+            raise PermissionDenied('This cart belongs to another user.')
+
         bus = get_object_or_404(Bus, pk=serializer.validated_data['bus_id'], is_active=True)
         order = services.checkout(cart, user=request.user, bus=bus)
         return Response(OrderSerializer(order).data, status=http_status.HTTP_201_CREATED)
