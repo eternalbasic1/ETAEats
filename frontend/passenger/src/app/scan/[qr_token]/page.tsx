@@ -1,17 +1,19 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import { useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Utensils, AlertCircle } from 'lucide-react'
 import { Spinner } from '@/components/ui'
 import { useSessionStore } from '@/stores/session.store'
 import api from '@/lib/api'
-import type { BusScanResult } from '@/lib/api.types'
+import type { BusScanResult, Paginated, MenuItem } from '@/lib/api.types'
 
 export default function ScanPage() {
   const router = useRouter()
   const { qr_token } = useParams<{ qr_token: string }>()
   const { setSession } = useSessionStore()
+  const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
@@ -37,10 +39,21 @@ export default function ScanPage() {
             hygieneRating: data.restaurant.hygiene_rating,
           },
         )
+        // Seed the menu query cache so the menu page renders instantly
+        // without a second network round-trip.
+        if (data.menu.length > 0) {
+          const paginated: Paginated<MenuItem> = {
+            count: data.menu.length,
+            next: null,
+            previous: null,
+            results: data.menu,
+          }
+          queryClient.setQueryData(['menu', String(data.restaurant.id)], paginated)
+        }
         router.replace(`/menu/${data.restaurant.id}`)
       })
       .catch(() => setError('This QR code is invalid or has expired.'))
-  }, [qr_token, router, setSession])
+  }, [qr_token, router, setSession, queryClient])
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">

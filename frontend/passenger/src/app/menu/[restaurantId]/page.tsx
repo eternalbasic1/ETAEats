@@ -25,6 +25,9 @@ export default function MenuPage() {
 
   const { data: menuData, isLoading, isError, refetch } = useQuery({
     queryKey: ['menu', restaurantId],
+    // Fetch all items (available + unavailable) so greyed-out unavailable
+    // items still show. The cache is pre-seeded by the scan page, so this
+    // network call is usually skipped on first load.
     queryFn: () =>
       api
         .get<Paginated<MenuItem>>(

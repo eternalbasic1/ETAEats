@@ -41,8 +41,28 @@ class MenuCategoryViewSet(viewsets.ModelViewSet):
 
 class MenuItemViewSet(viewsets.ModelViewSet):
     serializer_class = MenuItemSerializer
-    permission_classes = [IsAuthenticated, IsRestaurantStaff]
     filterset_fields = ('restaurant', 'category', 'is_available')
+
+    def get_permissions(self):
+        # Passengers browse the menu without any account.
+        # Only restaurant staff can create / update / delete items.
+        if self.action in ('list', 'retrieve'):
+            return [AllowAny()]
+        return [IsAuthenticated(), IsRestaurantStaff()]
+
+    def get_queryset(self):
+        qs = (
+            MenuItem.objects
+            .select_related('category', 'restaurant')
+            .filter(deleted_at__isnull=True)
+        )
+        # Staff-facing write actions scope to the user's own restaurants.
+        if self.action not in ('list', 'retrieve') and self.request.user.is_authenticated:
+            qs = qs.filter(
+                restaurant__memberships__user=self.request.user,
+                restaurant__memberships__is_active=True,
+            ).distinct()
+        return qs
 
     def get_queryset(self):
         return (
