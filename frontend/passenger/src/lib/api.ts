@@ -42,7 +42,15 @@ api.interceptors.request.use((config: InternalAxiosRequestConfig) => {
 
 // ── Response interceptor — silent refresh on 401 ─────────────────────────
 let isRefreshing = false
-let queue: Array<(token: string) => void> = []
+let queue: Array<{ resolve: (token: string) => void; reject: (err: unknown) => void }> = []
+
+function processQueue(error: unknown, token: string | null) {
+  queue.forEach(({ resolve, reject }) => {
+    if (error) reject(error)
+    else if (token) resolve(token)
+  })
+  queue = []
+}
 
 api.interceptors.response.use(
   (res) => res,
@@ -60,10 +68,13 @@ api.interceptors.response.use(
     }
 
     if (isRefreshing) {
-      return new Promise((resolve) => {
-        queue.push((newAccess: string) => {
-          original.headers.Authorization = `Bearer ${newAccess}`
-          resolve(api(original))
+      return new Promise((resolve, reject) => {
+        queue.push({
+          resolve: (newAccess: string) => {
+            original.headers.Authorization = `Bearer ${newAccess}`
+            resolve(api(original))
+          },
+          reject,
         })
       })
     }
@@ -78,14 +89,13 @@ api.interceptors.response.use(
       )
       const newAccess = data.access
       setStoredTokens(newAccess, tokens.refresh)
-      queue.forEach((cb) => cb(newAccess))
-      queue = []
+      processQueue(null, newAccess)
       original.headers.Authorization = `Bearer ${newAccess}`
       return api(original)
-    } catch {
+    } catch (refreshError) {
+      processQueue(refreshError, null)
       clearStoredTokens()
-      queue = []
-      return Promise.reject(error)
+      return Promise.reject(refreshError)
     } finally {
       isRefreshing = false
     }
