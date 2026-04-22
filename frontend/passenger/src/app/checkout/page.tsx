@@ -1,0 +1,122 @@
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { ArrowLeft } from 'lucide-react'
+import { toast } from 'sonner'
+import { Button } from '@/components/ui'
+import { useCartStore } from '@/stores/cart.store'
+import { useAuthStore } from '@/stores/auth.store'
+import { useSessionStore } from '@/stores/session.store'
+import { openRazorpay } from '@/lib/razorpay'
+import api from '@/lib/api'
+import type { Order, RazorpayOrderPayload } from '@/lib/api.types'
+
+export default function CheckoutPage() {
+  const router = useRouter()
+  const { cartId, busId, items, totalPrice, clearCart } = useCartStore()
+  const { user } = useAuthStore()
+  const { bus, restaurant } = useSessionStore()
+  const [loading, setLoading] = useState(false)
+
+  async function handlePay() {
+    if (!cartId || !busId) {
+      toast.error('Cart session expired. Please go back and try again.')
+      return
+    }
+    setLoading(true)
+    try {
+      // 1. Checkout cart → create PENDING order
+      const { data: order } = await api.post<Order>('/orders/checkout/', {
+        cart_id: cartId,
+        bus_id: busId,
+      })
+
+      // 2. Create Razorpay order
+      const { data: rpPayload } = await api.post<RazorpayOrderPayload>(
+        '/payments/razorpay/order/',
+        { order_id: order.id },
+      )
+
+      // 3. Open Razorpay checkout sheet
+      await openRazorpay(
+        rpPayload,
+        user?.phone_number ?? '',
+        async (rpResponse) => {
+          // 4. Confirm payment signature with backend
+          try {
+            await api.post('/payments/razorpay/confirm/', {
+              order_id: order.id,
+              razorpay_order_id: rpResponse.razorpay_order_id,
+              razorpay_payment_id: rpResponse.razorpay_payment_id,
+              razorpay_signature: rpResponse.razorpay_signature,
+            })
+            clearCart()
+            router.replace(`/order/${order.id}`)
+          } catch {
+            toast.error('Payment confirmation failed. Your order ID is: ' + order.id.slice(0, 8))
+            router.replace(`/order/${order.id}`)
+          }
+        },
+        () => {
+          toast('Payment cancelled.')
+          setLoading(false)
+        },
+      )
+    } catch (err: unknown) {
+      const axiosErr = err as { response?: { data?: { error?: { message?: string } } } }
+      toast.error(axiosErr?.response?.data?.error?.message ?? 'Checkout failed. Please try again.')
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-bg pb-32">
+      {/* Header */}
+      <div className="sticky top-0 z-10 bg-bg border-b border-white/8 px-4 py-4 flex items-center gap-3">
+        <button onClick={() => router.back()}>
+          <ArrowLeft className="h-5 w-5 text-text-secondary" />
+        </button>
+        <h1 className="text-lg font-bold text-text-primary">Order Summary</h1>
+      </div>
+
+      <div className="px-4 py-4 space-y-4">
+        {/* Bus + Restaurant */}
+        <div className="rounded-xl bg-surface2 border border-white/8 p-4">
+          <p className="text-xs text-text-muted uppercase tracking-wider mb-2">Pickup from</p>
+          <p className="text-sm font-semibold text-text-primary">{restaurant?.name}</p>
+          <p className="text-xs text-text-secondary mt-0.5">{restaurant?.address}</p>
+          <div className="mt-3 pt-3 border-t border-white/8">
+            <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Your bus</p>
+            <p className="text-sm text-text-primary">
+              {bus?.name} · {bus?.numberPlate}
+            </p>
+          </div>
+        </div>
+
+        {/* Order items */}
+        <div className="rounded-xl bg-surface2 border border-white/8 p-4 space-y-2">
+          <p className="text-xs text-text-muted uppercase tracking-wider mb-3">Your order</p>
+          {items.map((item) => (
+            <div key={item.id} className="flex justify-between text-sm">
+              <span className="text-text-secondary">
+                {item.menu_item_name} × {item.quantity}
+              </span>
+              <span className="text-text-primary font-medium">₹{item.line_total}</span>
+            </div>
+          ))}
+          <div className="flex justify-between text-base font-bold text-text-primary border-t border-white/8 pt-3 mt-2">
+            <span>Total</span>
+            <span>₹{totalPrice().toFixed(2)}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Pay CTA */}
+      <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-white/8">
+        <Button className="w-full" size="lg" onClick={handlePay} loading={loading}>
+          Pay ₹{totalPrice().toFixed(0)} with Razorpay
+        </Button>
+      </div>
+    </div>
+  )
+}
