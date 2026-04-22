@@ -6,9 +6,11 @@ from .views import MenuCategoryViewSet, MenuItemViewSet, RestaurantViewSet, Scan
 app_name = 'restaurants'
 
 router = DefaultRouter()
-router.register('', RestaurantViewSet, basename='restaurant')
+# Specific prefixes must be registered before the empty-prefix RestaurantViewSet,
+# otherwise the catch-all detail pattern ^(?P<pk>[^/.]+)/$ absorbs them first.
 router.register('menu-categories', MenuCategoryViewSet, basename='menu-category')
 router.register('menu-items', MenuItemViewSet, basename='menu-item')
+router.register('', RestaurantViewSet, basename='restaurant')
 
 urlpatterns = [
     path('scan/<uuid:qr_token>/', ScanBusQRView.as_view(), name='scan'),

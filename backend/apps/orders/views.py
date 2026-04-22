@@ -34,10 +34,11 @@ class CartView(APIView):
     """
     permission_classes = [AllowAny]
 
-    def _get_cart(self, request) -> Cart:
+    def _get_cart(self, request, bus=None) -> Cart:
         return services.get_or_create_cart(
             user=request.user if request.user.is_authenticated else None,
             session_key=_session_key(request),
+            bus=bus,
         )
 
     def get(self, request):
@@ -45,9 +46,19 @@ class CartView(APIView):
         return Response(CartSerializer(cart).data)
 
     def post(self, request):
-        cart = self._get_cart(request)
         serializer = AddCartItemSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
+
+        bus_id = serializer.validated_data.get('bus_id')
+        bus = get_object_or_404(Bus, pk=bus_id, is_active=True) if bus_id else None
+
+        cart = self._get_cart(request, bus=bus)
+
+        # If the cart already existed without a bus and the caller provides one now, set it.
+        if bus and not cart.bus_id:
+            cart.bus = bus
+            cart.save(update_fields=['bus'])
+
         menu_item = get_object_or_404(MenuItem, pk=serializer.validated_data['menu_item'])
         services.add_item(cart, menu_item, serializer.validated_data['quantity'])
         return Response(CartSerializer(cart).data, status=http_status.HTTP_201_CREATED)

@@ -4,7 +4,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from apps.accounts.permissions import IsAdminOrOperator
+from apps.accounts.permissions import IsAdmin, IsAdminOrOperator
 
 from . import services
 from .models import Bus, BusOperator, BusRestaurantAssignment, Route
@@ -20,8 +20,13 @@ from .serializers import (
 class BusOperatorViewSet(viewsets.ModelViewSet):
     queryset = BusOperator.objects.all()
     serializer_class = BusOperatorSerializer
-    permission_classes = [IsAuthenticated, IsAdminOrOperator]
     search_fields = ('company_name', 'email', 'phone_number')
+
+    def get_permissions(self):
+        # Operators can read their own operator records; only admin can mutate.
+        if self.action in ('list', 'retrieve'):
+            return [IsAuthenticated(), IsAdminOrOperator()]
+        return [IsAuthenticated(), IsAdmin()]
 
 
 class RouteViewSet(viewsets.ModelViewSet):

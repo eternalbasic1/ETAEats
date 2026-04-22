@@ -31,6 +31,9 @@ class CartSerializer(serializers.ModelSerializer):
 class AddCartItemSerializer(serializers.Serializer):
     menu_item = serializers.IntegerField()
     quantity = serializers.IntegerField(min_value=1, default=1)
+    # Passed after scanning the bus QR so the cart is pinned to a bus from
+    # the very first item add. Optional — omitting leaves bus null.
+    bus_id = serializers.IntegerField(required=False, allow_null=True)
 
 
 class UpdateCartItemSerializer(serializers.Serializer):

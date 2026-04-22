@@ -1,0 +1,944 @@
+{
+  "info": {
+    "name": "ETA Eats v2",
+    "description": "Complete API collection for ETA Eats v2 — highway food pre-ordering platform.\n\n**Variables** (edit in the collection Variables tab):\n- `base_url` — e.g. http://localhost:8000\n- `access_token` — auto-filled by the OTP Verify request\n- `refresh_token` — auto-filled by the OTP Verify request\n- `phone_number` — your seed passenger phone e.g. +919000000001\n- `otp_code` — check server console logs in dev\n- `bus_id`, `qr_token`, `restaurant_id`, `menu_item_id`\n- `menu_category_id`, `cart_id`, `cart_item_id`, `order_id`\n- `operator_id`, `route_id`, `assignment_id`, `notification_id`\n- `razorpay_order_id`, `razorpay_payment_id`, `razorpay_signature`\n\n**Quick start**:\n1. Set `base_url` and `phone_number`\n2. Run **Request OTP** — OTP prints to server console\n3. Run **Verify OTP** — `access_token` and `refresh_token` are captured automatically\n4. All other requests use `{{access_token}}` in Authorization header",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url",            "value": "http://localhost:8000",  "type": "string" },
+    { "key": "access_token",        "value": "",                        "type": "string" },
+    { "key": "refresh_token",       "value": "",                        "type": "string" },
+    { "key": "phone_number",        "value": "+919000000001",           "type": "string" },
+    { "key": "otp_code",            "value": "",                        "type": "string" },
+    { "key": "bus_id",              "value": "1",                       "type": "string" },
+    { "key": "qr_token",            "value": "",                        "type": "string" },
+    { "key": "restaurant_id",       "value": "1",                       "type": "string" },
+    { "key": "menu_category_id",    "value": "1",                       "type": "string" },
+    { "key": "menu_item_id",        "value": "1",                       "type": "string" },
+    { "key": "cart_id",             "value": "",                        "type": "string" },
+    { "key": "cart_item_id",        "value": "1",                       "type": "string" },
+    { "key": "order_id",            "value": "",                        "type": "string" },
+    { "key": "operator_id",         "value": "1",                       "type": "string" },
+    { "key": "route_id",            "value": "1",                       "type": "string" },
+    { "key": "assignment_id",       "value": "1",                       "type": "string" },
+    { "key": "notification_id",     "value": "1",                       "type": "string" },
+    { "key": "razorpay_order_id",   "value": "",                        "type": "string" },
+    { "key": "razorpay_payment_id", "value": "",                        "type": "string" },
+    { "key": "razorpay_signature",  "value": "",                        "type": "string" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{access_token}}", "type": "string" }]
+  },
+  "item": [
+
+    {
+      "name": "🔐 Auth",
+      "item": [
+        {
+          "name": "Request OTP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/auth/otp/request/", "host": ["{{base_url}}"], "path": ["api","v1","auth","otp","request",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"phone_number\": \"{{phone_number}}\"\n}"
+            },
+            "description": "Public. Sends an OTP to the given phone number. In dev the OTP is printed to the server console."
+          }
+        },
+        {
+          "name": "Verify OTP  [auto-captures tokens]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.tokens) {",
+                  "    pm.collectionVariables.set('access_token',  json.tokens.access);",
+                  "    pm.collectionVariables.set('refresh_token', json.tokens.refresh);",
+                  "    console.log('Tokens captured.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/auth/otp/verify/", "host": ["{{base_url}}"], "path": ["api","v1","auth","otp","verify",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"phone_number\": \"{{phone_number}}\",\n  \"code\": \"{{otp_code}}\"\n}"
+            },
+            "description": "Verifies the OTP. On success returns `{user, tokens}`. The test script automatically saves `access_token` and `refresh_token` to collection variables."
+          }
+        },
+        {
+          "name": "Refresh Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "var json = pm.response.json();",
+                  "if (json.access) {",
+                  "    pm.collectionVariables.set('access_token', json.access);",
+                  "    console.log('access_token refreshed.');",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/auth/token/refresh/", "host": ["{{base_url}}"], "path": ["api","v1","auth","token","refresh",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "description": "Exchange a refresh token for a new access token. Test script auto-updates `access_token`."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/auth/logout/", "host": ["{{base_url}}"], "path": ["api","v1","auth","logout",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"refresh\": \"{{refresh_token}}\"\n}"
+            },
+            "description": "Blacklists the refresh token. Returns 204. Client should discard both tokens."
+          }
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/auth/me/", "host": ["{{base_url}}"], "path": ["api","v1","auth","me",""] },
+            "description": "Returns the currently authenticated user's profile."
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/auth/me/", "host": ["{{base_url}}"], "path": ["api","v1","auth","me",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"full_name\": \"Arjun Sharma\",\n  \"email\": \"arjun@example.com\",\n  \"gender\": \"M\"\n}"
+            },
+            "description": "Partial update — only send fields you want to change."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🚌 Fleet — Bus Operators",
+      "item": [
+        {
+          "name": "List Bus Operators",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/operators/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","operators",""] },
+            "description": "Admin / Bus Operator only."
+          }
+        },
+        {
+          "name": "Create Bus Operator",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/operators/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","operators",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"company_name\": \"New Operator Co.\",\n  \"contact_name\": \"Contact Person\",\n  \"phone_number\": \"+919500000099\",\n  \"email\": \"contact@newoperator.example.com\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Bus Operator",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/operators/{{operator_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","operators","{{operator_id}}",""] }
+          }
+        },
+        {
+          "name": "Update Bus Operator",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/operators/{{operator_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","operators","{{operator_id}}",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"contact_name\": \"Updated Contact\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Bus Operator",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/operators/{{operator_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","operators","{{operator_id}}",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🚌 Fleet — Routes",
+      "item": [
+        {
+          "name": "List Routes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/routes/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","routes",""] }
+          }
+        },
+        {
+          "name": "Create Route",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/routes/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","routes",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"origin_city\": \"Jaipur\",\n  \"destination_city\": \"Delhi\",\n  \"distance_km\": 282,\n  \"estimated_duration_hours\": \"4.5\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Route",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/routes/{{route_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","routes","{{route_id}}",""] }
+          }
+        },
+        {
+          "name": "Update Route",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/routes/{{route_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","routes","{{route_id}}",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"distance_km\": 290\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Route",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/routes/{{route_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","routes","{{route_id}}",""] }
+          }
+        },
+        {
+          "name": "Search Routes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fleet/routes/?search=Delhi",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","fleet","routes",""],
+              "query": [{ "key": "search", "value": "Delhi" }]
+            }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🚌 Fleet — Buses",
+      "item": [
+        {
+          "name": "List Buses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/buses/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","buses",""] }
+          }
+        },
+        {
+          "name": "List Buses — filter by operator",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fleet/buses/?operator={{operator_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","fleet","buses",""],
+              "query": [{ "key": "operator", "value": "{{operator_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "List Buses — active only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fleet/buses/?is_active=true",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","fleet","buses",""],
+              "query": [{ "key": "is_active", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Create Bus",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/buses/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","buses",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"operator\": {{operator_id}},\n  \"route\": {{route_id}},\n  \"bus_name\": \"SRS Express 201\",\n  \"number_plate\": \"DL-01-ZZ-9999\",\n  \"total_seats\": 40,\n  \"is_active\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Bus",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/buses/{{bus_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","buses","{{bus_id}}",""] }
+          }
+        },
+        {
+          "name": "Update Bus",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/buses/{{bus_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","buses","{{bus_id}}",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"is_active\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Bus",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/buses/{{bus_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","buses","{{bus_id}}",""] }
+          }
+        },
+        {
+          "name": "Assign Restaurant to Bus",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/buses/{{bus_id}}/assign_restaurant/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","buses","{{bus_id}}","assign_restaurant",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"restaurant\": {{restaurant_id}}\n}"
+            },
+            "description": "Creates an active BusRestaurantAssignment. Only one active assignment per bus allowed."
+          }
+        },
+        {
+          "name": "GPS Ping",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/buses/{{bus_id}}/gps/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","buses","{{bus_id}}","gps",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"latitude\": 29.0965,\n  \"longitude\": 77.0560\n}"
+            },
+            "description": "Updates Bus.current_location and appends a BusGPSLog row. Note: PostGIS stores as Point(lng, lat), not (lat, lng)."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🚌 Fleet — Assignments",
+      "item": [
+        {
+          "name": "List Assignments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/assignments/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","assignments",""] }
+          }
+        },
+        {
+          "name": "List Active Assignments",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/fleet/assignments/?is_active=true",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","fleet","assignments",""],
+              "query": [{ "key": "is_active", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Get Assignment",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/fleet/assignments/{{assignment_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","fleet","assignments","{{assignment_id}}",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🍽️ Restaurants",
+      "item": [
+        {
+          "name": "Scan Bus QR  [public]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/scan/{{qr_token}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","scan","{{qr_token}}",""] },
+            "description": "No auth required. Returns {bus, restaurant, menu[]} for the given bus QR token UUID. Paste a qr_token from the seed data buses."
+          }
+        },
+        {
+          "name": "List Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants",""] }
+          }
+        },
+        {
+          "name": "List Active Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/restaurants/?is_active=true",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","restaurants",""],
+              "query": [{ "key": "is_active", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "Search Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/restaurants/?search=Punjabi",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","restaurants",""],
+              "query": [{ "key": "search", "value": "Punjabi" }]
+            }
+          }
+        },
+        {
+          "name": "Create Restaurant",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"name\": \"Highway Spice\",\n  \"owner_name\": \"Rajesh Kumar\",\n  \"phone_number\": \"+919400000099\",\n  \"email\": \"info@highwayspice.example.com\",\n  \"address\": \"NH-44, Karnal, Haryana\",\n  \"fssai_license_number\": \"FSSAI-HR-2024-00099\",\n  \"hygiene_rating\": \"4.0\",\n  \"location\": { \"type\": \"Point\", \"coordinates\": [76.9900, 29.6857] },\n  \"is_active\": true\n}"
+            },
+            "description": "Admin or operator only. `location` is GeoJSON Point with [longitude, latitude]."
+          }
+        },
+        {
+          "name": "Get Restaurant",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/{{restaurant_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","{{restaurant_id}}",""] }
+          }
+        },
+        {
+          "name": "Update Restaurant",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/{{restaurant_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","{{restaurant_id}}",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"hygiene_rating\": \"4.5\",\n  \"is_active\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Restaurant",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/{{restaurant_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","{{restaurant_id}}",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🍽️ Menu Categories",
+      "item": [
+        {
+          "name": "List My Menu Categories",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-categories/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-categories",""] },
+            "description": "Returns categories for restaurants the authenticated staff user belongs to."
+          }
+        },
+        {
+          "name": "Create Menu Category",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-categories/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-categories",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"restaurant\": {{restaurant_id}},\n  \"name\": \"Desserts\",\n  \"sort_order\": 10\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Menu Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-categories/{{menu_category_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-categories","{{menu_category_id}}",""] }
+          }
+        },
+        {
+          "name": "Update Menu Category",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-categories/{{menu_category_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-categories","{{menu_category_id}}",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"sort_order\": 5\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Menu Category",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-categories/{{menu_category_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-categories","{{menu_category_id}}",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🍽️ Menu Items",
+      "item": [
+        {
+          "name": "List My Menu Items",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-items/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-items",""] }
+          }
+        },
+        {
+          "name": "List Available Items Only",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/restaurants/menu-items/?is_available=true",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","restaurants","menu-items",""],
+              "query": [{ "key": "is_available", "value": "true" }]
+            }
+          }
+        },
+        {
+          "name": "List Items by Category",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/restaurants/menu-items/?category={{menu_category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api","v1","restaurants","menu-items",""],
+              "query": [{ "key": "category", "value": "{{menu_category_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "Create Menu Item",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-items/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-items",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"restaurant\": {{restaurant_id}},\n  \"category\": {{menu_category_id}},\n  \"name\": \"Gulab Jamun\",\n  \"description\": \"Soft milk-solid dumplings in sugar syrup, 2 pcs\",\n  \"price\": \"60.00\",\n  \"prep_time_minutes\": 5,\n  \"is_available\": true\n}"
+            }
+          }
+        },
+        {
+          "name": "Get Menu Item",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-items/{{menu_item_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-items","{{menu_item_id}}",""] }
+          }
+        },
+        {
+          "name": "Update Menu Item",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-items/{{menu_item_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-items","{{menu_item_id}}",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"price\": \"75.00\",\n  \"is_available\": false\n}"
+            }
+          }
+        },
+        {
+          "name": "Delete Menu Item",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/restaurants/menu-items/{{menu_item_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","restaurants","menu-items","{{menu_item_id}}",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🛒 Cart",
+      "item": [
+        {
+          "name": "Get Cart  [public]",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/orders/cart/", "host": ["{{base_url}}"], "path": ["api","v1","orders","cart",""] },
+            "description": "Works for both anonymous (session cookie) and authenticated users."
+          }
+        },
+        {
+          "name": "Add Item to Cart  [public]",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/cart/", "host": ["{{base_url}}"], "path": ["api","v1","orders","cart",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"menu_item\": {{menu_item_id}},\n  \"quantity\": 2,\n  \"bus_id\": {{bus_id}}\n}"
+            },
+            "description": "Pass `bus_id` from the QR scan response so the cart is pinned to the correct bus immediately. Raises 400 `restaurant_mismatch` if adding an item from a different restaurant than already in cart."
+          }
+        },
+        {
+          "name": "Update Cart Item Quantity  [public]",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/cart/items/{{cart_item_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","orders","cart","items","{{cart_item_id}}",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"quantity\": 3\n}"
+            }
+          }
+        },
+        {
+          "name": "Remove Cart Item  [public]",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/orders/cart/items/{{cart_item_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","orders","cart","items","{{cart_item_id}}",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "📦 Orders — Passenger",
+      "item": [
+        {
+          "name": "Checkout (Cart → Order)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/checkout/", "host": ["{{base_url}}"], "path": ["api","v1","orders","checkout",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"cart_id\": \"{{cart_id}}\",\n  \"bus_id\": {{bus_id}}\n}"
+            },
+            "description": "Passenger only. Converts a cart into a PENDING order with price snapshots. Returns the created Order."
+          }
+        },
+        {
+          "name": "List My Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/orders/my/", "host": ["{{base_url}}"], "path": ["api","v1","orders","my",""] },
+            "description": "Passenger sees their own orders, newest first."
+          }
+        },
+        {
+          "name": "Get My Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/orders/my/{{order_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","orders","my","{{order_id}}",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "📦 Orders — Restaurant Staff",
+      "item": [
+        {
+          "name": "List Restaurant Orders",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/orders/restaurant/", "host": ["{{base_url}}"], "path": ["api","v1","orders","restaurant",""] },
+            "description": "Staff sees all orders for their restaurant, newest first."
+          }
+        },
+        {
+          "name": "Get Restaurant Order Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/orders/restaurant/{{order_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","orders","restaurant","{{order_id}}",""] }
+          }
+        },
+        {
+          "name": "Advance Order Status — PENDING → CONFIRMED",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/", "host": ["{{base_url}}"], "path": ["api","v1","orders","restaurant","{{order_id}}","advance",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"status\": \"CONFIRMED\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Advance Order Status — CONFIRMED → PREPARING",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/", "host": ["{{base_url}}"], "path": ["api","v1","orders","restaurant","{{order_id}}","advance",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"status\": \"PREPARING\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Advance Order Status — PREPARING → READY",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/", "host": ["{{base_url}}"], "path": ["api","v1","orders","restaurant","{{order_id}}","advance",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"status\": \"READY\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Advance Order Status — READY → PICKED_UP",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/", "host": ["{{base_url}}"], "path": ["api","v1","orders","restaurant","{{order_id}}","advance",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"status\": \"PICKED_UP\"\n}"
+            }
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/", "host": ["{{base_url}}"], "path": ["api","v1","orders","restaurant","{{order_id}}","advance",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"status\": \"CANCELLED\",\n  \"reason\": \"Out of stock\"\n}"
+            },
+            "description": "Can only cancel from PENDING or CONFIRMED. Raises 400 invalid_transition otherwise."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "💳 Payments",
+      "item": [
+        {
+          "name": "Create Razorpay Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/payments/razorpay/order/", "host": ["{{base_url}}"], "path": ["api","v1","payments","razorpay","order",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"order_id\": \"{{order_id}}\"\n}"
+            },
+            "description": "Passenger only. Creates a Razorpay order for the given ETA Eats order. Returns razorpay_order_id, amount, currency, key_id for the client SDK."
+          }
+        },
+        {
+          "name": "Confirm Razorpay Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{base_url}}/api/v1/payments/razorpay/confirm/", "host": ["{{base_url}}"], "path": ["api","v1","payments","razorpay","confirm",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"order_id\": \"{{order_id}}\",\n  \"razorpay_order_id\": \"{{razorpay_order_id}}\",\n  \"razorpay_payment_id\": \"{{razorpay_payment_id}}\",\n  \"razorpay_signature\": \"{{razorpay_signature}}\"\n}"
+            },
+            "description": "Verifies the Razorpay HMAC signature. On success sets payment_status=CAPTURED and advances order to CONFIRMED."
+          }
+        },
+        {
+          "name": "Razorpay Webhook  [public]",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-Razorpay-Signature", "value": "{{razorpay_signature}}" }
+            ],
+            "url": { "raw": "{{base_url}}/api/v1/payments/razorpay/webhook/", "host": ["{{base_url}}"], "path": ["api","v1","payments","razorpay","webhook",""] },
+            "body": {
+              "mode": "raw",
+              "options": { "raw": { "language": "json" } },
+              "raw": "{\n  \"event\": \"payment.captured\",\n  \"payload\": {\n    \"payment\": {\n      \"entity\": {\n        \"id\": \"pay_test_123\",\n        \"order_id\": \"order_test_123\",\n        \"amount\": 26000,\n        \"currency\": \"INR\",\n        \"status\": \"captured\"\n      }\n    }\n  }\n}"
+            },
+            "description": "Called directly by Razorpay servers. Signature is verified in the service. Always returns 200."
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🔔 Notifications",
+      "item": [
+        {
+          "name": "List My Notifications",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/notifications/", "host": ["{{base_url}}"], "path": ["api","v1","notifications",""] },
+            "description": "Newest first. Returns all notifications for the authenticated user."
+          }
+        },
+        {
+          "name": "Get Notification Detail",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/notifications/{{notification_id}}/", "host": ["{{base_url}}"], "path": ["api","v1","notifications","{{notification_id}}",""] }
+          }
+        },
+        {
+          "name": "Mark Notification as Read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/notifications/{{notification_id}}/mark-read/", "host": ["{{base_url}}"], "path": ["api","v1","notifications","{{notification_id}}","mark-read",""] }
+          }
+        },
+        {
+          "name": "Mark All Notifications as Read",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/v1/notifications/mark-all-read/", "host": ["{{base_url}}"], "path": ["api","v1","notifications","mark-all-read",""] }
+          }
+        }
+      ]
+    },
+
+    {
+      "name": "🔧 Utility",
+      "item": [
+        {
+          "name": "OpenAPI Schema (JSON)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/schema/", "host": ["{{base_url}}"], "path": ["api","schema",""] },
+            "description": "Downloads the full OpenAPI 3 schema as JSON. No auth required."
+          }
+        },
+        {
+          "name": "Swagger UI",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/api/docs/", "host": ["{{base_url}}"], "path": ["api","docs",""] },
+            "description": "Open in browser for interactive API docs."
+          }
+        }
+      ]
+    }
+
+  ]
+}

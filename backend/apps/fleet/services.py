@@ -31,9 +31,9 @@ def generate_qr_image(bus: Bus, base_url: str) -> bytes:
 
 
 @transaction.atomic
-def record_gps(bus: Bus, *, lat: float, lng: float) -> BusGPSLog:
+def record_gps(bus: Bus, *, latitude: float, longitude: float) -> BusGPSLog:
     """Update bus current location and append a history row."""
-    point = Point(lng, lat, srid=4326)
+    point = Point(longitude, latitude, srid=4326)
     bus.current_location = point
     bus.last_gps_update = timezone.now()
     bus.save(update_fields=['current_location', 'last_gps_update'])
