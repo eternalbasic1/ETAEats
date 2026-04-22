@@ -31,7 +31,10 @@ export const useAuthStore = create<AuthState>()(
       },
     }),
     {
-      name: 'eta-auth',
+      // Use a distinct key from 'eta-auth' which the Axios interceptor uses
+      // for flat {access, refresh} storage. The Zustand wrapper format is
+      // incompatible with getStoredTokens() and would break auth after reload.
+      name: 'eta-auth-state',
       partialize: (s) => ({
         user: s.user,
         accessToken: s.accessToken,
