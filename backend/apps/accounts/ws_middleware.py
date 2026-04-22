@@ -16,7 +16,7 @@ def _get_user(token_key: str):
     try:
         token = AccessToken(token_key)
         return User.objects.get(id=token['user_id'])
-    except (InvalidToken, TokenError, User.DoesNotExist):
+    except (InvalidToken, TokenError, KeyError, User.DoesNotExist, Exception):
         return AnonymousUser()
 
 
@@ -40,4 +40,5 @@ class JWTAuthMiddleware:
 
 
 def JWTAuthMiddlewareStack(inner):
+    # Note: AllowedHostsOriginValidator must be applied by the caller (see asgi.py).
     return JWTAuthMiddleware(inner)
