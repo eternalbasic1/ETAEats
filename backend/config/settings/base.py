@@ -64,6 +64,10 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 AUTH_USER_MODEL = 'accounts.User'
 
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.PhoneNumberBackend',
+]
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -98,13 +102,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 ASGI_APPLICATION = 'config.asgi.application'
 
+# Default when DATABASE_URL is unset (local dev). Parsed same as env.db().
+_DEFAULT_DATABASE_URL = 'postgis://postgres:postgres@localhost:5432/eta_eats_v2'
 
 # Database (PostGIS)
 DATABASES = {
-    'default': env.db(
-        'DATABASE_URL',
-        default='postgis://postgres:postgres@localhost:5432/eta_eats_v2',
-    )
+    'default': environ.Env.db_url_config(
+        os.environ.get('DATABASE_URL', _DEFAULT_DATABASE_URL),
+    ),
 }
 DATABASES['default']['ENGINE'] = 'django.contrib.gis.db.backends.postgis'
 
@@ -128,6 +133,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+PHONENUMBER_DEFAULT_REGION = 'IN'
 
 
 # DRF

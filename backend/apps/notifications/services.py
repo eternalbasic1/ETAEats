@@ -48,7 +48,13 @@ def _group_send(group: str, payload: dict) -> None:
     layer = get_channel_layer()
     if layer is None:
         return
-    async_to_sync(layer.group_send)(group, {'type': 'notify', 'payload': payload})
+    try:
+        async_to_sync(layer.group_send)(group, {'type': 'notify', 'payload': payload})
+    except Exception:
+        # Redis unavailable (e.g. local dev without Redis running). Log and
+        # continue — WS delivery is best-effort; the Notification row is already
+        # persisted so nothing is lost.
+        logger.warning('WS group_send failed for group %s (Redis unavailable?)', group)
 
 
 def ws_to_user(user: User, payload: dict) -> None:
