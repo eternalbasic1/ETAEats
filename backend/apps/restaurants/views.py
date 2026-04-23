@@ -56,25 +56,14 @@ class MenuItemViewSet(viewsets.ModelViewSet):
             .select_related('category', 'restaurant')
             .filter(deleted_at__isnull=True)
         )
-        # Staff-facing write actions scope to the user's own restaurants.
+        # Write actions (create/update/delete) are staff-only and scoped to
+        # the user's own restaurants. Read actions are public (AllowAny).
         if self.action not in ('list', 'retrieve') and self.request.user.is_authenticated:
             qs = qs.filter(
                 restaurant__memberships__user=self.request.user,
                 restaurant__memberships__is_active=True,
             ).distinct()
         return qs
-
-    def get_queryset(self):
-        return (
-            MenuItem.objects
-            .filter(
-                restaurant__memberships__user=self.request.user,
-                restaurant__memberships__is_active=True,
-                deleted_at__isnull=True,
-            )
-            .select_related('category', 'restaurant')
-            .distinct()
-        )
 
 
 class ScanBusQRView(APIView):
