@@ -3,25 +3,37 @@
 @tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg:             #F8F9FA;
+  --surface:        #FFFFFF;
+  --surface-2:      #F3F4F6;
+  --border:         #E5E7EB;
+  --border-strong:  #D1D5DB;
+  --primary:        #FF6B2B;
+  --primary-soft:   #FFF0EB;
+  --primary-dark:   #E55A1F;
+  --text-primary:   #111827;
+  --text-secondary: #4B5563;
+  --text-muted:     #9CA3AF;
+  --success:        #16A34A;
+  --success-bg:     #F0FDF4;
+  --warning:        #F59E0B;
+  --warning-bg:     #FFFBEB;
+  --error:          #DC2626;
+  --error-bg:       #FEF2F2;
+  --info:           #2563EB;
+  --radius-sm:      6px;
+  --radius-md:      10px;
+  --radius-lg:      14px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
