@@ -20,11 +20,12 @@ def menu_for_restaurant(restaurant: Restaurant):
 
 def restaurant_for_qr_token(qr_token: str) -> Optional[Restaurant]:
     from apps.fleet.models import BusRestaurantAssignment
+    normalized_qr_token = qr_token.upper()
 
     assignment = (
         BusRestaurantAssignment.objects
         .select_related('restaurant', 'bus')
-        .filter(bus__qr_token=qr_token, is_active=True)
+        .filter(bus__qr_token=normalized_qr_token, is_active=True)
         .first()
     )
     return assignment.restaurant if assignment else None

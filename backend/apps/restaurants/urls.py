@@ -13,6 +13,6 @@ router.register('menu-items', MenuItemViewSet, basename='menu-item')
 router.register('', RestaurantViewSet, basename='restaurant')
 
 urlpatterns = [
-    path('scan/<uuid:qr_token>/', ScanBusQRView.as_view(), name='scan'),
+    path('scan/<str:qr_token>/', ScanBusQRView.as_view(), name='scan'),
 ]
 urlpatterns += router.urls

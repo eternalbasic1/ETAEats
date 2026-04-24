@@ -87,8 +87,9 @@ class ScanBusQRView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, qr_token: str):
-        bus = get_object_or_404(Bus, qr_token=qr_token, is_active=True)
-        restaurant = selectors.restaurant_for_qr_token(qr_token)
+        normalized_qr_token = qr_token.upper()
+        bus = get_object_or_404(Bus, qr_token=normalized_qr_token, is_active=True)
+        restaurant = selectors.restaurant_for_qr_token(normalized_qr_token)
         if restaurant is None:
             return Response(
                 {

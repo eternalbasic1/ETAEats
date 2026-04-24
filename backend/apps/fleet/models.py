@@ -2,13 +2,22 @@
 Bus fleet domain: operators own buses; buses run routes; each bus has a
 QR token passengers scan; current location is PostGIS-indexed for proximity.
 """
-import uuid
+import secrets
+import string
 
 from django.contrib.gis.db import models as geomodels
 from django.db import models
 from phonenumber_field.modelfields import PhoneNumberField
 
 from apps.accounts.models import TimeStampedModel
+
+QR_TOKEN_LENGTH = 6
+QR_TOKEN_ALPHABET = string.ascii_uppercase + string.digits
+
+
+def generate_qr_token() -> str:
+    # Human-friendly, URL-safe alphanumeric token for bus scan stickers.
+    return ''.join(secrets.choice(QR_TOKEN_ALPHABET) for _ in range(QR_TOKEN_LENGTH))
 
 
 class BusOperator(TimeStampedModel):
@@ -62,7 +71,12 @@ class Bus(TimeStampedModel):
     )
     bus_name = models.CharField(max_length=200)
     number_plate = models.CharField(max_length=20, unique=True)
-    qr_token = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    qr_token = models.CharField(
+        max_length=QR_TOKEN_LENGTH,
+        unique=True,
+        default=generate_qr_token,
+        editable=False,
+    )
     qr_image_url = models.CharField(max_length=500, blank=True)
     total_seats = models.PositiveIntegerField()
     is_active = models.BooleanField(default=True)
@@ -79,6 +93,11 @@ class Bus(TimeStampedModel):
 
     def __str__(self) -> str:
         return f'{self.bus_name} ({self.number_plate})'
+
+    def save(self, *args, **kwargs):
+        if self.qr_token:
+            self.qr_token = str(self.qr_token).upper()
+        super().save(*args, **kwargs)
 
 
 class BusRestaurantAssignment(TimeStampedModel):
