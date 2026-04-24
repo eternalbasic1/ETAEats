@@ -11,11 +11,11 @@ import { useJourneyStore } from '@/stores/journey.store'
 import { useOrderTrackingStore } from '@/stores/orderTracking.store'
 import { openRazorpay } from '@/lib/razorpay'
 import api from '@/lib/api'
-import type { Order, RazorpayOrderPayload } from '@/lib/api.types'
+import type { Cart, Order, RazorpayOrderPayload } from '@/lib/api.types'
 
 export default function CheckoutPage() {
   const router = useRouter()
-  const { cartId, busId, items, totalPrice, clearCart } = useCartStore()
+  const { cartId, busId, items, totalPrice, clearCart, setCart } = useCartStore()
   const { user } = useAuthStore()
   const { activeJourney } = useJourneyStore()
   const { setActiveOrder } = useOrderTrackingStore()
@@ -24,7 +24,25 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(false)
 
   async function handlePay() {
-    if (!cartId || !busId) {
+    let effectiveCartId = cartId
+    let effectiveBusId = busId ?? bus?.id ?? null
+
+    // Recover from backend cart if local persisted snapshot is missing fields.
+    if (!effectiveCartId || !effectiveBusId) {
+      try {
+        const { data: serverCart } = await api.get<Cart>('/orders/cart/')
+        if (serverCart.id && serverCart.items.length > 0) {
+          const recoveredBusId = serverCart.bus ?? bus?.id ?? null
+          setCart(serverCart.id, serverCart.bus, serverCart.restaurant, serverCart.items)
+          effectiveCartId = serverCart.id
+          effectiveBusId = recoveredBusId
+        }
+      } catch {
+        // keep fallback guard below
+      }
+    }
+
+    if (!effectiveCartId || !effectiveBusId) {
       toast.error('Cart session expired. Please go back and try again.')
       return
     }
@@ -32,8 +50,8 @@ export default function CheckoutPage() {
     try {
       // 1. Checkout cart → create PENDING order
       const { data: order } = await api.post<Order>('/orders/checkout/', {
-        cart_id: cartId,
-        bus_id: busId,
+        cart_id: effectiveCartId,
+        bus_id: effectiveBusId,
       })
 
       // 2. Create Razorpay order

@@ -31,6 +31,23 @@ logger = logging.getLogger(__name__)
 
 # ---------- Cart ---------------------------------------------------------
 
+def clear_cart_context_if_empty(cart: Cart) -> None:
+    """
+    If a cart has no items, clear pinned restaurant/bus context so a new scan
+    can start with a clean restaurant without false mismatch errors.
+    """
+    if cart.items.exists():
+        return
+    update_fields = []
+    if cart.restaurant_id is not None:
+        cart.restaurant = None
+        update_fields.append('restaurant')
+    if cart.bus_id is not None:
+        cart.bus = None
+        update_fields.append('bus')
+    if update_fields:
+        cart.save(update_fields=update_fields)
+
 def get_or_create_cart(
     *,
     user: Optional[User] = None,
@@ -61,6 +78,9 @@ def add_item(cart: Cart, menu_item: MenuItem, quantity: int = 1) -> CartItem:
     if not menu_item.is_available or menu_item.deleted_at:
         raise DomainError('Item is unavailable.', code='item_unavailable')
 
+    # If previous operations emptied this cart, drop stale bus/restaurant pins.
+    clear_cart_context_if_empty(cart)
+
     if cart.restaurant_id and cart.restaurant_id != menu_item.restaurant_id:
         raise DomainError(
             'Cart already contains items from a different restaurant.',
@@ -84,7 +104,9 @@ def add_item(cart: Cart, menu_item: MenuItem, quantity: int = 1) -> CartItem:
 @transaction.atomic
 def update_item_quantity(item: CartItem, quantity: int) -> Optional[CartItem]:
     if quantity <= 0:
+        cart = item.cart
         item.delete()
+        clear_cart_context_if_empty(cart)
         return None
     item.quantity = quantity
     item.save(update_fields=['quantity'])
@@ -152,6 +174,7 @@ def checkout(cart: Cart, *, user: User, bus: Bus) -> Order:
     ])
     # Clear the cart after checkout
     cart.items.all().delete()
+    clear_cart_context_if_empty(cart)
     return order
 
 

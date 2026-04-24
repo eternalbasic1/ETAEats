@@ -55,8 +55,8 @@ class CartView(APIView):
 
         cart = self._get_cart(request, bus=bus)
 
-        # If the cart already existed without a bus and the caller provides one now, set it.
-        if bus and not cart.bus_id:
+        # Allow rebinding bus for empty carts (new scan flow).
+        if bus and (not cart.bus_id or (cart.bus_id != bus.id and not cart.items.exists())):
             cart.bus = bus
             cart.save(update_fields=['bus'])
 
@@ -88,6 +88,7 @@ class CartItemView(APIView):
         item = self._get_item(request, item_id)
         cart = item.cart
         item.delete()
+        services.clear_cart_context_if_empty(cart)
         return Response(CartSerializer(cart).data)
 
 

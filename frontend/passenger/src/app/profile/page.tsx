@@ -18,8 +18,8 @@ export default function ProfilePage() {
 
   if (!hasHydrated || !isAuthenticated || !user) return null
 
-  function handleLogout() {
-    logout()
+  async function handleLogout() {
+    await logout()
     router.replace('/auth/login')
   }
 

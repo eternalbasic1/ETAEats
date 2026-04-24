@@ -5,7 +5,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useCartStore } from '@/stores/cart.store'
 import { useJourneyStore } from '@/stores/journey.store'
 import { useOrderTrackingStore } from '@/stores/orderTracking.store'
-import type { AuthResponse } from '@/lib/api.types'
+import type { AuthResponse, Cart } from '@/lib/api.types'
 
 export function useAuth() {
   const { setAuth, clearAuth, isAuthenticated, user } = useAuthStore()
@@ -45,18 +45,34 @@ export function useAuth() {
     }
   }
 
-  function logout() {
-    clearAuth()
-    clearCart()
-    clearJourney()
-    setActiveOrder(null)
-    setConnectionState('idle')
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('eta-auth')
-      localStorage.removeItem('eta-auth-state')
-      localStorage.removeItem('eta-cart')
-      localStorage.removeItem('eta-journey')
-      localStorage.removeItem('eta-order-tracking')
+  async function clearRemoteCart() {
+    try {
+      const { data } = await api.get<Cart>('/orders/cart/')
+      if (!data.items.length) return
+      await Promise.all(
+        data.items.map((item) => api.delete(`/orders/cart/items/${item.id}/`))
+      )
+    } catch {
+      // Ignore remote cleanup failures; local cleanup still runs.
+    }
+  }
+
+  async function logout() {
+    try {
+      await clearRemoteCart()
+    } finally {
+      clearAuth()
+      clearCart()
+      clearJourney()
+      setActiveOrder(null)
+      setConnectionState('idle')
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('eta-auth')
+        localStorage.removeItem('eta-auth-state')
+        localStorage.removeItem('eta-cart')
+        localStorage.removeItem('eta-journey')
+        localStorage.removeItem('eta-order-tracking')
+      }
     }
   }
 

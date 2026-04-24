@@ -4,25 +4,39 @@ import { useParams, useRouter } from 'next/navigation'
 import { useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Utensils, AlertCircle } from 'lucide-react'
+import { toast } from 'sonner'
 import { Spinner } from '@/components/ui'
 import { useJourneyStore } from '@/stores/journey.store'
 import { useCartStore } from '@/stores/cart.store'
 import api from '@/lib/api'
-import type { BusScanResult, Paginated, MenuItem } from '@/lib/api.types'
+import type { BusScanResult, Cart, Paginated, MenuItem } from '@/lib/api.types'
 
 export default function ScanPage() {
   const router = useRouter()
   const { qr_token } = useParams<{ qr_token: string }>()
   const { setJourneyFromScan, activeJourney } = useJourneyStore()
-  const { restaurantId, busId, totalItems, clearCart } = useCartStore()
+  const { clearCart } = useCartStore()
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!qr_token) return
 
-    api.get<BusScanResult>(`/restaurants/scan/${qr_token}/`)
-      .then(({ data }) => {
+    async function clearExistingCartForScan() {
+      try {
+        const { data: cart } = await api.get<Cart>('/orders/cart/')
+        if (!cart.items.length) return
+        await Promise.all(
+          cart.items.map((item) => api.delete(`/orders/cart/items/${item.id}/`))
+        )
+      } catch {
+        throw new Error('Could not clear existing cart.')
+      }
+    }
+
+    async function run() {
+      try {
+        const { data } = await api.get<BusScanResult>(`/restaurants/scan/${qr_token}/`)
         if (!data.restaurant) {
           router.replace('/scan/no-restaurant')
           return
@@ -39,11 +53,10 @@ export default function ScanPage() {
             hygieneRating: data.restaurant.hygiene_rating,
           }
 
-        const hasConflict =
-          totalItems() > 0 &&
-          ((restaurantId !== null && restaurantId !== nextRestaurant.id) ||
-            (busId !== null && busId !== nextBus.id))
-        if (hasConflict) clearCart()
+        // Always clear any previous cart for this session/user before binding
+        // to the newly scanned QR context.
+        await clearExistingCartForScan()
+        clearCart()
 
         setJourneyFromScan({
           qrToken: qr_token,
@@ -63,9 +76,14 @@ export default function ScanPage() {
           queryClient.setQueryData(['menu', String(data.restaurant.id)], paginated)
         }
         router.replace(`/menu/${data.restaurant.id}`)
-      })
-      .catch(() => setError('This QR code is invalid or has expired.'))
-  }, [qr_token, router, setJourneyFromScan, queryClient, restaurantId, busId, totalItems, clearCart, activeJourney])
+      } catch {
+        toast.error('Could not start a fresh cart for this scan. Please try again.')
+        setError('This QR code is invalid, expired, or could not be initialized.')
+      }
+    }
+
+    run()
+  }, [qr_token, router, setJourneyFromScan, queryClient, clearCart, activeJourney])
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">
