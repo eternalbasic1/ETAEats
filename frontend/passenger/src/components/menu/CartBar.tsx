@@ -18,15 +18,17 @@ export function CartBar() {
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
           className="fixed bottom-0 inset-x-0 z-40 p-4"
         >
-          <button
-            onClick={() => router.push('/cart')}
-            className="w-full rounded-xl bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/20 px-5 py-4 flex items-center justify-between"
-          >
-            <span className="text-sm font-semibold">
-              {totalItems} item{totalItems > 1 ? 's' : ''}
-            </span>
-            <span className="text-sm font-bold">View Cart · ₹{totalPrice.toFixed(0)}</span>
-          </button>
+          <div className="mx-auto w-full max-w-md">
+            <button
+              onClick={() => router.push('/cart')}
+              className="w-full rounded-xl bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/20 px-5 py-4 flex items-center justify-between"
+            >
+              <span className="text-sm font-semibold">
+                {totalItems} item{totalItems > 1 ? 's' : ''}
+              </span>
+              <span className="text-sm font-bold">View Cart · ₹{totalPrice.toFixed(0)}</span>
+            </button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

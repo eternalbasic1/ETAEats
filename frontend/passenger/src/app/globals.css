@@ -57,3 +57,15 @@ body {
 
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.app-shell {
+  min-height: 100vh;
+  background-color: var(--bg);
+  padding-bottom: calc(6.5rem + env(safe-area-inset-bottom));
+}
+
+.app-shell-inner {
+  width: 100%;
+  max-width: 28rem;
+  margin-inline: auto;
+}

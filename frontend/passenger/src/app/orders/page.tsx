@@ -39,7 +39,8 @@ export default function OrdersPage() {
   if (!hasHydrated || !isAuthenticated) return null
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="app-shell">
+      <div className="app-shell-inner">
       <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.push('/home')}>
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
@@ -92,6 +93,7 @@ export default function OrdersPage() {
             </button>
           )
         })}
+      </div>
       </div>
     </div>
   )

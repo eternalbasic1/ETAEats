@@ -44,21 +44,24 @@ export default function CartPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-4 p-6 text-center">
-        <ShoppingBag className="h-12 w-12 text-text-muted" />
-        <p className="text-text-secondary">Your cart is empty</p>
-        <button
-          onClick={() => router.back()}
-          className="text-primary text-sm font-semibold"
-        >
-          ← Go back to menu
-        </button>
+      <div className="app-shell">
+        <div className="app-shell-inner flex flex-col items-center justify-center gap-4 p-6 text-center">
+          <ShoppingBag className="h-12 w-12 text-text-muted" />
+          <p className="text-text-secondary">Your cart is empty</p>
+          <button
+            onClick={() => router.back()}
+            className="text-primary text-sm font-semibold"
+          >
+            ← Go back to menu
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-bg pb-32">
+    <div className="app-shell">
+      <div className="app-shell-inner">
       <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
@@ -120,11 +123,14 @@ export default function CartPage() {
           <span>₹{totalPrice().toFixed(2)}</span>
         </div>
       </div>
+      </div>
 
       <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-border">
-        <Button className="w-full" size="lg" onClick={handleCheckout}>
-          Place Order · ₹{totalPrice().toFixed(0)}
-        </Button>
+        <div className="mx-auto w-full max-w-md">
+          <Button className="w-full" size="lg" onClick={handleCheckout}>
+            Place Order · ₹{totalPrice().toFixed(0)}
+          </Button>
+        </div>
       </div>
     </div>
   )

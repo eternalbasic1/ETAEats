@@ -53,7 +53,8 @@ export default function HomePage() {
   if (!hasHydrated || !isAuthenticated) return null
 
   return (
-    <div className="min-h-screen bg-bg p-4 pb-24">
+    <div className="app-shell">
+      <div className="app-shell-inner px-4">
       <section className="rounded-card border border-border bg-surface p-5 shadow-e1">
         <BrandMark size="sm" subtitle="Highway food pre-ordering" />
         <h1 className="mt-4 text-xl font-bold text-text-primary">
@@ -128,7 +129,7 @@ export default function HomePage() {
           </button>
         ))}
       </section>
-
+      </div>
     </div>
   )
 }

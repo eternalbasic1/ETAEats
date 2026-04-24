@@ -76,8 +76,8 @@ export default function ScanHubPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg p-4">
-      <div className="max-w-md mx-auto pt-6">
+    <div className="app-shell">
+      <div className="app-shell-inner px-4 pt-6">
         <button
           onClick={() => router.push('/home')}
           className="mb-4 inline-flex items-center gap-1 text-sm text-text-secondary"

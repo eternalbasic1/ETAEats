@@ -47,14 +47,17 @@ export default function OrderTrackingPage() {
 
   if (isLoading || !order) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center">
-        <Spinner className="h-8 w-8" />
+      <div className="app-shell">
+        <div className="app-shell-inner flex items-center justify-center">
+          <Spinner className="h-8 w-8" />
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="app-shell">
+      <div className="app-shell-inner">
       <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/home')}>
@@ -113,6 +116,7 @@ export default function OrderTrackingPage() {
             <span>₹{order.total_amount}</span>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

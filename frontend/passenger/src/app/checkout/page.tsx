@@ -99,7 +99,8 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg pb-52">
+    <div className="app-shell">
+      <div className="app-shell-inner">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
@@ -139,12 +140,15 @@ export default function CheckoutPage() {
           </div>
         </div>
       </div>
+      </div>
 
       {/* Pay CTA */}
       <div className="fixed bottom-24 inset-x-0 p-4 bg-bg border-t border-border z-30">
-        <Button className="w-full" size="lg" onClick={handlePay} loading={loading}>
-          Pay ₹{totalPrice().toFixed(0)} with Razorpay
-        </Button>
+        <div className="mx-auto w-full max-w-md">
+          <Button className="w-full" size="lg" onClick={handlePay} loading={loading}>
+            Pay ₹{totalPrice().toFixed(0)} with Razorpay
+          </Button>
+        </div>
       </div>
 
     </div>

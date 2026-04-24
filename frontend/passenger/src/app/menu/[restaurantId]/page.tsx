@@ -153,28 +153,33 @@ export default function MenuPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-bg flex items-center justify-center">
-        <Spinner className="h-8 w-8" />
+      <div className="app-shell">
+        <div className="app-shell-inner flex items-center justify-center">
+          <Spinner className="h-8 w-8" />
+        </div>
       </div>
     )
   }
 
   if (isError) {
     return (
-      <div className="min-h-screen bg-bg flex flex-col items-center justify-center gap-4 p-6 text-center">
-        <p className="text-text-secondary">Could not load menu. Check your connection.</p>
-        <button
-          onClick={() => refetch()}
-          className="text-primary text-sm font-semibold"
-        >
-          Try again
-        </button>
+      <div className="app-shell">
+        <div className="app-shell-inner flex flex-col items-center justify-center gap-4 px-6 text-center">
+          <p className="text-text-secondary">Could not load menu. Check your connection.</p>
+          <button
+            onClick={() => refetch()}
+            className="text-primary text-sm font-semibold"
+          >
+            Try again
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-bg pb-24">
+    <div className="app-shell">
+      <div className="app-shell-inner">
       <div className="sticky top-0 z-30 bg-bg border-b border-border">
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-start justify-between gap-2">
@@ -244,6 +249,7 @@ export default function MenuPage() {
       />
 
       <CartBar />
+      </div>
     </div>
   )
 }
