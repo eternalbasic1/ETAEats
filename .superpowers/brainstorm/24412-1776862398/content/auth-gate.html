@@ -1,0 +1,142 @@
+<h2>Auth Gate — How Should Login Appear?</h2>
+<p class="subtitle">Passenger browses freely. Login triggers when they tap "Checkout". Which pattern feels right?</p>
+
+<div class="cards">
+
+  <!-- Option A: Bottom Sheet -->
+  <div class="card" data-choice="bottom-sheet" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0D0D0D;padding:0;min-height:300px;border-radius:8px 8px 0 0;overflow:hidden;position:relative;">
+      <!-- Blurred menu behind -->
+      <div style="padding:16px;filter:blur(1px);opacity:0.4;">
+        <div style="color:#7C5CFC;font-size:9px;font-weight:700;letter-spacing:1px;margin-bottom:8px;">CART · 2 ITEMS</div>
+        <div style="background:#1A1A2E;border-radius:10px;padding:10px;margin-bottom:6px;">
+          <div style="color:#fff;font-size:10px;">Dal Makhani × 1</div>
+          <div style="color:#7C5CFC;font-size:10px;">₹160</div>
+        </div>
+        <div style="background:#1A1A2E;border-radius:10px;padding:10px;">
+          <div style="color:#fff;font-size:10px;">Butter Naan × 2</div>
+          <div style="color:#7C5CFC;font-size:10px;">₹120</div>
+        </div>
+      </div>
+
+      <!-- Bottom sheet sliding up -->
+      <div style="position:absolute;bottom:0;left:0;right:0;background:#111;border-radius:20px 20px 0 0;padding:20px;border-top:1px solid rgba(124,92,252,0.3);">
+        <!-- Handle -->
+        <div style="width:32px;height:3px;background:#333;border-radius:100px;margin:0 auto 16px;"></div>
+
+        <div style="text-align:center;margin-bottom:16px;">
+          <div style="font-size:18px;margin-bottom:4px;">🔐</div>
+          <div style="color:#fff;font-size:14px;font-weight:700;">Almost there!</div>
+          <div style="color:#888;font-size:10px;margin-top:4px;">Sign in to place your order.<br/>Your cart is saved.</div>
+        </div>
+
+        <div style="background:#1A1A2E;border-radius:12px;padding:10px 14px;display:flex;align-items:center;gap:8px;margin-bottom:10px;border:1px solid rgba(124,92,252,0.3);">
+          <span style="color:#888;font-size:11px;">🇮🇳 +91</span>
+          <div style="width:1px;height:16px;background:#333;"></div>
+          <span style="color:#555;font-size:11px;">Enter phone number</span>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#7C5CFC,#a78bfa);border-radius:12px;padding:11px;text-align:center;color:#fff;font-size:11px;font-weight:700;">Send OTP</div>
+
+        <div style="text-align:center;margin-top:10px;">
+          <span style="color:#555;font-size:9px;">Your cart stays saved while you sign in</span>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Bottom Sheet Slide-Up</h3>
+      <p>Menu stays visible but blurred behind the sheet. Feels native, non-disruptive. Cart context stays on screen ("Your cart is saved"). Most mobile-natural interaction. Used by Swiggy, Zomato.</p>
+    </div>
+  </div>
+
+  <!-- Option B: Inline Gate -->
+  <div class="card" data-choice="inline-gate" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0D0D0D;padding:16px;min-height:300px;border-radius:8px 8px 0 0;overflow:hidden;">
+
+      <!-- Fake cart page -->
+      <div style="color:#888;font-size:9px;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+        <span style="color:#7C5CFC;">←</span> Cart · 2 items · ₹280
+      </div>
+
+      <!-- Cart items compact -->
+      <div style="background:#1A1A2E;border-radius:12px;padding:10px;margin-bottom:10px;opacity:0.6;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <span style="color:#fff;font-size:9px;">Dal Makhani × 1</span>
+          <span style="color:#7C5CFC;font-size:9px;">₹160</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;">
+          <span style="color:#fff;font-size:9px;">Butter Naan × 2</span>
+          <span style="color:#7C5CFC;font-size:9px;">₹120</span>
+        </div>
+      </div>
+
+      <!-- Divider with label -->
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <div style="flex:1;height:1px;background:#222;"></div>
+        <span style="color:#555;font-size:8px;text-transform:uppercase;letter-spacing:1px;">Sign in to continue</span>
+        <div style="flex:1;height:1px;background:#222;"></div>
+      </div>
+
+      <!-- Inline sign-in section -->
+      <div style="background:#111;border:1px solid rgba(124,92,252,0.3);border-radius:16px;padding:14px;">
+        <div style="color:#fff;font-size:11px;font-weight:700;margin-bottom:4px;">Enter your phone</div>
+        <div style="color:#888;font-size:9px;margin-bottom:10px;">We'll send you a one-time password</div>
+
+        <div style="background:#1A1A2E;border-radius:10px;padding:9px 12px;display:flex;align-items:center;gap:8px;margin-bottom:8px;border:1px solid rgba(124,92,252,0.3);">
+          <span style="color:#888;font-size:10px;">+91</span>
+          <div style="width:1px;height:14px;background:#333;"></div>
+          <span style="color:#555;font-size:10px;">Phone number</span>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#7C5CFC,#a78bfa);border-radius:10px;padding:9px;text-align:center;color:#fff;font-size:10px;font-weight:700;">Get OTP →</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Inline Cart Gate</h3>
+      <p>Cart page renders fully — items visible at top — with a sign-in section below the fold. Passenger sees exactly what they're ordering before signing in. No modal, no interruption. Feels like a natural checkout step.</p>
+    </div>
+  </div>
+
+  <!-- Option C: Full Screen Transition -->
+  <div class="card" data-choice="fullscreen" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#0D0D0D;padding:16px;min-height:300px;border-radius:8px 8px 0 0;overflow:hidden;position:relative;">
+
+      <!-- Glow background -->
+      <div style="position:absolute;top:-40px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(124,92,252,0.2),transparent 70%);"></div>
+
+      <div style="position:relative;text-align:center;padding-top:20px;">
+        <!-- Icon -->
+        <div style="width:56px;height:56px;background:linear-gradient(135deg,#7C5CFC,#a78bfa);border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 0 30px rgba(124,92,252,0.5);">🍛</div>
+
+        <div style="color:#fff;font-size:15px;font-weight:800;margin-bottom:6px;">Your order is ready</div>
+        <div style="color:#888;font-size:10px;margin-bottom:6px;">Just one step — verify your phone</div>
+
+        <!-- Cart summary pill -->
+        <div style="background:#1A1A2E;border:1px solid rgba(124,92,252,0.3);border-radius:100px;padding:6px 14px;display:inline-flex;align-items:center;gap:6px;margin-bottom:18px;">
+          <span style="color:#7C5CFC;font-size:9px;font-weight:700;">2 items</span>
+          <div style="width:1px;height:10px;background:#333;"></div>
+          <span style="color:#fff;font-size:9px;font-weight:700;">₹280</span>
+        </div>
+
+        <!-- Phone input -->
+        <div style="background:#1A1A2E;border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:8px;margin-bottom:10px;border:1px solid rgba(124,92,252,0.4);text-align:left;">
+          <div style="background:rgba(124,92,252,0.2);border-radius:6px;padding:3px 6px;">
+            <span style="color:#7C5CFC;font-size:10px;font-weight:700;">🇮🇳 +91</span>
+          </div>
+          <span style="color:#555;font-size:10px;">Enter your number</span>
+        </div>
+
+        <div style="background:linear-gradient(135deg,#7C5CFC,#a78bfa);border-radius:14px;padding:11px;text-align:center;color:#fff;font-size:11px;font-weight:700;box-shadow:0 4px 20px rgba(124,92,252,0.4);">Send OTP · Confirm Order</div>
+
+        <div style="margin-top:10px;color:#555;font-size:8px;">No account needed · Just your phone number</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Full Screen Auth Moment</h3>
+      <p>Checkout button triggers a full-screen animated transition. Cart summary shown as a pill at top. Feels intentional and premium — turns the auth step into a "confirm your order" moment. Used by Ola, PhonePe.</p>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:24px;">Click your preference at <strong>http://localhost:49574</strong> or tell me in the terminal.</p>

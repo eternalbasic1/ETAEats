@@ -1,0 +1,4 @@
+# Typing / IDE (Pylance, mypy). Not needed at runtime in production.
+-r requirements.txt
+django-stubs[compatible-mypy]>=5.2.0
+djangorestframework-stubs>=3.14.0

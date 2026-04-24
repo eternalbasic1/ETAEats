@@ -1,0 +1,3058 @@
+Responses
+
+
+Passenger   URL : {{base_url}}/api/v1/auth/otp/request/
+Payload : 
+{
+  "phone_number": "{{phone_number}}"
+}
+
+Response
+
+{
+    "status": "sent"
+}
+
+URL : {{base_url}}/api/v1/auth/otp/verify/
+
+Payload: 
+{
+  "phone_number": "{{phone_number}}",
+  "code": "{{otp_code}}"
+}
+
+Response : 
+{
+    "user": {
+        "id": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+        "phone_number": "+919000000001",
+        "email": null,
+        "full_name": "Arjun Sharma",
+        "gender": "M",
+        "role": "PASSENGER",
+        "is_active": true,
+        "memberships": [],
+        "created_at": "2026-04-22T14:14:35.884106+05:30"
+    },
+    "tokens": {
+        "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2ODU3MjYwLCJpYXQiOjE3NzY4NTM2NjAsImp0aSI6IjUyOTM3MDdlODUxNjQ1YTZhZjRhZTYwYmRkMGY3N2FkIiwidXNlcl9pZCI6IjhmMjI2ODEwLWQ2ZjktNGVkNC05ZDY4LWJmN2I4NTZhZWExMyIsInJvbGUiOiJQQVNTRU5HRVIifQ.wmaHautBoeDEWiuR53Ca56mmG3T8KCSaiQwcvRM7SSg",
+        "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3NzQ1ODQ2MCwiaWF0IjoxNzc2ODUzNjYwLCJqdGkiOiJmZjJkMDBkYzhhMWQ0M2M0YThkMzI3NGY4OTliOGJlNCIsInVzZXJfaWQiOiI4ZjIyNjgxMC1kNmY5LTRlZDQtOWQ2OC1iZjdiODU2YWVhMTMiLCJyb2xlIjoiUEFTU0VOR0VSIn0.5_ZrQf7-MQAkGsDu4bI2Mwqw4dN4Kw1xCdQrAjYVwv0"
+    }
+}
+
+
+URL : {{base_url}}/api/v1/auth/me/
+
+Response : 
+{
+    "id": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+    "phone_number": "+919000000001",
+    "email": null,
+    "full_name": "Arjun Sharma",
+    "gender": "M",
+    "role": "PASSENGER",
+    "is_active": true,
+    "memberships": [],
+    "created_at": "2026-04-22T14:14:35.884106+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/auth/me/
+
+Payload : 
+
+{
+  "full_name": "Arjuna Sharma",
+  "email": "arjun@example.com",
+  "gender": "M"
+}
+
+Response: 
+
+{
+    "id": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+    "phone_number": "+919000000001",
+    "email": "arjun@example.com",
+    "full_name": "Arjuna Sharma",
+    "gender": "M",
+    "role": "PASSENGER",
+    "is_active": true,
+    "memberships": [],
+    "created_at": "2026-04-22T14:14:35.884106+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/scan/{{qr_token}}/
+
+Response:
+
+{
+    "bus": {
+        "id": 14,
+        "name": "VRL Gold 501",
+        "number_plate": "TS-08-EE-0001"
+    },
+    "restaurant": {
+        "id": 4,
+        "name": "Punjabi Dhaba",
+        "owner_name": "Baldev Dhaliwal",
+        "phone_number": "+919400000001",
+        "email": "info@punjabidhaba.example.com",
+        "address": "NH-44, Near Murthal, Sonipat, Haryana 131027",
+        "fssai_license_number": "FSSAI-HR-2024-00001",
+        "hygiene_rating": "4.2",
+        "latitude": 29.0965,
+        "longitude": 77.056,
+        "is_active": true,
+        "created_at": "2026-04-22T14:14:37.627137+05:30"
+    },
+    "menu": [
+        {
+            "id": 42,
+            "restaurant": 4,
+            "category": 11,
+            "category_name": "Starters",
+            "name": "Aloo Tikki Chaat",
+            "description": "Potato patties with tamarind chutney",
+            "price": "80.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 8,
+            "created_at": "2026-04-22T14:14:37.636765+05:30"
+        },
+        {
+            "id": 39,
+            "restaurant": 4,
+            "category": 11,
+            "category_name": "Starters",
+            "name": "Amritsari Fish Tikka",
+            "description": "Crispy fish with ajwain batter",
+            "price": "220.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 15,
+            "created_at": "2026-04-22T14:14:37.633119+05:30"
+        },
+        {
+            "id": 41,
+            "restaurant": 4,
+            "category": 11,
+            "category_name": "Starters",
+            "name": "Chicken Seekh Kebab",
+            "description": "Minced chicken with herbs, 4 pcs",
+            "price": "200.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 15,
+            "created_at": "2026-04-22T14:14:37.635569+05:30"
+        },
+        {
+            "id": 40,
+            "restaurant": 4,
+            "category": 11,
+            "category_name": "Starters",
+            "name": "Paneer Tikka",
+            "description": "Marinated cottage cheese, tandoor grilled",
+            "price": "180.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.634380+05:30"
+        },
+        {
+            "id": 44,
+            "restaurant": 4,
+            "category": 12,
+            "category_name": "Main Course",
+            "name": "Butter Chicken",
+            "description": "Classic murgh makhani, half portion",
+            "price": "260.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.640230+05:30"
+        },
+        {
+            "id": 47,
+            "restaurant": 4,
+            "category": 12,
+            "category_name": "Main Course",
+            "name": "Chicken Biryani",
+            "description": "Dum-cooked with basmati, raita included",
+            "price": "280.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 20,
+            "created_at": "2026-04-22T14:14:37.643587+05:30"
+        },
+        {
+            "id": 43,
+            "restaurant": 4,
+            "category": 12,
+            "category_name": "Main Course",
+            "name": "Dal Makhani",
+            "description": "Slow-cooked black lentils, butter",
+            "price": "160.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 10,
+            "created_at": "2026-04-22T14:14:37.639060+05:30"
+        },
+        {
+            "id": 46,
+            "restaurant": 4,
+            "category": 12,
+            "category_name": "Main Course",
+            "name": "Kadai Paneer",
+            "description": "Cottage cheese in spiced tomato gravy",
+            "price": "190.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.642438+05:30"
+        },
+        {
+            "id": 48,
+            "restaurant": 4,
+            "category": 12,
+            "category_name": "Main Course",
+            "name": "Paya Soup",
+            "description": "Slow-cooked lamb trotters",
+            "price": "180.00",
+            "photo_url": "",
+            "is_available": false,
+            "prep_time_minutes": 30,
+            "created_at": "2026-04-22T14:14:37.644693+05:30"
+        },
+        {
+            "id": 45,
+            "restaurant": 4,
+            "category": 12,
+            "category_name": "Main Course",
+            "name": "Sarson Ka Saag",
+            "description": "Mustard greens with makki roti (2 pcs)",
+            "price": "150.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 15,
+            "created_at": "2026-04-22T14:14:37.641325+05:30"
+        },
+        {
+            "id": 50,
+            "restaurant": 4,
+            "category": 13,
+            "category_name": "Breads",
+            "name": "Butter Naan (2 pcs)",
+            "description": "Soft leavened bread with butter",
+            "price": "60.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.647871+05:30"
+        },
+        {
+            "id": 51,
+            "restaurant": 4,
+            "category": 13,
+            "category_name": "Breads",
+            "name": "Missi Roti (2 pcs)",
+            "description": "Besan-spiced whole-wheat roti",
+            "price": "50.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.648992+05:30"
+        },
+        {
+            "id": 49,
+            "restaurant": 4,
+            "category": 13,
+            "category_name": "Breads",
+            "name": "Tandoori Roti (2 pcs)",
+            "description": "Whole-wheat, fresh from tandoor",
+            "price": "40.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.646753+05:30"
+        },
+        {
+            "id": 54,
+            "restaurant": 4,
+            "category": 14,
+            "category_name": "Beverages",
+            "name": "Masala Chai",
+            "description": "Ginger-cardamom tea",
+            "price": "30.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 3,
+            "created_at": "2026-04-22T14:14:37.654964+05:30"
+        },
+        {
+            "id": 55,
+            "restaurant": 4,
+            "category": 14,
+            "category_name": "Beverages",
+            "name": "Mineral Water 1L",
+            "description": "Sealed bottle",
+            "price": "20.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 1,
+            "created_at": "2026-04-22T14:14:37.655949+05:30"
+        },
+        {
+            "id": 53,
+            "restaurant": 4,
+            "category": 14,
+            "category_name": "Beverages",
+            "name": "Salted Lassi",
+            "description": "Cumin-spiced yoghurt drink",
+            "price": "60.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 3,
+            "created_at": "2026-04-22T14:14:37.653853+05:30"
+        },
+        {
+            "id": 52,
+            "restaurant": 4,
+            "category": 14,
+            "category_name": "Beverages",
+            "name": "Sweet Lassi",
+            "description": "Chilled yoghurt drink",
+            "price": "60.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 3,
+            "created_at": "2026-04-22T14:14:37.652689+05:30"
+        },
+        {
+            "id": 56,
+            "restaurant": 4,
+            "category": 15,
+            "category_name": "Combos",
+            "name": "Dhaba Thali",
+            "description": "Dal + Sabzi + 2 Roti + Rice + Salad + Lassi",
+            "price": "220.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 20,
+            "created_at": "2026-04-22T14:14:37.657836+05:30"
+        },
+        {
+            "id": 57,
+            "restaurant": 4,
+            "category": 15,
+            "category_name": "Combos",
+            "name": "Non-Veg Thali",
+            "description": "Butter Chicken + 2 Naan + Rice + Salad + Lassi",
+            "price": "320.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 22,
+            "created_at": "2026-04-22T14:14:37.658813+05:30"
+        }
+    ]
+}
+
+
+URL: {{base_url}}/api/v1/restaurants/
+
+Response:
+
+{
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 4,
+            "name": "Punjabi Dhaba",
+            "owner_name": "Baldev Dhaliwal",
+            "phone_number": "+919400000001",
+            "email": "info@punjabidhaba.example.com",
+            "address": "NH-44, Near Murthal, Sonipat, Haryana 131027",
+            "fssai_license_number": "FSSAI-HR-2024-00001",
+            "hygiene_rating": "4.2",
+            "latitude": 29.0965,
+            "longitude": 77.056,
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.627137+05:30"
+        },
+        {
+            "id": 5,
+            "name": "Highway Treats",
+            "owner_name": "Suresh Nair",
+            "phone_number": "+919400000002",
+            "email": "info@highwaytreats.example.com",
+            "address": "NH-48, Khopoli, Raigad, Maharashtra 410203",
+            "fssai_license_number": "FSSAI-MH-2024-00002",
+            "hygiene_rating": "3.8",
+            "latitude": 18.768,
+            "longitude": 73.343,
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.628464+05:30"
+        },
+        {
+            "id": 6,
+            "name": "Old Junction Stall",
+            "owner_name": "Gopal Das",
+            "phone_number": "+919400000003",
+            "email": "info@oldjunction.example.com",
+            "address": "NH-19, Near Kanpur, UP 208001",
+            "fssai_license_number": "FSSAI-UP-2024-00003",
+            "hygiene_rating": "2.5",
+            "latitude": 26.4499,
+            "longitude": 80.3458,
+            "is_active": false,
+            "created_at": "2026-04-22T14:14:37.629694+05:30"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/?is_active=true
+
+Response: 
+
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 4,
+            "name": "Punjabi Dhaba",
+            "owner_name": "Baldev Dhaliwal",
+            "phone_number": "+919400000001",
+            "email": "info@punjabidhaba.example.com",
+            "address": "NH-44, Near Murthal, Sonipat, Haryana 131027",
+            "fssai_license_number": "FSSAI-HR-2024-00001",
+            "hygiene_rating": "4.2",
+            "latitude": 29.0965,
+            "longitude": 77.056,
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.627137+05:30"
+        },
+        {
+            "id": 5,
+            "name": "Highway Treats",
+            "owner_name": "Suresh Nair",
+            "phone_number": "+919400000002",
+            "email": "info@highwaytreats.example.com",
+            "address": "NH-48, Khopoli, Raigad, Maharashtra 410203",
+            "fssai_license_number": "FSSAI-MH-2024-00002",
+            "hygiene_rating": "3.8",
+            "latitude": 18.768,
+            "longitude": 73.343,
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.628464+05:30"
+        }
+    ]
+}
+
+URL : {{base_url}}/api/v1/restaurants/?search=Punjabi
+
+Response: 
+
+{
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 4,
+            "name": "Punjabi Dhaba",
+            "owner_name": "Baldev Dhaliwal",
+            "phone_number": "+919400000001",
+            "email": "info@punjabidhaba.example.com",
+            "address": "NH-44, Near Murthal, Sonipat, Haryana 131027",
+            "fssai_license_number": "FSSAI-HR-2024-00001",
+            "hygiene_rating": "4.2",
+            "latitude": 29.0965,
+            "longitude": 77.056,
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.627137+05:30"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/{{restaurant_id}}/
+
+Response : 
+
+{
+    "id": 4,
+    "name": "Punjabi Dhaba",
+    "owner_name": "Baldev Dhaliwal",
+    "phone_number": "+919400000001",
+    "email": "info@punjabidhaba.example.com",
+    "address": "NH-44, Near Murthal, Sonipat, Haryana 131027",
+    "fssai_license_number": "FSSAI-HR-2024-00001",
+    "hygiene_rating": "4.2",
+    "latitude": 29.0965,
+    "longitude": 77.056,
+    "is_active": true,
+    "created_at": "2026-04-22T14:14:37.627137+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/cart/
+
+Response : 
+
+{
+    "id": "182d1005-9470-43ca-b64d-47af52e9cd9a",
+    "bus": 14,
+    "restaurant": 4,
+    "items": [],
+    "total": "0.00",
+    "created_at": "2026-04-22T14:48:13.085088+05:30",
+    "updated_at": "2026-04-22T14:48:13.085107+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/cart/
+
+Payload : 
+{
+  "menu_item": {{menu_item_id}},
+  "quantity": 3,
+  "bus_id": 14
+}
+
+ Response:
+{
+    "id": "182d1005-9470-43ca-b64d-47af52e9cd9a",
+    "bus": 14,
+    "restaurant": 4,
+    "items": [
+        {
+            "id": 2,
+            "menu_item": 42,
+            "menu_item_name": "Aloo Tikki Chaat",
+            "quantity": 3,
+            "unit_price": "80.00",
+            "line_total": "240.00"
+        }
+    ],
+    "total": "240.00",
+    "created_at": "2026-04-22T14:48:13.085088+05:30",
+    "updated_at": "2026-04-22T14:48:13.085107+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/cart/items/{{cart_item_id}}/
+
+Payload : 
+{
+  "quantity": 2
+}
+
+Response:
+{
+    "id": "182d1005-9470-43ca-b64d-47af52e9cd9a",
+    "bus": 14,
+    "restaurant": 4,
+    "items": [
+        {
+            "id": 2,
+            "menu_item": 42,
+            "menu_item_name": "Aloo Tikki Chaat",
+            "quantity": 2,
+            "unit_price": "80.00",
+            "line_total": "160.00"
+        }
+    ],
+    "total": "160.00",
+    "created_at": "2026-04-22T14:48:13.085088+05:30",
+    "updated_at": "2026-04-22T14:48:13.085107+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/cart/items/{{cart_item_id}}/
+
+Response:
+
+{
+    "id": "182d1005-9470-43ca-b64d-47af52e9cd9a",
+    "bus": 14,
+    "restaurant": 4,
+    "items": [],
+    "total": "0.00",
+    "created_at": "2026-04-22T14:48:13.085088+05:30",
+    "updated_at": "2026-04-22T14:48:13.085107+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/checkout/
+Payload: 
+{
+  "cart_id": "{{cart_id}}",
+  "bus_id": {{bus_id}}
+}
+
+Response:
+{
+    "id": "0098057f-9732-4f1b-880b-deb058bdf23b",
+    "passenger": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+    "bus": 14,
+    "bus_name": "VRL Gold 501",
+    "restaurant": 4,
+    "restaurant_name": "Punjabi Dhaba",
+    "status": "PENDING",
+    "payment_status": "UNPAID",
+    "total_amount": "240.00",
+    "items": [
+        {
+            "id": 24,
+            "menu_item": 42,
+            "menu_item_name": "Aloo Tikki Chaat",
+            "quantity": 3,
+            "unit_price": "80.00",
+            "line_total": "240.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": null,
+    "ready_at": null,
+    "picked_up_at": null,
+    "cancelled_reason": "",
+    "created_at": "2026-04-22T16:07:43.414879+05:30",
+    "updated_at": "2026-04-22T16:07:43.414911+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/my/
+
+Response: 
+{
+    "count": 4,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": "0098057f-9732-4f1b-880b-deb058bdf23b",
+            "passenger": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+            "bus": 14,
+            "bus_name": "VRL Gold 501",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "status": "PENDING",
+            "payment_status": "UNPAID",
+            "total_amount": "240.00",
+            "items": [
+                {
+                    "id": 24,
+                    "menu_item": 42,
+                    "menu_item_name": "Aloo Tikki Chaat",
+                    "quantity": 3,
+                    "unit_price": "80.00",
+                    "line_total": "240.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": null,
+            "ready_at": null,
+            "picked_up_at": null,
+            "cancelled_reason": "",
+            "created_at": "2026-04-22T16:07:43.414879+05:30",
+            "updated_at": "2026-04-22T16:07:43.414911+05:30"
+        },
+        {
+            "id": "c97ce382-9d77-4061-b0fa-25fc7fe44682",
+            "passenger": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+            "bus": 14,
+            "bus_name": "VRL Gold 501",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "status": "PENDING",
+            "payment_status": "UNPAID",
+            "total_amount": "320.00",
+            "items": [
+                {
+                    "id": 23,
+                    "menu_item": 42,
+                    "menu_item_name": "Aloo Tikki Chaat",
+                    "quantity": 4,
+                    "unit_price": "80.00",
+                    "line_total": "320.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": null,
+            "ready_at": null,
+            "picked_up_at": null,
+            "cancelled_reason": "",
+            "created_at": "2026-04-22T15:04:17.609487+05:30",
+            "updated_at": "2026-04-22T15:04:17.609509+05:30"
+        },
+        {
+            "id": "88f919d7-865d-4c62-b4c4-21ad6bdfc1f1",
+            "passenger": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+            "bus": 9,
+            "bus_name": "SRS Express 102",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "status": "CANCELLED",
+            "payment_status": "FAILED",
+            "total_amount": "280.00",
+            "items": [
+                {
+                    "id": 13,
+                    "menu_item": 47,
+                    "menu_item_name": "Chicken Biryani",
+                    "quantity": 1,
+                    "unit_price": "280.00",
+                    "line_total": "280.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": "2026-04-22T13:44:37.694138+05:30",
+            "ready_at": null,
+            "picked_up_at": null,
+            "cancelled_reason": "Passenger requested cancellation",
+            "created_at": "2026-04-22T14:14:37.710892+05:30",
+            "updated_at": "2026-04-22T14:14:37.711301+05:30"
+        },
+        {
+            "id": "b1d40a4b-50ee-4c13-af41-f6715f5df205",
+            "passenger": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+            "bus": 8,
+            "bus_name": "SRS Express 101",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "status": "PICKED_UP",
+            "payment_status": "CAPTURED",
+            "total_amount": "440.00",
+            "items": [
+                {
+                    "id": 1,
+                    "menu_item": 44,
+                    "menu_item_name": "Butter Chicken",
+                    "quantity": 1,
+                    "unit_price": "260.00",
+                    "line_total": "260.00"
+                },
+                {
+                    "id": 2,
+                    "menu_item": 50,
+                    "menu_item_name": "Butter Naan (2 pcs)",
+                    "quantity": 2,
+                    "unit_price": "60.00",
+                    "line_total": "120.00"
+                },
+                {
+                    "id": 3,
+                    "menu_item": 52,
+                    "menu_item_name": "Sweet Lassi",
+                    "quantity": 1,
+                    "unit_price": "60.00",
+                    "line_total": "60.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": "2026-04-22T13:44:37.694138+05:30",
+            "ready_at": "2026-04-22T14:04:37.694138+05:30",
+            "picked_up_at": "2026-04-22T14:09:37.694138+05:30",
+            "cancelled_reason": "",
+            "created_at": "2026-04-22T14:14:37.696469+05:30",
+            "updated_at": "2026-04-22T14:14:37.696939+05:30"
+        }
+    ]
+}
+
+URL : {{base_url}}/api/v1/orders/my/{{order_id}}/
+
+Response: {
+    "id": "0098057f-9732-4f1b-880b-deb058bdf23b",
+    "passenger": "8f226810-d6f9-4ed4-9d68-bf7b856aea13",
+    "bus": 14,
+    "bus_name": "VRL Gold 501",
+    "restaurant": 4,
+    "restaurant_name": "Punjabi Dhaba",
+    "status": "PENDING",
+    "payment_status": "UNPAID",
+    "total_amount": "240.00",
+    "items": [
+        {
+            "id": 24,
+            "menu_item": 42,
+            "menu_item_name": "Aloo Tikki Chaat",
+            "quantity": 3,
+            "unit_price": "80.00",
+            "line_total": "240.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": null,
+    "ready_at": null,
+    "picked_up_at": null,
+    "cancelled_reason": "",
+    "created_at": "2026-04-22T16:07:43.414879+05:30",
+    "updated_at": "2026-04-22T16:07:43.414911+05:30"
+}
+
+
+URL: {{base_url}}/api/v1/notifications/
+Response:
+
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": "d8890f34-fd3b-4913-9e82-6f16985f62d5",
+            "title": "Order update",
+            "body": "Your order is placed.",
+            "channel": "IN_APP",
+            "data": {
+                "event": "created",
+                "status": "PENDING",
+                "order_id": "0098057f-9732-4f1b-880b-deb058bdf23b"
+            },
+            "read_at": null,
+            "created_at": "2026-04-22T16:07:43.416595+05:30"
+        },
+        {
+            "id": "afa70870-a60a-46ec-a35a-18fd12be1e3c",
+            "title": "Order update",
+            "body": "Your order is placed.",
+            "channel": "IN_APP",
+            "data": {
+                "event": "created",
+                "status": "PENDING",
+                "order_id": "c97ce382-9d77-4061-b0fa-25fc7fe44682"
+            },
+            "read_at": null,
+            "created_at": "2026-04-22T15:04:17.612338+05:30"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/notifications/{{notification_id}}/
+Response: 
+
+{
+    "id": "d8890f34-fd3b-4913-9e82-6f16985f62d5",
+    "title": "Order update",
+    "body": "Your order is placed.",
+    "channel": "IN_APP",
+    "data": {
+        "event": "created",
+        "status": "PENDING",
+        "order_id": "0098057f-9732-4f1b-880b-deb058bdf23b"
+    },
+    "read_at": null,
+    "created_at": "2026-04-22T16:07:43.416595+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/notifications/{{notification_id}}/mark-read/
+
+Response: 
+{
+    "id": "d8890f34-fd3b-4913-9e82-6f16985f62d5",
+    "title": "Order update",
+    "body": "Your order is placed.",
+    "channel": "IN_APP",
+    "data": {
+        "event": "created",
+        "status": "PENDING",
+        "order_id": "0098057f-9732-4f1b-880b-deb058bdf23b"
+    },
+    "read_at": "2026-04-22T16:11:53.704208+05:30",
+    "created_at": "2026-04-22T16:07:43.416595+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/notifications/mark-all-read/ Response: 
+{
+    "status": "ok"
+}
+
+———————————————————————
+
+Bus Operator
+
+
+URL : {{base_url}}/api/v1/auth/otp/verify/
+Payload :
+{
+  "phone_number": "{{phone_number}}",
+  "code": "{{otp_code}}"
+}
+
+Response: 
+{
+    "user": {
+        "id": "e8ac5634-71ed-4077-9206-0746876134af",
+        "phone_number": "+919200000002",
+        "email": null,
+        "full_name": "Deepa Verma",
+        "gender": "F",
+        "role": "BUS_OPERATOR",
+        "is_active": true,
+        "memberships": [
+            {
+                "id": 9,
+                "org_type": "operator",
+                "org_id": 4,
+                "org_name": "VRL Logistics",
+                "org_role": "OPERATOR_OWNER",
+                "is_active": true
+            }
+        ],
+        "created_at": "2026-04-22T14:14:37.427324+05:30"
+    },
+    "tokens": {
+        "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2ODU4MjkwLCJpYXQiOjE3NzY4NTQ2OTAsImp0aSI6ImYwMzkyZjU4NzIxNTQ4NmFiZTA4ZGVlMTJjMTBhNTNmIiwidXNlcl9pZCI6ImU4YWM1NjM0LTcxZWQtNDA3Ny05MjA2LTA3NDY4NzYxMzRhZiIsInJvbGUiOiJCVVNfT1BFUkFUT1IifQ.KCEirUz_jVyX1Moa9ia8oNwXH0BfUyoyq55Q_eraL3U",
+        "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3NzQ1OTQ5MCwiaWF0IjoxNzc2ODU0NjkwLCJqdGkiOiI1OGFkZTE0ZDgyZWE0MDI1OWE1ODM0Mjg0ZTYwMTk3MCIsInVzZXJfaWQiOiJlOGFjNTYzNC03MWVkLTQwNzctOTIwNi0wNzQ2ODc2MTM0YWYiLCJyb2xlIjoiQlVTX09QRVJBVE9SIn0.87P5YMbAYhdwSfvki3vyU790VsC6hdGL-x5SCr1bUPw"
+    }
+}
+
+
+
+
+URL : {{base_url}}/api/v1/auth/me/
+Response:
+{
+    "id": "e8ac5634-71ed-4077-9206-0746876134af",
+    "phone_number": "+919200000002",
+    "email": null,
+    "full_name": "Deepa Verma",
+    "gender": "F",
+    "role": "BUS_OPERATOR",
+    "is_active": true,
+    "memberships": [
+        {
+            "id": 9,
+            "org_type": "operator",
+            "org_id": 4,
+            "org_name": "VRL Logistics",
+            "org_role": "OPERATOR_OWNER",
+            "is_active": true
+        }
+    ],
+    "created_at": "2026-04-22T14:14:37.427324+05:30"
+}
+
+
+ URL : {{base_url}}/api/v1/auth/me/
+Payload: 
+{
+  "full_name": "Deepa"
+}
+
+Response:
+
+{
+    "id": "e8ac5634-71ed-4077-9206-0746876134af",
+    "phone_number": "+919200000002",
+    "email": null,
+    "full_name": "Deepa",
+    "gender": "F",
+    "role": "BUS_OPERATOR",
+    "is_active": true,
+    "memberships": [
+        {
+            "id": 9,
+            "org_type": "operator",
+            "org_id": 4,
+            "org_name": "VRL Logistics",
+            "org_role": "OPERATOR_OWNER",
+            "is_active": true
+        }
+    ],
+    "created_at": "2026-04-22T14:14:37.427324+05:30"
+}
+
+
+
+URL : {{base_url}}/api/v1/fleet/operators/
+Response: 
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 3,
+            "company_name": "SRS Travels",
+            "contact_name": "Harpreet Gill",
+            "phone_number": "+919300000001",
+            "email": "ops@srstravels.example.com",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.547260+05:30"
+        },
+        {
+            "id": 4,
+            "company_name": "VRL Logistics",
+            "contact_name": "Deepa Verma",
+            "phone_number": "+919300000002",
+            "email": "ops@vrllogistics.example.com",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.549091+05:30"
+        }
+    ]
+}
+
+
+
+URL : {{base_url}}/api/v1/fleet/operators/{{operator_id}}/
+
+Response: 
+{
+    "id": 5,
+    "company_name": "New Operator Corp.",
+    "contact_name": "Contact Person",
+    "phone_number": "+919500000097",
+    "email": "contact1@newoperator.example.com",
+    "is_active": true,
+    "created_at": "2026-04-22T16:19:43.151335+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/operators/{{operator_id}}/
+
+Payload : 
+{
+  "contact_name": "Updated Contact"
+}
+
+Response:
+{
+    "id": 5,
+    "company_name": "New Operator Corp.",
+    "contact_name": "Updated Contact",
+    "phone_number": "+919500000097",
+    "email": "contact1@newoperator.example.com",
+    "is_active": true,
+    "created_at": "2026-04-22T16:19:43.151335+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/operators/{{operator_id}}/
+
+Response:
+204 NO content
+
+
+
+URL : {{base_url}}/api/v1/fleet/routes/
+Response:
+{
+    "count": 5,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 6,
+            "origin_city": "Delhi",
+            "destination_city": "Chandigarh",
+            "distance_km": 265,
+            "estimated_duration_hours": "4.5"
+        },
+        {
+            "id": 7,
+            "origin_city": "Mumbai",
+            "destination_city": "Pune",
+            "distance_km": 148,
+            "estimated_duration_hours": "3.0"
+        },
+        {
+            "id": 8,
+            "origin_city": "Bengaluru",
+            "destination_city": "Mysuru",
+            "distance_km": 145,
+            "estimated_duration_hours": "2.5"
+        },
+        {
+            "id": 9,
+            "origin_city": "Chennai",
+            "destination_city": "Vellore",
+            "distance_km": 140,
+            "estimated_duration_hours": "2.5"
+        },
+        {
+            "id": 10,
+            "origin_city": "Hyderabad",
+            "destination_city": "Vijayawada",
+            "distance_km": 275,
+            "estimated_duration_hours": "4.0"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/fleet/routes/
+Payload: 
+
+{
+  "origin_city": "Lucknw",
+  "destination_city": "Delhi",
+  "distance_km": 392,
+  "estimated_duration_hours": "7.5"
+}
+
+Response:
+{
+    "id": 11,
+    "origin_city": "Lucknw",
+    "destination_city": "Delhi",
+    "distance_km": 392,
+    "estimated_duration_hours": "7.5"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/routes/{{route_id}}/
+Response:
+{
+    "id": 11,
+    "origin_city": "Lucknw",
+    "destination_city": "Delhi",
+    "distance_km": 392,
+    "estimated_duration_hours": "7.5"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/routes/{{route_id}}/
+Payload : 
+{
+  "distance_km": 350
+}
+
+Response:
+{
+    "id": 11,
+    "origin_city": "Lucknw",
+    "destination_city": "Delhi",
+    "distance_km": 350,
+    "estimated_duration_hours": "7.5"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/routes/{{route_id}}/
+Response: 204 No Content
+
+
+URL : {{base_url}}/api/v1/fleet/routes/?search=Hyderabad
+Response: 
+{
+    "count": 1,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 10,
+            "origin_city": "Hyderabad",
+            "destination_city": "Vijayawada",
+            "distance_km": 275,
+            "estimated_duration_hours": "4.0"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/fleet/buses/
+Response:
+{
+    "count": 7,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 8,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 6,
+            "route_label": "Delhi → Chandigarh",
+            "bus_name": "SRS Express 101",
+            "number_plate": "DL-01-AA-0001",
+            "qr_token": "7e156d05-a0e6-434a-b481-895cd141c30e",
+            "qr_image_url": "",
+            "total_seats": 42,
+            "is_active": true,
+            "latitude": 30.7333,
+            "longitude": 76.7794,
+            "last_gps_update": "2026-04-22T14:14:37.562177+05:30",
+            "created_at": "2026-04-22T14:14:37.616002+05:30"
+        },
+        {
+            "id": 9,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 6,
+            "route_label": "Delhi → Chandigarh",
+            "bus_name": "SRS Express 102",
+            "number_plate": "DL-01-AA-0002",
+            "qr_token": "95509275-575f-4faf-8f6a-9ebc7d4dbf14",
+            "qr_image_url": "",
+            "total_seats": 42,
+            "is_active": true,
+            "latitude": 28.7041,
+            "longitude": 76.975,
+            "last_gps_update": "2026-04-22T14:14:37.617940+05:30",
+            "created_at": "2026-04-22T14:14:37.618754+05:30"
+        },
+        {
+            "id": 10,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 7,
+            "route_label": "Mumbai → Pune",
+            "bus_name": "SRS Volvo 201",
+            "number_plate": "MH-04-BB-0001",
+            "qr_token": "bbc598ee-dd21-49c2-9917-c4438ecd03d1",
+            "qr_image_url": "",
+            "total_seats": 36,
+            "is_active": true,
+            "latitude": 18.5204,
+            "longitude": 73.8567,
+            "last_gps_update": "2026-04-22T14:14:37.619335+05:30",
+            "created_at": "2026-04-22T14:14:37.620084+05:30"
+        },
+        {
+            "id": 11,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 8,
+            "route_label": "Bengaluru → Mysuru",
+            "bus_name": "VRL Sleeper 301",
+            "number_plate": "KA-01-CC-0001",
+            "qr_token": "f1de17b8-b973-4637-9820-5c22b9945798",
+            "qr_image_url": "",
+            "total_seats": 40,
+            "is_active": true,
+            "latitude": 12.2958,
+            "longitude": 76.6394,
+            "last_gps_update": "2026-04-22T14:14:37.620640+05:30",
+            "created_at": "2026-04-22T14:14:37.621328+05:30"
+        },
+        {
+            "id": 12,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 8,
+            "route_label": "Bengaluru → Mysuru",
+            "bus_name": "VRL Sleeper 302",
+            "number_plate": "KA-01-CC-0002",
+            "qr_token": "b3103b7e-4b9e-46b2-9bce-1e386a4dff23",
+            "qr_image_url": "",
+            "total_seats": 40,
+            "is_active": true,
+            "latitude": 12.9716,
+            "longitude": 77.1025,
+            "last_gps_update": "2026-04-22T14:14:37.621888+05:30",
+            "created_at": "2026-04-22T14:14:37.622592+05:30"
+        },
+        {
+            "id": 13,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 9,
+            "route_label": "Chennai → Vellore",
+            "bus_name": "VRL Express 401",
+            "number_plate": "TN-09-DD-0001",
+            "qr_token": "62aca2ed-c8bf-4f41-85bf-75bffea1ccf7",
+            "qr_image_url": "",
+            "total_seats": 44,
+            "is_active": true,
+            "latitude": 12.9165,
+            "longitude": 79.1325,
+            "last_gps_update": "2026-04-22T14:14:37.623134+05:30",
+            "created_at": "2026-04-22T14:14:37.623821+05:30"
+        },
+        {
+            "id": 14,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 10,
+            "route_label": "Hyderabad → Vijayawada",
+            "bus_name": "VRL Gold 501",
+            "number_plate": "TS-08-EE-0001",
+            "qr_token": "e1350cda-a59f-44ed-8c97-767e1e8781a2",
+            "qr_image_url": "",
+            "total_seats": 38,
+            "is_active": true,
+            "latitude": 16.5062,
+            "longitude": 80.648,
+            "last_gps_update": "2026-04-22T14:14:37.624357+05:30",
+            "created_at": "2026-04-22T14:14:37.625029+05:30"
+        }
+    ]
+}
+
+ URL : {{base_url}}/api/v1/fleet/buses/?operator={{operator_id}}
+ Response:
+{
+    "count": 3,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 8,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 6,
+            "route_label": "Delhi → Chandigarh",
+            "bus_name": "SRS Express 101",
+            "number_plate": "DL-01-AA-0001",
+            "qr_token": "7e156d05-a0e6-434a-b481-895cd141c30e",
+            "qr_image_url": "",
+            "total_seats": 42,
+            "is_active": true,
+            "latitude": 30.7333,
+            "longitude": 76.7794,
+            "last_gps_update": "2026-04-22T14:14:37.562177+05:30",
+            "created_at": "2026-04-22T14:14:37.616002+05:30"
+        },
+        {
+            "id": 9,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 6,
+            "route_label": "Delhi → Chandigarh",
+            "bus_name": "SRS Express 102",
+            "number_plate": "DL-01-AA-0002",
+            "qr_token": "95509275-575f-4faf-8f6a-9ebc7d4dbf14",
+            "qr_image_url": "",
+            "total_seats": 42,
+            "is_active": true,
+            "latitude": 28.7041,
+            "longitude": 76.975,
+            "last_gps_update": "2026-04-22T14:14:37.617940+05:30",
+            "created_at": "2026-04-22T14:14:37.618754+05:30"
+        },
+        {
+            "id": 10,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 7,
+            "route_label": "Mumbai → Pune",
+            "bus_name": "SRS Volvo 201",
+            "number_plate": "MH-04-BB-0001",
+            "qr_token": "bbc598ee-dd21-49c2-9917-c4438ecd03d1",
+            "qr_image_url": "",
+            "total_seats": 36,
+            "is_active": true,
+            "latitude": 18.5204,
+            "longitude": 73.8567,
+            "last_gps_update": "2026-04-22T14:14:37.619335+05:30",
+            "created_at": "2026-04-22T14:14:37.620084+05:30"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/fleet/buses/?is_active=true
+Response:
+{
+    "count": 7,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 8,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 6,
+            "route_label": "Delhi → Chandigarh",
+            "bus_name": "SRS Express 101",
+            "number_plate": "DL-01-AA-0001",
+            "qr_token": "7e156d05-a0e6-434a-b481-895cd141c30e",
+            "qr_image_url": "",
+            "total_seats": 42,
+            "is_active": true,
+            "latitude": 30.7333,
+            "longitude": 76.7794,
+            "last_gps_update": "2026-04-22T14:14:37.562177+05:30",
+            "created_at": "2026-04-22T14:14:37.616002+05:30"
+        },
+        {
+            "id": 9,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 6,
+            "route_label": "Delhi → Chandigarh",
+            "bus_name": "SRS Express 102",
+            "number_plate": "DL-01-AA-0002",
+            "qr_token": "95509275-575f-4faf-8f6a-9ebc7d4dbf14",
+            "qr_image_url": "",
+            "total_seats": 42,
+            "is_active": true,
+            "latitude": 28.7041,
+            "longitude": 76.975,
+            "last_gps_update": "2026-04-22T14:14:37.617940+05:30",
+            "created_at": "2026-04-22T14:14:37.618754+05:30"
+        },
+        {
+            "id": 10,
+            "operator": 3,
+            "operator_name": "SRS Travels",
+            "route": 7,
+            "route_label": "Mumbai → Pune",
+            "bus_name": "SRS Volvo 201",
+            "number_plate": "MH-04-BB-0001",
+            "qr_token": "bbc598ee-dd21-49c2-9917-c4438ecd03d1",
+            "qr_image_url": "",
+            "total_seats": 36,
+            "is_active": true,
+            "latitude": 18.5204,
+            "longitude": 73.8567,
+            "last_gps_update": "2026-04-22T14:14:37.619335+05:30",
+            "created_at": "2026-04-22T14:14:37.620084+05:30"
+        },
+        {
+            "id": 11,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 8,
+            "route_label": "Bengaluru → Mysuru",
+            "bus_name": "VRL Sleeper 301",
+            "number_plate": "KA-01-CC-0001",
+            "qr_token": "f1de17b8-b973-4637-9820-5c22b9945798",
+            "qr_image_url": "",
+            "total_seats": 40,
+            "is_active": true,
+            "latitude": 12.2958,
+            "longitude": 76.6394,
+            "last_gps_update": "2026-04-22T14:14:37.620640+05:30",
+            "created_at": "2026-04-22T14:14:37.621328+05:30"
+        },
+        {
+            "id": 12,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 8,
+            "route_label": "Bengaluru → Mysuru",
+            "bus_name": "VRL Sleeper 302",
+            "number_plate": "KA-01-CC-0002",
+            "qr_token": "b3103b7e-4b9e-46b2-9bce-1e386a4dff23",
+            "qr_image_url": "",
+            "total_seats": 40,
+            "is_active": true,
+            "latitude": 12.9716,
+            "longitude": 77.1025,
+            "last_gps_update": "2026-04-22T14:14:37.621888+05:30",
+            "created_at": "2026-04-22T14:14:37.622592+05:30"
+        },
+        {
+            "id": 13,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 9,
+            "route_label": "Chennai → Vellore",
+            "bus_name": "VRL Express 401",
+            "number_plate": "TN-09-DD-0001",
+            "qr_token": "62aca2ed-c8bf-4f41-85bf-75bffea1ccf7",
+            "qr_image_url": "",
+            "total_seats": 44,
+            "is_active": true,
+            "latitude": 12.9165,
+            "longitude": 79.1325,
+            "last_gps_update": "2026-04-22T14:14:37.623134+05:30",
+            "created_at": "2026-04-22T14:14:37.623821+05:30"
+        },
+        {
+            "id": 14,
+            "operator": 4,
+            "operator_name": "VRL Logistics",
+            "route": 10,
+            "route_label": "Hyderabad → Vijayawada",
+            "bus_name": "VRL Gold 501",
+            "number_plate": "TS-08-EE-0001",
+            "qr_token": "e1350cda-a59f-44ed-8c97-767e1e8781a2",
+            "qr_image_url": "",
+            "total_seats": 38,
+            "is_active": true,
+            "latitude": 16.5062,
+            "longitude": 80.648,
+            "last_gps_update": "2026-04-22T14:14:37.624357+05:30",
+            "created_at": "2026-04-22T14:14:37.625029+05:30"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/fleet/buses/
+Payload : 
+{
+  "operator": {{operator_id}},
+  "route": {{route_id}},
+  "bus_name": "SRS Express 202",
+  "number_plate": "DL-01-ZZ-9991",
+  "total_seats": 40,
+  "is_active": true
+}
+
+Response:
+{
+    "id": 15,
+    "operator": 3,
+    "operator_name": "SRS Travels",
+    "route": 10,
+    "route_label": "Hyderabad → Vijayawada",
+    "bus_name": "SRS Express 202",
+    "number_plate": "DL-01-ZZ-9991",
+    "qr_token": "825d060e-a6ca-4b5a-9c7a-004c27bc7c99",
+    "qr_image_url": "",
+    "total_seats": 40,
+    "is_active": true,
+    "latitude": null,
+    "longitude": null,
+    "last_gps_update": null,
+    "created_at": "2026-04-22T16:29:36.628378+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/buses/{{bus_id}}/
+Response : {
+    "id": 14,
+    "operator": 4,
+    "operator_name": "VRL Logistics",
+    "route": 10,
+    "route_label": "Hyderabad → Vijayawada",
+    "bus_name": "VRL Gold 501",
+    "number_plate": "TS-08-EE-0001",
+    "qr_token": "e1350cda-a59f-44ed-8c97-767e1e8781a2",
+    "qr_image_url": "",
+    "total_seats": 38,
+    "is_active": true,
+    "latitude": 16.5062,
+    "longitude": 80.648,
+    "last_gps_update": "2026-04-22T14:14:37.624357+05:30",
+    "created_at": "2026-04-22T14:14:37.625029+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/buses/{{bus_id}}/
+Payload :
+{
+  "is_active": false
+}
+
+Response:
+{
+    "id": 14,
+    "operator": 4,
+    "operator_name": "VRL Logistics",
+    "route": 10,
+    "route_label": "Hyderabad → Vijayawada",
+    "bus_name": "VRL Gold 501",
+    "number_plate": "TS-08-EE-0001",
+    "qr_token": "e1350cda-a59f-44ed-8c97-767e1e8781a2",
+    "qr_image_url": "",
+    "total_seats": 38,
+    "is_active": false,
+    "latitude": 16.5062,
+    "longitude": 80.648,
+    "last_gps_update": "2026-04-22T14:14:37.624357+05:30",
+    "created_at": "2026-04-22T14:14:37.625029+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/buses/{{bus_id}}/
+Response: 204 No content
+
+ URL : {{base_url}}/api/v1/fleet/buses/{{bus_id}}/assign_restaurant/
+
+Payload : 
+{
+  "restaurant": {{restaurant_id}}
+}
+
+Response:
+{
+    "id": 15,
+    "bus": 14,
+    "bus_name": "VRL Gold 501",
+    "restaurant": 4,
+    "restaurant_name": "Punjabi Dhaba",
+    "is_active": true,
+    "created_at": "2026-04-22T16:33:57.793111+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/fleet/buses/{{bus_id}}/gps/
+Payload:
+{
+  "latitude": 29.0965,
+  "longitude": 77.0560
+}
+ Response: 204 No Content
+
+
+
+URL : {{base_url}}/api/v1/fleet/assignments/
+
+Response:
+{
+    "count": 8,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 8,
+            "bus": 8,
+            "bus_name": "SRS Express 101",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.688663+05:30"
+        },
+        {
+            "id": 9,
+            "bus": 9,
+            "bus_name": "SRS Express 102",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.689585+05:30"
+        },
+        {
+            "id": 14,
+            "bus": 14,
+            "bus_name": "VRL Gold 501",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "is_active": false,
+            "created_at": "2026-04-22T14:14:37.693780+05:30"
+        },
+        {
+            "id": 15,
+            "bus": 14,
+            "bus_name": "VRL Gold 501",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "is_active": true,
+            "created_at": "2026-04-22T16:33:57.793111+05:30"
+        },
+        {
+            "id": 10,
+            "bus": 10,
+            "bus_name": "SRS Volvo 201",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.690431+05:30"
+        },
+        {
+            "id": 11,
+            "bus": 11,
+            "bus_name": "VRL Sleeper 301",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.691299+05:30"
+        },
+        {
+            "id": 12,
+            "bus": 12,
+            "bus_name": "VRL Sleeper 302",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.692112+05:30"
+        },
+        {
+            "id": 13,
+            "bus": 13,
+            "bus_name": "VRL Express 401",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.692925+05:30"
+        }
+    ]
+}
+
+URL : {{base_url}}/api/v1/fleet/assignments/?is_active=true
+
+Response:
+{
+    "count": 7,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 8,
+            "bus": 8,
+            "bus_name": "SRS Express 101",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.688663+05:30"
+        },
+        {
+            "id": 9,
+            "bus": 9,
+            "bus_name": "SRS Express 102",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.689585+05:30"
+        },
+        {
+            "id": 10,
+            "bus": 10,
+            "bus_name": "SRS Volvo 201",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.690431+05:30"
+        },
+        {
+            "id": 11,
+            "bus": 11,
+            "bus_name": "VRL Sleeper 301",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.691299+05:30"
+        },
+        {
+            "id": 12,
+            "bus": 12,
+            "bus_name": "VRL Sleeper 302",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.692112+05:30"
+        },
+        {
+            "id": 13,
+            "bus": 13,
+            "bus_name": "VRL Express 401",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "is_active": true,
+            "created_at": "2026-04-22T14:14:37.692925+05:30"
+        },
+        {
+            "id": 15,
+            "bus": 14,
+            "bus_name": "VRL Gold 501",
+            "restaurant": 4,
+            "restaurant_name": "Punjabi Dhaba",
+            "is_active": true,
+            "created_at": "2026-04-22T16:33:57.793111+05:30"
+        }
+    ]
+}
+
+URL : {{base_url}}/api/v1/fleet/assignments/{{assignment_id}}/
+
+Response:
+{
+    "id": 8,
+    "bus": 8,
+    "bus_name": "SRS Express 101",
+    "restaurant": 4,
+    "restaurant_name": "Punjabi Dhaba",
+    "is_active": true,
+    "created_at": "2026-04-22T14:14:37.688663+05:30"
+}
+
+————————————————————————————
+
+
+Restaurant 
+
+URL: {{base_url}}/api/v1/auth/otp/verify/
+Payload :
+ {
+  "phone_number": "{{phone_number}}",
+  "code": "{{otp_code}}"
+}
+Response:
+{
+    "user": {
+        "id": "0fb41f69-5881-475b-9f7c-ba94d0d3acb2",
+        "phone_number": "+919100000003",
+        "email": null,
+        "full_name": "Suresh Nair",
+        "gender": "M",
+        "role": "RESTAURANT_STAFF",
+        "is_active": true,
+        "memberships": [
+            {
+                "id": 12,
+                "org_type": "restaurant",
+                "org_id": 5,
+                "org_name": "Highway Treats",
+                "org_role": "RESTAURANT_OWNER",
+                "is_active": true
+            }
+        ],
+        "created_at": "2026-04-22T14:14:36.951920+05:30"
+    },
+    "tokens": {
+        "access": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzc2ODYwMTE0LCJpYXQiOjE3NzY4NTY1MTQsImp0aSI6IjI5ZWU1M2Y1Yzc5NTQ1NzU5MjM2M2U0ZWM0ZjU1Y2JiIiwidXNlcl9pZCI6IjBmYjQxZjY5LTU4ODEtNDc1Yi05ZjdjLWJhOTRkMGQzYWNiMiIsInJvbGUiOiJSRVNUQVVSQU5UX1NUQUZGIn0.mifKOjkL1rlYQEj7eHEli2hARMhjLL-n-HyfJRM3zYA",
+        "refresh": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc3NzQ2MTMxNCwiaWF0IjoxNzc2ODU2NTE0LCJqdGkiOiJiNjFmMjU0NTYzZTM0MTA3OWRlNWRjODk2NTZkZTg2MyIsInVzZXJfaWQiOiIwZmI0MWY2OS01ODgxLTQ3NWItOWY3Yy1iYTk0ZDBkM2FjYjIiLCJyb2xlIjoiUkVTVEFVUkFOVF9TVEFGRiJ9.mwftXd2Xn903boofAXAIlxp5IR0nnuK_K_sJBOxXBeQ"
+    }
+}
+
+
+URL : {{base_url}}/api/v1/auth/me/
+Response:
+{
+    "id": "0fb41f69-5881-475b-9f7c-ba94d0d3acb2",
+    "phone_number": "+919100000003",
+    "email": null,
+    "full_name": "Suresh Nair",
+    "gender": "M",
+    "role": "RESTAURANT_STAFF",
+    "is_active": true,
+    "memberships": [
+        {
+            "id": 12,
+            "org_type": "restaurant",
+            "org_id": 5,
+            "org_name": "Highway Treats",
+            "org_role": "RESTAURANT_OWNER",
+            "is_active": true
+        }
+    ],
+    "created_at": "2026-04-22T14:14:36.951920+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/menu-categories/
+ Response: {
+    "count": 5,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 16,
+            "restaurant": 5,
+            "name": "Snacks",
+            "sort_order": 0
+        },
+        {
+            "id": 17,
+            "restaurant": 5,
+            "name": "South Indian",
+            "sort_order": 1
+        },
+        {
+            "id": 18,
+            "restaurant": 5,
+            "name": "Meals",
+            "sort_order": 2
+        },
+        {
+            "id": 19,
+            "restaurant": 5,
+            "name": "Beverages",
+            "sort_order": 3
+        },
+        {
+            "id": 20,
+            "restaurant": 5,
+            "name": "Combos",
+            "sort_order": 4
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/menu-categories/
+
+Payload : 
+{
+  "restaurant": {{restaurant_id}},
+  "name": "Desserts",
+  "sort_order": 10
+}
+
+Response: {
+    "id": 21,
+    "restaurant": 5,
+    "name": "Desserts",
+    "sort_order": 10
+}
+
+
+
+URL : {{base_url}}/api/v1/restaurants/menu-categories/{{menu_category_id}}/
+
+Response:  {
+    "id": 21,
+    "restaurant": 5,
+    "name": "Desserts",
+    "sort_order": 10
+}
+
+
+URL: {{base_url}}/api/v1/restaurants/menu-categories/{{menu_category_id}}/
+Payload:
+{
+  "sort_order": 5
+}
+
+Response:
+{
+    "id": 21,
+    "restaurant": 5,
+    "name": "Desserts",
+    "sort_order": 5
+}
+
+
+URL: {{base_url}}/api/v1/restaurants/menu-categories/{{menu_category_id}}/
+Response:
+204 No content
+
+ URL: {{base_url}}/api/v1/restaurants/menu-items/
+Response:  {
+    "count": 19,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 58,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Vada Pav",
+            "description": "Mumbai street classic, 2 pcs",
+            "price": "60.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.660627+05:30"
+        },
+        {
+            "id": 59,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Misal Pav",
+            "description": "Spicy sprouted moth curry, 2 pav",
+            "price": "90.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 8,
+            "created_at": "2026-04-22T14:14:37.661646+05:30"
+        },
+        {
+            "id": 60,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Samosa (2 pcs)",
+            "description": "Crispy potato-filled pastry",
+            "price": "50.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.662638+05:30"
+        },
+        {
+            "id": 61,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Corn Bhel",
+            "description": "Sweet corn chaat with sev",
+            "price": "70.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.664822+05:30"
+        },
+        {
+            "id": 62,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Masala Dosa",
+            "description": "Crispy rice crepe with potato filling",
+            "price": "120.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 10,
+            "created_at": "2026-04-22T14:14:37.666577+05:30"
+        },
+        {
+            "id": 63,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Idli Sambar (3 pcs)",
+            "description": "Steamed rice cakes with sambar",
+            "price": "90.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 8,
+            "created_at": "2026-04-22T14:14:37.667551+05:30"
+        },
+        {
+            "id": 64,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Uttapam",
+            "description": "Thick rice pancake with onion-tomato",
+            "price": "100.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 10,
+            "created_at": "2026-04-22T14:14:37.668570+05:30"
+        },
+        {
+            "id": 65,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Medu Vada (2 pcs)",
+            "description": "Fried lentil doughnuts, sambar+chutney",
+            "price": "80.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 8,
+            "created_at": "2026-04-22T14:14:37.669616+05:30"
+        },
+        {
+            "id": 66,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Appam + Stew",
+            "description": "Rice hoppers with veg stew",
+            "price": "130.00",
+            "photo_url": "",
+            "is_available": false,
+            "prep_time_minutes": 15,
+            "created_at": "2026-04-22T14:14:37.670553+05:30"
+        },
+        {
+            "id": 67,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Veg Thali",
+            "description": "Rice + 2 Sabzi + Dal + Roti + Papad + Pickle",
+            "price": "160.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 15,
+            "created_at": "2026-04-22T14:14:37.672359+05:30"
+        },
+        {
+            "id": 68,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Chicken Curry Rice",
+            "description": "Coastal-style chicken curry with rice",
+            "price": "200.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 18,
+            "created_at": "2026-04-22T14:14:37.673276+05:30"
+        },
+        {
+            "id": 69,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Chole Bhature (2 pcs)",
+            "description": "Chickpea curry with fried bread",
+            "price": "130.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 10,
+            "created_at": "2026-04-22T14:14:37.674195+05:30"
+        },
+        {
+            "id": 70,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Egg Curry Rice",
+            "description": "2-egg curry, steamed rice",
+            "price": "150.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.675156+05:30"
+        },
+        {
+            "id": 71,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Filter Coffee",
+            "description": "South Indian drip coffee with milk",
+            "price": "40.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 3,
+            "created_at": "2026-04-22T14:14:37.676878+05:30"
+        },
+        {
+            "id": 72,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Fresh Lime Soda",
+            "description": "Sweet / salted, chilled",
+            "price": "50.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 2,
+            "created_at": "2026-04-22T14:14:37.677809+05:30"
+        },
+        {
+            "id": 73,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Mango Lassi",
+            "description": "Alphonso mango with yoghurt",
+            "price": "80.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 3,
+            "created_at": "2026-04-22T14:14:37.678722+05:30"
+        },
+        {
+            "id": 74,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Mineral Water 1L",
+            "description": "Sealed bottle",
+            "price": "20.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 1,
+            "created_at": "2026-04-22T14:14:37.679639+05:30"
+        },
+        {
+            "id": 75,
+            "restaurant": 5,
+            "category": 20,
+            "category_name": "Combos",
+            "name": "Traveller Combo A",
+            "description": "Masala Dosa + Filter Coffee",
+            "price": "150.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.681333+05:30"
+        },
+        {
+            "id": 76,
+            "restaurant": 5,
+            "category": 20,
+            "category_name": "Combos",
+            "name": "Traveller Combo B",
+            "description": "Veg Thali + Lassi",
+            "price": "230.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 18,
+            "created_at": "2026-04-22T14:14:37.682218+05:30"
+        }
+    ]
+}
+
+
+URL: {{base_url}}/api/v1/restaurants/menu-items/?is_available=true
+Response: {
+    "count": 18,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 58,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Vada Pav",
+            "description": "Mumbai street classic, 2 pcs",
+            "price": "60.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.660627+05:30"
+        },
+        {
+            "id": 59,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Misal Pav",
+            "description": "Spicy sprouted moth curry, 2 pav",
+            "price": "90.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 8,
+            "created_at": "2026-04-22T14:14:37.661646+05:30"
+        },
+        {
+            "id": 60,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Samosa (2 pcs)",
+            "description": "Crispy potato-filled pastry",
+            "price": "50.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.662638+05:30"
+        },
+        {
+            "id": 61,
+            "restaurant": 5,
+            "category": 16,
+            "category_name": "Snacks",
+            "name": "Corn Bhel",
+            "description": "Sweet corn chaat with sev",
+            "price": "70.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 5,
+            "created_at": "2026-04-22T14:14:37.664822+05:30"
+        },
+        {
+            "id": 62,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Masala Dosa",
+            "description": "Crispy rice crepe with potato filling",
+            "price": "120.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 10,
+            "created_at": "2026-04-22T14:14:37.666577+05:30"
+        },
+        {
+            "id": 63,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Idli Sambar (3 pcs)",
+            "description": "Steamed rice cakes with sambar",
+            "price": "90.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 8,
+            "created_at": "2026-04-22T14:14:37.667551+05:30"
+        },
+        {
+            "id": 64,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Uttapam",
+            "description": "Thick rice pancake with onion-tomato",
+            "price": "100.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 10,
+            "created_at": "2026-04-22T14:14:37.668570+05:30"
+        },
+        {
+            "id": 65,
+            "restaurant": 5,
+            "category": 17,
+            "category_name": "South Indian",
+            "name": "Medu Vada (2 pcs)",
+            "description": "Fried lentil doughnuts, sambar+chutney",
+            "price": "80.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 8,
+            "created_at": "2026-04-22T14:14:37.669616+05:30"
+        },
+        {
+            "id": 67,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Veg Thali",
+            "description": "Rice + 2 Sabzi + Dal + Roti + Papad + Pickle",
+            "price": "160.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 15,
+            "created_at": "2026-04-22T14:14:37.672359+05:30"
+        },
+        {
+            "id": 68,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Chicken Curry Rice",
+            "description": "Coastal-style chicken curry with rice",
+            "price": "200.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 18,
+            "created_at": "2026-04-22T14:14:37.673276+05:30"
+        },
+        {
+            "id": 69,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Chole Bhature (2 pcs)",
+            "description": "Chickpea curry with fried bread",
+            "price": "130.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 10,
+            "created_at": "2026-04-22T14:14:37.674195+05:30"
+        },
+        {
+            "id": 70,
+            "restaurant": 5,
+            "category": 18,
+            "category_name": "Meals",
+            "name": "Egg Curry Rice",
+            "description": "2-egg curry, steamed rice",
+            "price": "150.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.675156+05:30"
+        },
+        {
+            "id": 71,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Filter Coffee",
+            "description": "South Indian drip coffee with milk",
+            "price": "40.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 3,
+            "created_at": "2026-04-22T14:14:37.676878+05:30"
+        },
+        {
+            "id": 72,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Fresh Lime Soda",
+            "description": "Sweet / salted, chilled",
+            "price": "50.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 2,
+            "created_at": "2026-04-22T14:14:37.677809+05:30"
+        },
+        {
+            "id": 73,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Mango Lassi",
+            "description": "Alphonso mango with yoghurt",
+            "price": "80.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 3,
+            "created_at": "2026-04-22T14:14:37.678722+05:30"
+        },
+        {
+            "id": 74,
+            "restaurant": 5,
+            "category": 19,
+            "category_name": "Beverages",
+            "name": "Mineral Water 1L",
+            "description": "Sealed bottle",
+            "price": "20.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 1,
+            "created_at": "2026-04-22T14:14:37.679639+05:30"
+        },
+        {
+            "id": 75,
+            "restaurant": 5,
+            "category": 20,
+            "category_name": "Combos",
+            "name": "Traveller Combo A",
+            "description": "Masala Dosa + Filter Coffee",
+            "price": "150.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.681333+05:30"
+        },
+        {
+            "id": 76,
+            "restaurant": 5,
+            "category": 20,
+            "category_name": "Combos",
+            "name": "Traveller Combo B",
+            "description": "Veg Thali + Lassi",
+            "price": "230.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 18,
+            "created_at": "2026-04-22T14:14:37.682218+05:30"
+        }
+    ]
+}
+
+
+URL :{{base_url}}/api/v1/restaurants/menu-items/?category={{menu_category_id}}
+
+Response:
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": 75,
+            "restaurant": 5,
+            "category": 20,
+            "category_name": "Combos",
+            "name": "Traveller Combo A",
+            "description": "Masala Dosa + Filter Coffee",
+            "price": "150.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 12,
+            "created_at": "2026-04-22T14:14:37.681333+05:30"
+        },
+        {
+            "id": 76,
+            "restaurant": 5,
+            "category": 20,
+            "category_name": "Combos",
+            "name": "Traveller Combo B",
+            "description": "Veg Thali + Lassi",
+            "price": "230.00",
+            "photo_url": "",
+            "is_available": true,
+            "prep_time_minutes": 18,
+            "created_at": "2026-04-22T14:14:37.682218+05:30"
+        }
+    ]
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/menu-items/
+
+Payload : 
+{
+  "restaurant": {{restaurant_id}},
+  "category": {{menu_category_id}},
+  "name": "Gulab Jamun",
+  "description": "Soft milk-solid dumplings in sugar syrup, 2 pcs",
+  "price": "60.00",
+  "prep_time_minutes": 5,
+  "is_available": true
+}
+
+Response: {
+    "id": 77,
+    "restaurant": 5,
+    "category": 20,
+    "category_name": "Combos",
+    "name": "Gulab Jamun",
+    "description": "Soft milk-solid dumplings in sugar syrup, 2 pcs",
+    "price": "60.00",
+    "photo_url": "",
+    "is_available": true,
+    "prep_time_minutes": 5,
+    "created_at": "2026-04-22T17:09:33.477901+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/menu-items/{{menu_item_id}}/
+
+Response: {
+    "id": 77,
+    "restaurant": 5,
+    "category": 20,
+    "category_name": "Combos",
+    "name": "Gulab Jamun",
+    "description": "Soft milk-solid dumplings in sugar syrup, 2 pcs",
+    "price": "60.00",
+    "photo_url": "",
+    "is_available": true,
+    "prep_time_minutes": 5,
+    "created_at": "2026-04-22T17:09:33.477901+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/restaurants/menu-items/{{menu_item_id}}/
+
+Payload: 
+{
+  "price": "75.00",
+  "is_available": false
+}
+
+
+Response:
+{
+    "id": 77,
+    "restaurant": 5,
+    "category": 20,
+    "category_name": "Combos",
+    "name": "Gulab Jamun",
+    "description": "Soft milk-solid dumplings in sugar syrup, 2 pcs",
+    "price": "75.00",
+    "photo_url": "",
+    "is_available": false,
+    "prep_time_minutes": 5,
+    "created_at": "2026-04-22T17:09:33.477901+05:30"
+}
+
+
+
+URL : {{base_url}}/api/v1/restaurants/menu-items/{{menu_item_id}}/
+Response: 204 No Content
+
+URL : {{base_url}}/api/v1/orders/restaurant/
+Response: 
+{
+    "count": 5,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "id": "774e1173-f55f-49f3-a68e-fa52dfb0ef51",
+            "passenger": "cca72e63-7561-414c-9a40-fe44fbeda302",
+            "bus": 13,
+            "bus_name": "VRL Express 401",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "status": "PENDING",
+            "payment_status": "UNPAID",
+            "total_amount": "20.00",
+            "items": [
+                {
+                    "id": 20,
+                    "menu_item": 74,
+                    "menu_item_name": "Mineral Water 1L",
+                    "quantity": 1,
+                    "unit_price": "20.00",
+                    "line_total": "20.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": null,
+            "ready_at": null,
+            "picked_up_at": null,
+            "cancelled_reason": "",
+            "created_at": "2026-04-22T14:14:37.717226+05:30",
+            "updated_at": "2026-04-22T14:14:37.717617+05:30"
+        },
+        {
+            "id": "121bc3dc-5626-4ffb-9dc6-871f01d0ff1c",
+            "passenger": "8d552be9-554d-432b-b801-fbf76d4f1aaf",
+            "bus": 12,
+            "bus_name": "VRL Sleeper 302",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "status": "CONFIRMED",
+            "payment_status": "CAPTURED",
+            "total_amount": "1410.00",
+            "items": [
+                {
+                    "id": 15,
+                    "menu_item": 68,
+                    "menu_item_name": "Chicken Curry Rice",
+                    "quantity": 4,
+                    "unit_price": "200.00",
+                    "line_total": "800.00"
+                },
+                {
+                    "id": 16,
+                    "menu_item": 60,
+                    "menu_item_name": "Samosa (2 pcs)",
+                    "quantity": 3,
+                    "unit_price": "50.00",
+                    "line_total": "150.00"
+                },
+                {
+                    "id": 17,
+                    "menu_item": 63,
+                    "menu_item_name": "Idli Sambar (3 pcs)",
+                    "quantity": 2,
+                    "unit_price": "90.00",
+                    "line_total": "180.00"
+                },
+                {
+                    "id": 18,
+                    "menu_item": 72,
+                    "menu_item_name": "Fresh Lime Soda",
+                    "quantity": 4,
+                    "unit_price": "50.00",
+                    "line_total": "200.00"
+                },
+                {
+                    "id": 19,
+                    "menu_item": 74,
+                    "menu_item_name": "Mineral Water 1L",
+                    "quantity": 4,
+                    "unit_price": "20.00",
+                    "line_total": "80.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": "2026-04-22T13:44:37.694138+05:30",
+            "ready_at": null,
+            "picked_up_at": null,
+            "cancelled_reason": "",
+            "created_at": "2026-04-22T14:14:37.714429+05:30",
+            "updated_at": "2026-04-22T14:14:37.714843+05:30"
+        },
+        {
+            "id": "2e7de3be-0d92-491c-9684-e65e21a3803e",
+            "passenger": "79057177-2011-47ee-8a53-8d34643a67a7",
+            "bus": 10,
+            "bus_name": "SRS Volvo 201",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "status": "CANCELLED",
+            "payment_status": "REFUNDED",
+            "total_amount": "460.00",
+            "items": [
+                {
+                    "id": 14,
+                    "menu_item": 76,
+                    "menu_item_name": "Traveller Combo B",
+                    "quantity": 2,
+                    "unit_price": "230.00",
+                    "line_total": "460.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": "2026-04-22T13:44:37.694138+05:30",
+            "ready_at": null,
+            "picked_up_at": null,
+            "cancelled_reason": "Passenger requested cancellation",
+            "created_at": "2026-04-22T14:14:37.712646+05:30",
+            "updated_at": "2026-04-22T14:14:37.713069+05:30"
+        },
+        {
+            "id": "6b8e8f85-c00f-4962-8815-7c2440ab0389",
+            "passenger": "26ad5a05-bf65-4195-a779-6c29406f7e4c",
+            "bus": 11,
+            "bus_name": "VRL Sleeper 301",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "status": "CONFIRMED",
+            "payment_status": "CAPTURED",
+            "total_amount": "420.00",
+            "items": [
+                {
+                    "id": 8,
+                    "menu_item": 67,
+                    "menu_item_name": "Veg Thali",
+                    "quantity": 1,
+                    "unit_price": "160.00",
+                    "line_total": "160.00"
+                },
+                {
+                    "id": 9,
+                    "menu_item": 58,
+                    "menu_item_name": "Vada Pav",
+                    "quantity": 3,
+                    "unit_price": "60.00",
+                    "line_total": "180.00"
+                },
+                {
+                    "id": 10,
+                    "menu_item": 73,
+                    "menu_item_name": "Mango Lassi",
+                    "quantity": 1,
+                    "unit_price": "80.00",
+                    "line_total": "80.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": "2026-04-22T13:44:37.694138+05:30",
+            "ready_at": null,
+            "picked_up_at": null,
+            "cancelled_reason": "",
+            "created_at": "2026-04-22T14:14:37.706517+05:30",
+            "updated_at": "2026-04-22T14:14:37.706932+05:30"
+        },
+        {
+            "id": "39fdbb1f-332c-4740-b2b2-daf02df813f2",
+            "passenger": "a5361179-be82-43f1-8e2b-28fa97463175",
+            "bus": 10,
+            "bus_name": "SRS Volvo 201",
+            "restaurant": 5,
+            "restaurant_name": "Highway Treats",
+            "status": "READY",
+            "payment_status": "CAPTURED",
+            "total_amount": "320.00",
+            "items": [
+                {
+                    "id": 6,
+                    "menu_item": 62,
+                    "menu_item_name": "Masala Dosa",
+                    "quantity": 2,
+                    "unit_price": "120.00",
+                    "line_total": "240.00"
+                },
+                {
+                    "id": 7,
+                    "menu_item": 71,
+                    "menu_item_name": "Filter Coffee",
+                    "quantity": 2,
+                    "unit_price": "40.00",
+                    "line_total": "80.00"
+                }
+            ],
+            "razorpay_order_id": "",
+            "razorpay_payment_id": "",
+            "confirmed_at": "2026-04-22T13:44:37.694138+05:30",
+            "ready_at": "2026-04-22T14:04:37.694138+05:30",
+            "picked_up_at": null,
+            "cancelled_reason": "",
+            "created_at": "2026-04-22T14:14:37.704432+05:30",
+            "updated_at": "2026-04-22T14:14:37.704860+05:30"
+        }
+    ]
+}
+
+URL: {{base_url}}/api/v1/orders/restaurant/{{order_id}}/
+
+Response:
+{
+    "id": "6b8e8f85-c00f-4962-8815-7c2440ab0389",
+    "passenger": "26ad5a05-bf65-4195-a779-6c29406f7e4c",
+    "bus": 11,
+    "bus_name": "VRL Sleeper 301",
+    "restaurant": 5,
+    "restaurant_name": "Highway Treats",
+    "status": "CONFIRMED",
+    "payment_status": "CAPTURED",
+    "total_amount": "420.00",
+    "items": [
+        {
+            "id": 8,
+            "menu_item": 67,
+            "menu_item_name": "Veg Thali",
+            "quantity": 1,
+            "unit_price": "160.00",
+            "line_total": "160.00"
+        },
+        {
+            "id": 9,
+            "menu_item": 58,
+            "menu_item_name": "Vada Pav",
+            "quantity": 3,
+            "unit_price": "60.00",
+            "line_total": "180.00"
+        },
+        {
+            "id": 10,
+            "menu_item": 73,
+            "menu_item_name": "Mango Lassi",
+            "quantity": 1,
+            "unit_price": "80.00",
+            "line_total": "80.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": "2026-04-22T13:44:37.694138+05:30",
+    "ready_at": null,
+    "picked_up_at": null,
+    "cancelled_reason": "",
+    "created_at": "2026-04-22T14:14:37.706517+05:30",
+    "updated_at": "2026-04-22T14:14:37.706932+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/
+Payload : {
+  "status": "CONFIRMED"
+}
+
+Response: 
+{
+    "id": "6b8e8f85-c00f-4962-8815-7c2440ab0389",
+    "passenger": "26ad5a05-bf65-4195-a779-6c29406f7e4c",
+    "bus": 11,
+    "bus_name": "VRL Sleeper 301",
+    "restaurant": 5,
+    "restaurant_name": "Highway Treats",
+    "status": "CONFIRMED",
+    "payment_status": "CAPTURED",
+    "total_amount": "420.00",
+    "items": [
+        {
+            "id": 8,
+            "menu_item": 67,
+            "menu_item_name": "Veg Thali",
+            "quantity": 1,
+            "unit_price": "160.00",
+            "line_total": "160.00"
+        },
+        {
+            "id": 9,
+            "menu_item": 58,
+            "menu_item_name": "Vada Pav",
+            "quantity": 3,
+            "unit_price": "60.00",
+            "line_total": "180.00"
+        },
+        {
+            "id": 10,
+            "menu_item": 73,
+            "menu_item_name": "Mango Lassi",
+            "quantity": 1,
+            "unit_price": "80.00",
+            "line_total": "80.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": "2026-04-22T17:15:03.601571+05:30",
+    "ready_at": null,
+    "picked_up_at": null,
+    "cancelled_reason": "",
+    "created_at": "2026-04-22T14:14:37.706517+05:30",
+    "updated_at": "2026-04-22T17:15:03.601872+05:30"
+}
+  URL : {{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/
+Payload :
+{
+  "status": "PREPARING"
+}
+
+Response: {
+    "id": "6b8e8f85-c00f-4962-8815-7c2440ab0389",
+    "passenger": "26ad5a05-bf65-4195-a779-6c29406f7e4c",
+    "bus": 11,
+    "bus_name": "VRL Sleeper 301",
+    "restaurant": 5,
+    "restaurant_name": "Highway Treats",
+    "status": "PREPARING",
+    "payment_status": "CAPTURED",
+    "total_amount": "420.00",
+    "items": [
+        {
+            "id": 8,
+            "menu_item": 67,
+            "menu_item_name": "Veg Thali",
+            "quantity": 1,
+            "unit_price": "160.00",
+            "line_total": "160.00"
+        },
+        {
+            "id": 9,
+            "menu_item": 58,
+            "menu_item_name": "Vada Pav",
+            "quantity": 3,
+            "unit_price": "60.00",
+            "line_total": "180.00"
+        },
+        {
+            "id": 10,
+            "menu_item": 73,
+            "menu_item_name": "Mango Lassi",
+            "quantity": 1,
+            "unit_price": "80.00",
+            "line_total": "80.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": "2026-04-22T17:15:03.601571+05:30",
+    "ready_at": null,
+    "picked_up_at": null,
+    "cancelled_reason": "",
+    "created_at": "2026-04-22T14:14:37.706517+05:30",
+    "updated_at": "2026-04-22T17:15:48.304074+05:30"
+}
+  URL : {{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/
+Payload : 
+{
+  "status": "READY"
+}
+
+Response: {
+    "id": "6b8e8f85-c00f-4962-8815-7c2440ab0389",
+    "passenger": "26ad5a05-bf65-4195-a779-6c29406f7e4c",
+    "bus": 11,
+    "bus_name": "VRL Sleeper 301",
+    "restaurant": 5,
+    "restaurant_name": "Highway Treats",
+    "status": "READY",
+    "payment_status": "CAPTURED",
+    "total_amount": "420.00",
+    "items": [
+        {
+            "id": 8,
+            "menu_item": 67,
+            "menu_item_name": "Veg Thali",
+            "quantity": 1,
+            "unit_price": "160.00",
+            "line_total": "160.00"
+        },
+        {
+            "id": 9,
+            "menu_item": 58,
+            "menu_item_name": "Vada Pav",
+            "quantity": 3,
+            "unit_price": "60.00",
+            "line_total": "180.00"
+        },
+        {
+            "id": 10,
+            "menu_item": 73,
+            "menu_item_name": "Mango Lassi",
+            "quantity": 1,
+            "unit_price": "80.00",
+            "line_total": "80.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": "2026-04-22T17:15:03.601571+05:30",
+    "ready_at": "2026-04-22T17:16:35.055711+05:30",
+    "picked_up_at": null,
+    "cancelled_reason": "",
+    "created_at": "2026-04-22T14:14:37.706517+05:30",
+    "updated_at": "2026-04-22T17:16:35.056059+05:30"
+}
+  URL :{{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/
+Payload : 
+{
+  "status": "PICKED_UP"
+}
+
+Response: {
+    "id": "6b8e8f85-c00f-4962-8815-7c2440ab0389",
+    "passenger": "26ad5a05-bf65-4195-a779-6c29406f7e4c",
+    "bus": 11,
+    "bus_name": "VRL Sleeper 301",
+    "restaurant": 5,
+    "restaurant_name": "Highway Treats",
+    "status": "PICKED_UP",
+    "payment_status": "CAPTURED",
+    "total_amount": "420.00",
+    "items": [
+        {
+            "id": 8,
+            "menu_item": 67,
+            "menu_item_name": "Veg Thali",
+            "quantity": 1,
+            "unit_price": "160.00",
+            "line_total": "160.00"
+        },
+        {
+            "id": 9,
+            "menu_item": 58,
+            "menu_item_name": "Vada Pav",
+            "quantity": 3,
+            "unit_price": "60.00",
+            "line_total": "180.00"
+        },
+        {
+            "id": 10,
+            "menu_item": 73,
+            "menu_item_name": "Mango Lassi",
+            "quantity": 1,
+            "unit_price": "80.00",
+            "line_total": "80.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": "2026-04-22T17:15:03.601571+05:30",
+    "ready_at": "2026-04-22T17:16:35.055711+05:30",
+    "picked_up_at": "2026-04-22T17:17:23.479219+05:30",
+    "cancelled_reason": "",
+    "created_at": "2026-04-22T14:14:37.706517+05:30",
+    "updated_at": "2026-04-22T17:17:23.479507+05:30"
+}
+
+
+URL : {{base_url}}/api/v1/orders/restaurant/{{order_id}}/advance/ Payload : 
+{
+  "status": "CANCELLED",
+  "reason": "Out of stock"
+}
+
+Response:
+
+{
+    "id": "6b8e8f85-c00f-4962-8815-7c2440ab0389",
+    "passenger": "26ad5a05-bf65-4195-a779-6c29406f7e4c",
+    "bus": 11,
+    "bus_name": "VRL Sleeper 301",
+    "restaurant": 5,
+    "restaurant_name": "Highway Treats",
+    "status": "CANCELLED",
+    "payment_status": "CAPTURED",
+    "total_amount": "420.00",
+    "items": [
+        {
+            "id": 8,
+            "menu_item": 67,
+            "menu_item_name": "Veg Thali",
+            "quantity": 1,
+            "unit_price": "160.00",
+            "line_total": "160.00"
+        },
+        {
+            "id": 9,
+            "menu_item": 58,
+            "menu_item_name": "Vada Pav",
+            "quantity": 3,
+            "unit_price": "60.00",
+            "line_total": "180.00"
+        },
+        {
+            "id": 10,
+            "menu_item": 73,
+            "menu_item_name": "Mango Lassi",
+            "quantity": 1,
+            "unit_price": "80.00",
+            "line_total": "80.00"
+        }
+    ],
+    "razorpay_order_id": "",
+    "razorpay_payment_id": "",
+    "confirmed_at": "2026-04-22T17:15:03.601571+05:30",
+    "ready_at": "2026-04-22T17:16:35.055711+05:30",
+    "picked_up_at": "2026-04-22T17:17:23.479219+05:30",
+    "cancelled_reason": "Out of stock",
+    "created_at": "2026-04-22T14:14:37.706517+05:30",
+    "updated_at": "2026-04-22T17:18:38.498016+05:30"
+}
+
+
+
+
+
+ 
+ 
