@@ -1,11 +1,8 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { Providers } from '@/components/layout/Providers'
 import { PersistentBottomNav } from '@/components/layout/PersistentBottomNav'
 import './globals.css'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'ETA Eats — Order Before You Arrive',
@@ -17,7 +14,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body>
         <Providers>
           {children}
           <PersistentBottomNav />
@@ -26,8 +23,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             toastOptions={{
               style: {
                 background: '#FFFFFF',
-                color: '#111827',
-                border: '1px solid #E5E7EB',
+                color: '#111111',
+                border: '1px solid #E8E8E2',
               },
             }}
           />

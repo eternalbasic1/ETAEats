@@ -38,7 +38,7 @@ export function OTPInput({ value, onChange, disabled }: OTPInputProps) {
           disabled={disabled}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="h-12 w-11 rounded-md bg-surface border border-border text-center text-lg font-bold text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+          className="h-12 w-11 rounded-lg bg-surface2 border border-border text-center text-lg font-semibold text-text-primary shadow-e1 focus:border-border-strong focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
         />
       ))}
     </div>

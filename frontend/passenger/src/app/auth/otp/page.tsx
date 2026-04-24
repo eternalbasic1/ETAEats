@@ -1,9 +1,11 @@
 'use client'
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
 import { OTPInput } from '@/components/cart/OTPInput'
 import { Button } from '@/components/ui'
+import { BrandMark } from '@/components/layout/BrandMark'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/auth.store'
 
@@ -41,10 +43,14 @@ export default function OTPPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg p-6 flex items-center justify-center">
-      <div className="w-full max-w-sm rounded-2xl border border-border bg-surface p-5">
-        <h1 className="text-xl font-bold text-text-primary">Verify OTP</h1>
-        <p className="text-sm text-text-secondary mt-1">Code sent to +91 {phone}</p>
+    <div className="min-h-screen bg-bg px-6 py-8 flex items-center justify-center">
+      <div className="w-full max-w-sm rounded-card border border-border bg-surface p-6 shadow-e2">
+        <BrandMark size="sm" subtitle="Secure passenger sign-in" />
+
+        <div className="mt-7">
+          <h1 className="text-[28px] leading-[34px] font-semibold tracking-tight text-text-primary">Verify OTP</h1>
+          <p className="text-sm text-text-secondary mt-2">Code sent to +91 {phone}</p>
+        </div>
 
         <div className="mt-6">
           <OTPInput value={otp} onChange={setOtp} disabled={loading} />
@@ -59,13 +65,18 @@ export default function OTPPage() {
           Verify & Continue
         </Button>
 
-        <button
-          onClick={handleResend}
-          disabled={loading}
-          className="text-xs text-text-secondary mt-3 w-full text-center"
-        >
-          Resend OTP
-        </button>
+        <div className="mt-4 flex items-center justify-between">
+          <button
+            onClick={handleResend}
+            disabled={loading}
+            className="text-xs font-medium text-text-secondary hover:text-text-primary transition-colors"
+          >
+            Resend OTP
+          </button>
+          <Link href="/auth/login" className="text-xs font-medium text-text-secondary hover:text-text-primary transition-colors">
+            Change number
+          </Link>
+        </div>
       </div>
     </div>
   )

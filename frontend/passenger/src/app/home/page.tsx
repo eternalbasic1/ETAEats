@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { Package, Clock3 } from 'lucide-react'
+import { BrandMark } from '@/components/layout/BrandMark'
 import { Badge, Spinner } from '@/components/ui'
 import { useAuthStore } from '@/stores/auth.store'
 import { useOrderTrackingStore } from '@/stores/orderTracking.store'
@@ -53,9 +54,9 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-bg p-4 pb-24">
-      <section className="rounded-2xl border border-border bg-surface p-5">
-        <p className="text-xs uppercase tracking-wider text-text-muted mb-2">ETA Eats</p>
-        <h1 className="text-xl font-bold text-text-primary">
+      <section className="rounded-card border border-border bg-surface p-5 shadow-e1">
+        <BrandMark size="sm" subtitle="Highway food pre-ordering" />
+        <h1 className="mt-4 text-xl font-bold text-text-primary">
           Order food before your bus reaches the stop
         </h1>
         <div className="mt-4 grid grid-cols-2 gap-2">
