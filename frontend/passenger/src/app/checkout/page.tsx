@@ -4,7 +4,6 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui'
-import { BottomNav } from '@/components/layout/BottomNav'
 import { useCartStore } from '@/stores/cart.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useJourneyStore } from '@/stores/journey.store'
@@ -148,7 +147,6 @@ export default function CheckoutPage() {
         </Button>
       </div>
 
-      <BottomNav />
     </div>
   )
 }

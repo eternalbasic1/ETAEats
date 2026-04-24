@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { Package, Clock3 } from 'lucide-react'
 import { Badge, Spinner } from '@/components/ui'
-import { BottomNav } from '@/components/layout/BottomNav'
 import { useAuthStore } from '@/stores/auth.store'
 import { useOrderTrackingStore } from '@/stores/orderTracking.store'
 import api from '@/lib/api'
@@ -129,7 +128,6 @@ export default function HomePage() {
         ))}
       </section>
 
-      <BottomNav />
     </div>
   )
 }

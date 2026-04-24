@@ -15,7 +15,7 @@ export function Card({ accent = 'none', className, children, ...props }: CardPro
   return (
     <div
       className={cn(
-        'rounded-md bg-surface border border-border shadow-sm p-4',
+        'rounded-card bg-surface border border-border shadow-e1 p-4',
         accents[accent],
         className,
       )}

@@ -9,17 +9,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', loading, className, children, disabled, ...props }, ref) => {
-    const base = 'inline-flex items-center justify-center gap-2 font-semibold rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed'
+    const base = 'inline-flex items-center justify-center gap-2 font-semibold rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed'
     const variants: Record<'primary' | 'secondary' | 'ghost' | 'danger' | 'success', string> = {
-      primary:   'bg-primary text-white hover:bg-primary-dark',
-      secondary: 'bg-surface border border-border text-text-primary hover:bg-surface2',
+      primary:   'bg-primary text-surface shadow-e1 hover:-translate-y-0.5 hover:shadow-cta',
+      secondary: 'bg-surface2 border border-border text-text-primary hover:bg-gray-200',
       ghost:     'bg-transparent text-text-secondary hover:bg-surface2 hover:text-text-primary',
-      danger:    'bg-error-bg text-error border border-error/30 hover:bg-error hover:text-white',
-      success:   'bg-success text-white hover:bg-success/90',
+      danger:    'bg-error-bg text-error border border-error hover:bg-error hover:text-surface',
+      success:   'bg-success-bg text-success border border-success hover:bg-success hover:text-surface',
     }
     const sizes: Record<'sm' | 'md' | 'lg', string> = {
       sm: 'h-8  px-3 text-xs',
-      md: 'h-10 px-4 text-sm',
+      md: 'h-11 px-5 text-[15px]',
       lg: 'h-12 px-6 text-base',
     }
     return (
