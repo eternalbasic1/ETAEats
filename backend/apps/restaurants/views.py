@@ -1,4 +1,6 @@
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
+from rest_framework import status as http_status
 from rest_framework import viewsets
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -64,6 +66,17 @@ class MenuItemViewSet(viewsets.ModelViewSet):
                 restaurant__memberships__is_active=True,
             ).distinct()
         return qs
+
+    def destroy(self, request, *args, **kwargs):
+        """
+        Soft-delete menu items so historical OrderItem rows (PROTECT FK) keep
+        working and staff can safely remove items from active menu listings.
+        """
+        instance = self.get_object()
+        instance.deleted_at = timezone.now()
+        instance.is_available = False
+        instance.save(update_fields=['deleted_at', 'is_available'])
+        return Response(status=http_status.HTTP_204_NO_CONTENT)
 
 
 class ScanBusQRView(APIView):

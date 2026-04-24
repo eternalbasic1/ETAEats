@@ -93,9 +93,15 @@ export default function LiveOrdersPage() {
     )
   }
 
-  const newOrders     = orders.filter((o) => o.status === 'PENDING')
-  const cookingOrders = orders.filter((o) => o.status === 'CONFIRMED' || o.status === 'PREPARING')
-  const readyOrders   = orders.filter((o) => o.status === 'READY')
+  // Kanban policy:
+  // - New: only paid confirmed orders
+  // - Cooking: orders actively being prepared
+  // - Ready: orders ready for pickup
+  const newOrders = orders.filter(
+    (o) => o.status === 'CONFIRMED' && o.payment_status === 'CAPTURED'
+  )
+  const cookingOrders = orders.filter((o) => o.status === 'PREPARING')
+  const readyOrders = orders.filter((o) => o.status === 'READY')
 
   return (
     <div className="h-full p-6">

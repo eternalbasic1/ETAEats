@@ -21,10 +21,7 @@ export default function OrderTrackingPage() {
     onStatusChange: (status) => {
       setLiveStatus(status)
       updateOrderStatus(status)
-      if (status === 'PICKED_UP') {
-        clearIfComplete()
-        setTimeout(() => router.replace(`/order/${orderId}/complete`), 1500)
-      }
+      if (status === 'PICKED_UP') clearIfComplete()
     },
   })
 
@@ -47,12 +44,6 @@ export default function OrderTrackingPage() {
       status: effectiveStatus,
     })
   }, [order, effectiveStatus, setActiveOrder])
-
-  useEffect(() => {
-    if (effectiveStatus === 'PICKED_UP') {
-      router.replace(`/order/${orderId}/complete`)
-    }
-  }, [effectiveStatus, orderId, router])
 
   if (isLoading || !order) {
     return (

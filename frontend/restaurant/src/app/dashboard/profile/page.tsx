@@ -17,11 +17,11 @@ interface ProfileForm {
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, restaurantId, refreshToken } = useAuthStore()
+  const { user, restaurantId, refreshToken, updateUser } = useAuthStore()
   const { logout } = useAuth()
   const queryClient = useQueryClient()
 
-  const { register, handleSubmit, formState: { isDirty } } = useForm<ProfileForm>({
+  const { register, handleSubmit, reset, formState: { isDirty } } = useForm<ProfileForm>({
     defaultValues: { full_name: user?.full_name ?? '', email: user?.email ?? '' },
   })
 
@@ -33,7 +33,12 @@ export default function ProfilePage() {
 
   const updateMutation = useMutation({
     mutationFn: (values: ProfileForm) => api.patch<User>('/auth/me/', values),
-    onSuccess: () => {
+    onSuccess: (response) => {
+      updateUser(response.data)
+      reset({
+        full_name: response.data.full_name ?? '',
+        email: response.data.email ?? '',
+      })
       queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
       toast.success('Profile updated')
     },

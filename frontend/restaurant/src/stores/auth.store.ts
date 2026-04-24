@@ -11,6 +11,7 @@ interface AuthState {
   restaurantName: string | null
   isAuthenticated: boolean
   setAuth: (user: User, access: string, refresh: string) => void
+  updateUser: (user: User) => void
   clearAuth: () => void
 }
 
@@ -42,6 +43,19 @@ export const useAuthStore = create<AuthState>()(
           restaurantName: name,
           isAuthenticated: true,
         })
+      },
+
+      updateUser: (user) => {
+        const { id, name } = pickRestaurant(user)
+        set((state) => ({
+          user,
+          // Keep existing token pair untouched.
+          accessToken: state.accessToken,
+          refreshToken: state.refreshToken,
+          restaurantId: id,
+          restaurantName: name,
+          isAuthenticated: state.isAuthenticated,
+        }))
       },
 
       clearAuth: () => {
