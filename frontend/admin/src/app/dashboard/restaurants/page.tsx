@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge, Button, Card, Dialog, Input, Spinner, Switch, Textarea } from '@/components/ui'
 import api from '@/lib/api'
@@ -99,15 +99,6 @@ export default function RestaurantsPage() {
     },
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`/restaurants/${id}/`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'restaurants'] })
-      toast.success('Restaurant deleted')
-    },
-    onError: () => toast.error('Could not delete restaurant.'),
-  })
-
   if (isLoading) {
     return <div className="flex items-center justify-center h-full"><Spinner className="h-8 w-8" /></div>
   }
@@ -157,12 +148,6 @@ export default function RestaurantsPage() {
                         className="p-2 rounded-md text-text-secondary hover:bg-surface hover:text-text-primary"
                       >
                         <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => { if (confirm(`Delete ${r.name}?`)) deleteMutation.mutate(r.id) }}
-                        className="p-2 rounded-md text-error hover:bg-error-bg"
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>

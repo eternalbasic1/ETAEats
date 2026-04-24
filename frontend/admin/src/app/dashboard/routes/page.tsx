@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button, Card, Dialog, Input, Spinner } from '@/components/ui'
 import api from '@/lib/api'
@@ -62,15 +62,6 @@ export default function RoutesPage() {
     onError: () => toast.error('Could not save route.'),
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`/fleet/routes/${id}/`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'routes'] })
-      toast.success('Route deleted')
-    },
-    onError: () => toast.error('Could not delete route.'),
-  })
-
   if (isLoading) return <div className="flex items-center justify-center h-full"><Spinner className="h-8 w-8" /></div>
 
   return (
@@ -105,12 +96,6 @@ export default function RoutesPage() {
                     <div className="flex gap-1">
                       <button onClick={() => openEdit(r)} className="p-2 rounded-md text-text-secondary hover:bg-surface hover:text-text-primary">
                         <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => { if (confirm(`Delete route ${r.origin_city} → ${r.destination_city}?`)) deleteMutation.mutate(r.id) }}
-                        className="p-2 rounded-md text-error hover:bg-error-bg"
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>

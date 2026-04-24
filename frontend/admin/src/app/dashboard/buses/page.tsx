@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { Plus, Pencil, Trash2, Copy, Link2 } from 'lucide-react'
+import { Plus, Pencil, Copy, Link2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Badge, Button, Card, Dialog, Input, Spinner, Switch } from '@/components/ui'
 import api from '@/lib/api'
@@ -88,15 +88,6 @@ export default function BusesPage() {
     },
   })
 
-  const deleteMutation = useMutation({
-    mutationFn: (id: number) => api.delete(`/fleet/buses/${id}/`),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin', 'buses'] })
-      toast.success('Bus deleted')
-    },
-    onError: () => toast.error('Could not delete bus.'),
-  })
-
   const assignMutation = useMutation({
     mutationFn: () =>
       api.post(`/fleet/buses/${assignDialogBus!.id}/assign_restaurant/`, {
@@ -174,12 +165,6 @@ export default function BusesPage() {
                       </button>
                       <button onClick={() => openEdit(b)} className="p-2 rounded-md text-text-secondary hover:bg-surface hover:text-text-primary">
                         <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => { if (confirm(`Delete ${b.bus_name}?`)) deleteMutation.mutate(b.id) }}
-                        className="p-2 rounded-md text-error hover:bg-error-bg"
-                      >
-                        <Trash2 className="h-4 w-4" />
                       </button>
                     </div>
                   </td>
