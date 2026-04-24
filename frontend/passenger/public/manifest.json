@@ -4,8 +4,8 @@
   "description": "Pre-order highway food from your bus",
   "start_url": "/scan/invalid",
   "display": "standalone",
-  "background_color": "#0D0D0D",
-  "theme_color": "#0D0D0D",
+  "background_color": "#F8F9FA",
+  "theme_color": "#FF6B2B",
   "orientation": "portrait",
   "icons": [
     {

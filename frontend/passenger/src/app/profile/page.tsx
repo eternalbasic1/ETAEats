@@ -24,7 +24,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="sticky top-0 z-10 bg-bg border-b border-white/8 px-4 py-4 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </button>
@@ -33,7 +33,7 @@ export default function ProfilePage() {
 
       <div className="px-4 py-6 space-y-4">
         <div className="flex flex-col items-center py-4">
-          <div className="h-20 w-20 rounded-full bg-gradient-primary flex items-center justify-center text-3xl mb-3">
+          <div className="h-20 w-20 rounded-full bg-primary text-white flex items-center justify-center text-3xl font-bold mb-3">
             {user.full_name ? user.full_name[0]?.toUpperCase() : '👤'}
           </div>
           <p className="text-lg font-bold text-text-primary">
@@ -42,7 +42,7 @@ export default function ProfilePage() {
           <p className="text-sm text-text-secondary">{user.phone_number}</p>
         </div>
 
-        <div className="rounded-xl bg-surface2 border border-white/8 divide-y divide-white/5">
+        <div className="rounded-xl bg-surface border border-border divide-y divide-border">
           <div className="flex items-center gap-3 p-4">
             <Phone className="h-4 w-4 text-text-muted" />
             <div>

@@ -15,35 +15,41 @@ export function Dialog({ open, onClose, title, className, children }: DialogProp
   return (
     <AnimatePresence>
       {open && (
-        <>
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
+          {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-40 bg-black/40"
+            className="absolute inset-0 bg-black/40"
           />
+          {/* Panel */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96, y: 8 }}
             animate={{ opacity: 1, scale: 1,    y: 0 }}
             exit={{    opacity: 0, scale: 0.96, y: 8 }}
             transition={{ duration: 0.15 }}
             className={cn(
-              'fixed left-1/2 top-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-lg bg-surface border border-border shadow-lg p-6',
+              'relative z-10 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-lg bg-surface border border-border shadow-xl p-6',
               className,
             )}
           >
             {title && (
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center justify-between mb-4 sticky top-0 bg-surface -mx-6 px-6 pt-0 pb-3 border-b border-border">
                 <h2 className="text-lg font-bold text-text-primary">{title}</h2>
-                <button onClick={onClose} className="text-text-muted hover:text-text-primary">
+                <button
+                  onClick={onClose}
+                  className="text-text-muted hover:text-text-primary"
+                  aria-label="Close dialog"
+                >
                   <X className="h-5 w-5" />
                 </button>
               </div>
             )}
             {children}
           </motion.div>
-        </>
+        </div>
       )}
     </AnimatePresence>
   )

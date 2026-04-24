@@ -27,8 +27,8 @@ export function CategoryTabs({ categories, active, onChange }: CategoryTabsProps
             className={cn(
               'flex-shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all',
               isActive
-                ? 'bg-gradient-primary text-white shadow-md shadow-primary/30'
-                : 'bg-surface2 text-text-secondary border border-white/8',
+                ? 'bg-primary text-white'
+                : 'bg-surface text-text-secondary border border-border hover:border-primary',
             )}
           >
             {cat}

@@ -57,7 +57,7 @@ export default function CartPage() {
         <p className="text-text-secondary">Your cart is empty</p>
         <button
           onClick={() => router.back()}
-          className="text-primary-soft text-sm font-semibold"
+          className="text-primary text-sm font-semibold"
         >
           ← Go back to menu
         </button>
@@ -67,7 +67,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-bg pb-32">
-      <div className="sticky top-0 z-10 bg-bg border-b border-white/8 px-4 py-4 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </button>
@@ -82,22 +82,22 @@ export default function CartPage() {
           <motion.div
             key={item.id}
             layout
-            className="flex items-center gap-3 py-4 border-b border-white/5"
+            className="flex items-center gap-3 py-4 border-b border-border"
           >
             <div className="flex-1">
               <p className="text-sm font-semibold text-text-primary">{item.menu_item_name}</p>
-              <p className="text-sm text-primary-soft font-bold mt-0.5">
+              <p className="text-sm text-primary font-bold mt-0.5">
                 ₹{item.unit_price} × {item.quantity}
               </p>
             </div>
-            <div className="flex items-center gap-1 bg-surface2 rounded-lg border border-white/8 overflow-hidden">
+            <div className="flex items-center gap-1 bg-surface2 rounded-lg border border-border overflow-hidden">
               <button
                 onClick={() =>
                   item.quantity > 1
                     ? handleUpdate(item.id, item.quantity - 1)
                     : handleRemove(item.id)
                 }
-                className="px-3 py-1.5 text-primary-soft"
+                className="px-3 py-1.5 text-primary"
               >
                 −
               </button>
@@ -106,7 +106,7 @@ export default function CartPage() {
               </span>
               <button
                 onClick={() => handleUpdate(item.id, item.quantity + 1)}
-                className="px-3 py-1.5 text-primary-soft"
+                className="px-3 py-1.5 text-primary"
               >
                 +
               </button>
@@ -118,18 +118,18 @@ export default function CartPage() {
         ))}
       </div>
 
-      <div className="mx-4 mt-4 rounded-xl bg-surface2 border border-white/8 p-4">
+      <div className="mx-4 mt-4 rounded-xl bg-surface2 border border-border p-4">
         <div className="flex justify-between text-sm text-text-secondary mb-2">
           <span>Subtotal</span>
           <span>₹{totalPrice().toFixed(2)}</span>
         </div>
-        <div className="flex justify-between text-base font-bold text-text-primary border-t border-white/8 pt-2 mt-2">
+        <div className="flex justify-between text-base font-bold text-text-primary border-t border-border pt-2 mt-2">
           <span>Total</span>
           <span>₹{totalPrice().toFixed(2)}</span>
         </div>
       </div>
 
-      <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-white/8">
+      <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-border">
         <Button className="w-full" size="lg" onClick={handleCheckout}>
           Place Order · ₹{totalPrice().toFixed(0)}
         </Button>

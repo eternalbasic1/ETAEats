@@ -72,7 +72,7 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-bg pb-32">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-bg border-b border-white/8 px-4 py-4 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </button>
@@ -81,11 +81,11 @@ export default function CheckoutPage() {
 
       <div className="px-4 py-4 space-y-4">
         {/* Bus + Restaurant */}
-        <div className="rounded-xl bg-surface2 border border-white/8 p-4">
+        <div className="rounded-xl bg-surface border border-border p-4">
           <p className="text-xs text-text-muted uppercase tracking-wider mb-2">Pickup from</p>
           <p className="text-sm font-semibold text-text-primary">{restaurant?.name}</p>
           <p className="text-xs text-text-secondary mt-0.5">{restaurant?.address}</p>
-          <div className="mt-3 pt-3 border-t border-white/8">
+          <div className="mt-3 pt-3 border-t border-border">
             <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Your bus</p>
             <p className="text-sm text-text-primary">
               {bus?.name} · {bus?.numberPlate}
@@ -94,7 +94,7 @@ export default function CheckoutPage() {
         </div>
 
         {/* Order items */}
-        <div className="rounded-xl bg-surface2 border border-white/8 p-4 space-y-2">
+        <div className="rounded-xl bg-surface border border-border p-4 space-y-2">
           <p className="text-xs text-text-muted uppercase tracking-wider mb-3">Your order</p>
           {items.map((item) => (
             <div key={item.id} className="flex justify-between text-sm">
@@ -104,7 +104,7 @@ export default function CheckoutPage() {
               <span className="text-text-primary font-medium">₹{item.line_total}</span>
             </div>
           ))}
-          <div className="flex justify-between text-base font-bold text-text-primary border-t border-white/8 pt-3 mt-2">
+          <div className="flex justify-between text-base font-bold text-text-primary border-t border-border pt-3 mt-2">
             <span>Total</span>
             <span>₹{totalPrice().toFixed(2)}</span>
           </div>
@@ -112,7 +112,7 @@ export default function CheckoutPage() {
       </div>
 
       {/* Pay CTA */}
-      <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-white/8">
+      <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-border">
         <Button className="w-full" size="lg" onClick={handlePay} loading={loading}>
           Pay ₹{totalPrice().toFixed(0)} with Razorpay
         </Button>

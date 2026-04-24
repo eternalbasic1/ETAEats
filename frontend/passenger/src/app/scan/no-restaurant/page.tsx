@@ -3,7 +3,7 @@ import { Utensils } from 'lucide-react'
 export default function NoRestaurantPage() {
   return (
     <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6 text-center">
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-warning/10 border border-warning/30 mx-auto mb-6">
+      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-warning-bg border border-warning/30 mx-auto mb-6">
         <Utensils className="h-10 w-10 text-warning" />
       </div>
       <h1 className="text-xl font-bold text-text-primary mb-3">

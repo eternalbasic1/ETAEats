@@ -47,16 +47,16 @@ export function AuthBottomSheet({ open, onSuccess, onClose }: AuthBottomSheetPro
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
           />
           <motion.div
             initial={{ y: '100%' }}
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 300, damping: 32 }}
-            className="fixed bottom-0 inset-x-0 z-50 bg-surface rounded-t-2xl border-t border-white/8 p-6"
+            className="fixed bottom-0 inset-x-0 z-50 bg-surface rounded-t-2xl border-t border-border shadow-2xl p-6"
           >
-            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-5" />
+            <div className="w-10 h-1 bg-border-strong rounded-full mx-auto mb-5" />
 
             {step === 'phone' && (
               <div className="space-y-4">
@@ -66,9 +66,9 @@ export function AuthBottomSheet({ open, onSuccess, onClose }: AuthBottomSheetPro
                     Sign in to place your order. Your cart is saved.
                   </p>
                 </div>
-                <div className="flex items-center gap-2 bg-surface2 rounded-xl border border-white/8 px-4 py-3">
+                <div className="flex items-center gap-2 bg-surface rounded-md border border-border px-4 py-3">
                   <span className="text-sm text-text-secondary">🇮🇳 +91</span>
-                  <div className="w-px h-4 bg-white/20" />
+                  <div className="w-px h-4 bg-border-strong" />
                   <input
                     type="tel"
                     inputMode="numeric"

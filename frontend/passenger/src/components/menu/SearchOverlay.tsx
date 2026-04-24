@@ -40,7 +40,7 @@ export function SearchOverlay({ open, items, onClose, onAdd }: SearchOverlayProp
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 bg-bg flex flex-col"
         >
-          <div className="flex items-center gap-3 p-4 border-b border-white/8">
+          <div className="flex items-center gap-3 p-4 border-b border-border">
             <Search className="h-5 w-5 text-text-secondary flex-shrink-0" />
             <input
               ref={inputRef}
@@ -62,15 +62,15 @@ export function SearchOverlay({ open, items, onClose, onAdd }: SearchOverlayProp
               <p className="text-center text-text-muted text-sm mt-8">No items found for &quot;{query}&quot;</p>
             )}
             {results.map((item) => (
-              <div key={item.id} className="flex items-center justify-between py-3 border-b border-white/5">
+              <div key={item.id} className="flex items-center justify-between py-3 border-b border-border">
                 <div>
                   <p className="text-sm font-semibold text-text-primary">{item.name}</p>
                   <p className="text-xs text-text-secondary mt-0.5">{item.category_name}</p>
-                  <p className="text-sm font-bold text-primary-soft mt-1">₹{item.price}</p>
+                  <p className="text-sm font-bold text-primary mt-1">₹{item.price}</p>
                 </div>
                 <button
                   onClick={() => { onAdd(item); onClose() }}
-                  className="rounded-lg bg-gradient-primary text-white text-xs font-bold px-4 py-2"
+                  className="rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2"
                 >
                   + ADD
                 </button>

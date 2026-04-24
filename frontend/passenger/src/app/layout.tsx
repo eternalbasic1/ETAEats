@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   title: 'ETA Eats — Order Before You Arrive',
   description: 'Pre-order highway food from your bus',
   manifest: '/manifest.json',
-  themeColor: '#0D0D0D',
+  themeColor: '#FFFFFF',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -23,9 +23,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             position="top-center"
             toastOptions={{
               style: {
-                background: '#1A1A2E',
-                color: '#fff',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: '#FFFFFF',
+                color: '#111827',
+                border: '1px solid #E5E7EB',
               },
             }}
           />

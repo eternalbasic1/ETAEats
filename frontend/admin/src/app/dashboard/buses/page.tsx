@@ -45,10 +45,10 @@ export default function BusesPage() {
     queryFn: () => api.get<Paginated<Restaurant>>('/restaurants/?page_size=200').then((r) => r.data.results),
   })
 
-  const buses = busesQ.data ?? []
-  const operators = operatorsQ.data ?? []
-  const routes = routesQ.data ?? []
-  const restaurants = restaurantsQ.data ?? []
+  const buses = Array.isArray(busesQ.data) ? busesQ.data : busesQ.data?.results ?? []
+  const operators = Array.isArray(operatorsQ.data) ? operatorsQ.data : operatorsQ.data?.results ?? []
+  const routes = Array.isArray(routesQ.data) ? routesQ.data : routesQ.data?.results ?? []
+  const restaurants = Array.isArray(restaurantsQ.data) ? restaurantsQ.data : restaurantsQ.data?.results ?? []
 
   function openCreate() { setEditing(null); setForm(empty); setDialogOpen(true) }
   function openEdit(b: Bus) {

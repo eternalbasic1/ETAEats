@@ -20,7 +20,7 @@ export function CartBar() {
         >
           <button
             onClick={() => router.push('/cart')}
-            className="w-full rounded-xl bg-gradient-primary text-white shadow-xl shadow-primary/40 px-5 py-4 flex items-center justify-between"
+            className="w-full rounded-xl bg-primary hover:bg-primary-dark text-white shadow-lg shadow-primary/20 px-5 py-4 flex items-center justify-between"
           >
             <span className="text-sm font-semibold">
               {totalItems} item{totalItems > 1 ? 's' : ''}

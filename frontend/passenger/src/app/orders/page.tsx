@@ -39,7 +39,7 @@ export default function OrdersPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="sticky top-0 z-10 bg-bg border-b border-white/8 px-4 py-4 flex items-center gap-3">
+      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </button>
@@ -66,7 +66,7 @@ export default function OrdersPage() {
             <button
               key={order.id}
               onClick={() => router.push(`/order/${order.id}`)}
-              className="w-full text-left rounded-xl bg-surface2 border border-white/8 p-4 mb-3"
+              className="w-full text-left rounded-xl bg-surface border border-border p-4 mb-3 hover:border-primary/40 transition-colors"
             >
               <div className="flex items-start justify-between gap-2 mb-2">
                 <div>

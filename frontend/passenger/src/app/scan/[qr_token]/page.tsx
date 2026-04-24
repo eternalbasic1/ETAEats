@@ -67,12 +67,12 @@ export default function ScanPage() {
             className="text-center"
           >
             <motion.div
-              className="flex h-28 w-28 items-center justify-center rounded-3xl bg-gradient-primary mx-auto mb-8"
+              className="flex h-28 w-28 items-center justify-center rounded-3xl bg-primary mx-auto mb-8"
               animate={{
                 boxShadow: [
-                  '0 0 20px rgba(124,92,252,0.3)',
-                  '0 0 60px rgba(124,92,252,0.6)',
-                  '0 0 20px rgba(124,92,252,0.3)',
+                  '0 8px 20px rgba(255,107,43,0.25)',
+                  '0 12px 40px rgba(255,107,43,0.45)',
+                  '0 8px 20px rgba(255,107,43,0.25)',
                 ],
               }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -92,7 +92,7 @@ export default function ScanPage() {
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-sm text-center"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-error/20 mx-auto mb-4">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-error-bg border border-error/30 mx-auto mb-4">
               <AlertCircle className="h-8 w-8 text-error" />
             </div>
             <h2 className="text-xl font-bold text-text-primary mb-2">Invalid QR Code</h2>

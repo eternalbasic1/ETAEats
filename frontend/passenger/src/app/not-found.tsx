@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="text-text-secondary text-sm mb-6">
         This page doesn&apos;t exist. Scan the QR code in your bus to get started.
       </p>
-      <Link href="/scan/invalid" className="text-primary-soft font-semibold text-sm">
+      <Link href="/scan/invalid" className="text-primary font-semibold text-sm">
         Go to start
       </Link>
     </div>

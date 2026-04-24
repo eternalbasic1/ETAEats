@@ -1,15 +1,22 @@
 import { cn } from '@/lib/utils'
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  glow?: boolean
+  accent?: 'primary' | 'warning' | 'success' | 'error' | 'none'
 }
 
-export function Card({ glow, className, children, ...props }: CardProps) {
+export function Card({ accent = 'none', className, children, ...props }: CardProps) {
+  const accents: Record<'primary' | 'warning' | 'success' | 'error' | 'none', string> = {
+    primary: 'border-l-[3px] border-l-primary',
+    warning: 'border-l-[3px] border-l-warning',
+    success: 'border-l-[3px] border-l-success',
+    error:   'border-l-[3px] border-l-error',
+    none:    '',
+  }
   return (
     <div
       className={cn(
-        'rounded-xl bg-surface border border-white/8 p-4',
-        glow && 'shadow-lg shadow-primary-glow border-primary/30',
+        'rounded-md bg-surface border border-border shadow-sm p-4',
+        accents[accent],
         className,
       )}
       {...props}

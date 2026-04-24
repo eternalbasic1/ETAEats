@@ -17,10 +17,10 @@ export function MenuItemRow({ item, cartItem, onAdd, onIncrement, onDecrement }:
 
   return (
     <div className={cn(
-      'flex items-center gap-3 py-3 border-b border-white/5',
+      'flex items-center gap-3 py-3 border-b border-border',
       unavailable && 'opacity-40',
     )}>
-      <div className="h-14 w-14 flex-shrink-0 rounded-xl bg-surface2 flex items-center justify-center text-2xl">
+      <div className="h-14 w-14 flex-shrink-0 rounded-xl bg-surface2 border border-border flex items-center justify-center text-2xl">
         🍛
       </div>
 
@@ -28,7 +28,7 @@ export function MenuItemRow({ item, cartItem, onAdd, onIncrement, onDecrement }:
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-semibold text-text-primary truncate">{item.name}</p>
           {unavailable && (
-            <span className="flex-shrink-0 text-xs text-text-muted bg-surface2 px-2 py-0.5 rounded-full">
+            <span className="flex-shrink-0 text-xs text-text-muted bg-surface2 border border-border px-2 py-0.5 rounded-full">
               Unavailable
             </span>
           )}
@@ -37,7 +37,7 @@ export function MenuItemRow({ item, cartItem, onAdd, onIncrement, onDecrement }:
           <p className="text-xs text-text-secondary truncate mt-0.5">{item.description}</p>
         )}
         <div className="flex items-center gap-3 mt-1">
-          <span className="text-sm font-bold text-primary-soft">₹{item.price}</span>
+          <span className="text-sm font-bold text-primary">₹{item.price}</span>
           <span className="flex items-center gap-1 text-xs text-text-muted">
             <Clock className="h-3 w-3" />{item.prep_time_minutes} min
           </span>
@@ -47,24 +47,24 @@ export function MenuItemRow({ item, cartItem, onAdd, onIncrement, onDecrement }:
       {!unavailable && (
         <div className="flex-shrink-0">
           {cartItem ? (
-            <div className="flex items-center rounded-lg border border-primary/40 bg-surface2 overflow-hidden">
+            <div className="flex items-center rounded-lg border border-primary bg-surface overflow-hidden">
               <button
                 onClick={() => onDecrement(cartItem.id, cartItem.quantity)}
-                className="px-3 py-1.5 text-primary-soft text-base font-bold"
+                className="px-3 py-1.5 text-primary text-base font-bold hover:bg-primary-soft"
               >−</button>
-              <span className="px-2 py-1.5 text-sm font-bold text-text-primary bg-primary/10">
+              <span className="px-2 py-1.5 text-sm font-bold text-primary bg-primary-soft">
                 {cartItem.quantity}
               </span>
               <button
                 onClick={() => onIncrement(cartItem.id)}
-                className="px-3 py-1.5 text-primary-soft text-base font-bold"
+                className="px-3 py-1.5 text-primary text-base font-bold hover:bg-primary-soft"
               >+</button>
             </div>
           ) : (
             <motion.button
               whileTap={{ scale: 0.93 }}
               onClick={() => onAdd(item)}
-              className="rounded-lg bg-gradient-primary text-white text-xs font-bold px-4 py-2 shadow shadow-primary/30"
+              className="rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2"
             >
               + ADD
             </motion.button>

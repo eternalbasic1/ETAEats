@@ -87,7 +87,7 @@ export function StatusStepper({ currentStatus, timestamps }: StatusStepperProps)
 
   return (
     <div className="relative pl-8">
-      <div className="absolute left-3.5 top-4 bottom-4 w-0.5 bg-surface2" />
+      <div className="absolute left-3.5 top-4 bottom-4 w-0.5 bg-border" />
 
       {STEPS.map((step) => {
         const rank = STATUS_RANK[step.status] ?? 0
@@ -99,7 +99,7 @@ export function StatusStepper({ currentStatus, timestamps }: StatusStepperProps)
         return (
           <div
             key={step.status}
-            className={cn('relative flex gap-4 mb-6 last:mb-0', isPending && 'opacity-40')}
+            className={cn('relative flex gap-4 mb-6 last:mb-0', isPending && 'opacity-50')}
           >
             <div className="absolute -left-8 flex items-center justify-center">
               {isDone ? (
@@ -108,19 +108,19 @@ export function StatusStepper({ currentStatus, timestamps }: StatusStepperProps)
                 </div>
               ) : isActive ? (
                 <motion.div
-                  className="h-7 w-7 rounded-full bg-gradient-primary shadow-lg shadow-primary/50"
+                  className="h-7 w-7 rounded-full bg-primary shadow-lg shadow-primary/30"
                   animate={{ scale: [1, 1.15, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
               ) : (
-                <div className="h-7 w-7 rounded-full bg-surface2 border-2 border-white/10" />
+                <div className="h-7 w-7 rounded-full bg-surface border-2 border-border-strong" />
               )}
             </div>
 
             <div
               className={cn(
                 'flex-1 rounded-xl p-3',
-                isActive && 'bg-primary/10 border border-primary/30',
+                isActive && 'bg-primary-soft border border-primary/30',
               )}
             >
               <div className="flex items-center gap-2">
@@ -129,9 +129,9 @@ export function StatusStepper({ currentStatus, timestamps }: StatusStepperProps)
                   className={cn(
                     'text-sm font-semibold',
                     isActive
-                      ? 'text-text-primary'
+                      ? 'text-primary'
                       : isDone
-                        ? 'text-primary-soft'
+                        ? 'text-text-primary'
                         : 'text-text-muted',
                   )}
                 >

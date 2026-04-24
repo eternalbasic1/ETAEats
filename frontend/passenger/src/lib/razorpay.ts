@@ -57,7 +57,7 @@ export async function openRazorpay(
     name:        'ETA Eats',
     description: 'Highway food pre-order',
     prefill:     { contact: phoneNumber },
-    theme:       { color: '#7C5CFC' },
+    theme:       { color: '#FF6B2B' },
     handler:     onSuccess,
     modal:       { ondismiss: onDismiss },
   })

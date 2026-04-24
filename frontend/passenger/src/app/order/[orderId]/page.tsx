@@ -49,7 +49,7 @@ export default function OrderTrackingPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <div className="sticky top-0 z-10 bg-bg border-b border-white/8 px-4 py-4">
+      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4">
         <div className="flex items-center gap-3">
           <button onClick={() => router.push('/orders')}>
             <ArrowLeft className="h-5 w-5 text-text-secondary" />
@@ -74,7 +74,7 @@ export default function OrderTrackingPage() {
 
       <div className="px-4 py-6">
         {effectiveStatus === 'READY' && (
-          <div className="rounded-xl bg-success/10 border border-success/30 p-4 mb-6 text-center">
+          <div className="rounded-xl bg-success-bg border border-success/30 p-4 mb-6 text-center">
             <p className="text-success font-bold">🔔 Your food is ready!</p>
             <p className="text-sm text-text-secondary mt-1">
               Head to the counter to pick it up.
@@ -92,7 +92,7 @@ export default function OrderTrackingPage() {
           }}
         />
 
-        <div className="mt-8 rounded-xl bg-surface2 border border-white/8 p-4">
+        <div className="mt-8 rounded-xl bg-surface border border-border p-4">
           <p className="text-xs text-text-muted uppercase tracking-wider mb-3">Your order</p>
           {order.items.map((item) => (
             <div key={item.id} className="flex justify-between text-sm py-1">
@@ -102,7 +102,7 @@ export default function OrderTrackingPage() {
               <span className="text-text-primary">₹{item.line_total}</span>
             </div>
           ))}
-          <div className="flex justify-between text-sm font-bold text-text-primary border-t border-white/8 pt-2 mt-2">
+          <div className="flex justify-between text-sm font-bold text-text-primary border-t border-border pt-2 mt-2">
             <span>Total</span>
             <span>₹{order.total_amount}</span>
           </div>

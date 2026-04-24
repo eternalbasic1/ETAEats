@@ -133,7 +133,7 @@ export default function MenuPage() {
         <p className="text-text-secondary">Could not load menu. Check your connection.</p>
         <button
           onClick={() => refetch()}
-          className="text-primary-soft text-sm font-semibold"
+          className="text-primary text-sm font-semibold"
         >
           Try again
         </button>
@@ -143,7 +143,7 @@ export default function MenuPage() {
 
   return (
     <div className="min-h-screen bg-bg pb-24">
-      <div className="sticky top-0 z-30 bg-bg border-b border-white/5">
+      <div className="sticky top-0 z-30 bg-bg border-b border-border">
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-start justify-between gap-2">
             <div>
@@ -163,7 +163,7 @@ export default function MenuPage() {
 
           <button
             onClick={() => setSearchOpen(true)}
-            className="mt-3 w-full flex items-center gap-2 bg-surface2 rounded-xl px-4 py-2.5 border border-white/8"
+            className="mt-3 w-full flex items-center gap-2 bg-surface2 rounded-xl px-4 py-2.5 border border-border"
           >
             <Search className="h-4 w-4 text-text-muted" />
             <span className="text-sm text-text-muted">Search dal, chicken, lassi…</span>
@@ -181,7 +181,7 @@ export default function MenuPage() {
         {Object.entries(grouped).map(([cat, items]) => (
           <div key={cat}>
             {activeCategory === 'All' && (
-              <h2 className="text-sm font-bold text-text-primary mt-5 mb-1 pb-1 border-b border-white/8">
+              <h2 className="text-sm font-bold text-text-primary mt-5 mb-1 pb-1 border-b border-border">
                 {cat}
               </h2>
             )}
