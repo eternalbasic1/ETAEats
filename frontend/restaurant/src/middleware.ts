@@ -1,6 +1,6 @@
-import { NextResponse, type NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
 
-export function middleware(_request: NextRequest) {
+export function middleware() {
   // Auth is client-side (localStorage) in MVP. Each dashboard page guards
   // itself via useEffect + auth store. Middleware scaffolded for future
   // server-side auth.

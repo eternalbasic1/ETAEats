@@ -1,21 +1,15 @@
 'use client'
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { toast } from 'sonner'
 import { useQueryClient } from '@tanstack/react-query'
 import { Sidebar } from '@/components/layout/Sidebar'
 import { TopBar } from '@/components/layout/TopBar'
+import { DashboardContext } from '@/components/layout/DashboardContext'
 import { useAuthStore } from '@/stores/auth.store'
-import { useRestaurantSocket, type ConnectionState } from '@/hooks/useRestaurantSocket'
+import { useRestaurantSocket } from '@/hooks/useRestaurantSocket'
 import { useSoundAlert } from '@/hooks/useSoundAlert'
 import type { OrderStatusPayload } from '@/lib/api.types'
-
-interface DashboardCtx {
-  connectionState: ConnectionState
-}
-
-const Ctx = createContext<DashboardCtx>({ connectionState: 'disconnected' })
-export const useDashboard = () => useContext(Ctx)
 
 const PAGE_TITLES: Record<string, { title: string; subtitle?: string }> = {
   '/dashboard':            { title: 'Live Orders' },
@@ -67,7 +61,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   )
 
   return (
-    <Ctx.Provider value={{ connectionState }}>
+    <DashboardContext.Provider value={{ connectionState }}>
       <div className="min-h-screen flex bg-bg">
         <Sidebar restaurantName={restaurantName} />
         <div className="flex-1 flex flex-col min-w-0">
@@ -81,6 +75,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <main className="flex-1 overflow-auto">{children}</main>
         </div>
       </div>
-    </Ctx.Provider>
+    </DashboardContext.Provider>
   )
 }
