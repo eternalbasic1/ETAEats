@@ -8,18 +8,19 @@ import { useAuth } from '@/hooks/useAuth'
 
 export default function ProfilePage() {
   const router = useRouter()
-  const { user, isAuthenticated } = useAuthStore()
+  const { user, isAuthenticated, hasHydrated } = useAuthStore()
   const { logout } = useAuth()
 
   useEffect(() => {
-    if (!isAuthenticated) router.replace('/scan/invalid')
-  }, [isAuthenticated, router])
+    if (!hasHydrated) return
+    if (!isAuthenticated) router.replace('/auth/login')
+  }, [hasHydrated, isAuthenticated, router])
 
-  if (!isAuthenticated || !user) return null
+  if (!hasHydrated || !isAuthenticated || !user) return null
 
   function handleLogout() {
     logout()
-    router.replace('/scan/invalid')
+    router.replace('/auth/login')
   }
 
   return (

@@ -6,10 +6,10 @@ export default function NotFound() {
       <div className="text-6xl mb-4">🤔</div>
       <h2 className="text-xl font-bold text-text-primary mb-2">Page not found</h2>
       <p className="text-text-secondary text-sm mb-6">
-        This page doesn&apos;t exist. Scan the QR code in your bus to get started.
+        This page doesn&apos;t exist. Log in to continue your ETA Eats journey.
       </p>
-      <Link href="/scan/invalid" className="text-primary font-semibold text-sm">
-        Go to start
+      <Link href="/auth/login" className="text-primary font-semibold text-sm">
+        Go to login
       </Link>
     </div>
   )

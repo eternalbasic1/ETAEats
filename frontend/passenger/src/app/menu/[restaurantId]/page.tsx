@@ -1,27 +1,51 @@
 'use client'
-import { useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { Search, Star } from 'lucide-react'
+import { ArrowLeft, Search, Star } from 'lucide-react'
 import { toast } from 'sonner'
 import { CategoryTabs } from '@/components/menu/CategoryTabs'
 import { MenuItemRow } from '@/components/menu/MenuItemRow'
 import { SearchOverlay } from '@/components/menu/SearchOverlay'
 import { CartBar } from '@/components/menu/CartBar'
 import { Spinner } from '@/components/ui'
-import { useSessionStore } from '@/stores/session.store'
+import { useAuthStore } from '@/stores/auth.store'
+import { useJourneyStore } from '@/stores/journey.store'
 import { useCartStore } from '@/stores/cart.store'
 import api from '@/lib/api'
 import type { Cart, MenuItem, Paginated } from '@/lib/api.types'
 
 export default function MenuPage() {
+  const router = useRouter()
   const { restaurantId } = useParams<{ restaurantId: string }>()
-  const restaurant = useSessionStore((s) => s.restaurant)
-  const bus = useSessionStore((s) => s.bus)
+  const { isAuthenticated, hasHydrated } = useAuthStore()
+  const activeJourney = useJourneyStore((s) => s.activeJourney)
+  const touchJourney = useJourneyStore((s) => s.touchJourney)
+  const restaurant = activeJourney?.restaurant ?? null
+  const bus = activeJourney?.bus ?? null
   const { cartId, items: cartItems, setCart } = useCartStore()
 
   const [activeCategory, setActiveCategory] = useState('All')
   const [searchOpen, setSearchOpen] = useState(false)
+  const hasActiveJourney = Boolean(activeJourney)
+  const isCorrectJourneyRestaurant =
+    hasActiveJourney && String(activeJourney.restaurant.id) === String(restaurantId)
+
+  useEffect(() => {
+    if (!hasHydrated) return
+    if (!isAuthenticated) {
+      router.replace('/auth/login')
+      return
+    }
+    if (!activeJourney) {
+      toast.message('Scan your bus QR to open the menu.')
+      router.replace('/scan?from=menu')
+      return
+    }
+    if (!isCorrectJourneyRestaurant) {
+      router.replace(`/menu/${activeJourney.restaurant.id}`)
+    }
+  }, [hasHydrated, isAuthenticated, activeJourney, isCorrectJourneyRestaurant, router])
 
   const { data: menuData, isLoading, isError, refetch } = useQuery({
     queryKey: ['menu', restaurantId],
@@ -35,9 +59,10 @@ export default function MenuPage() {
         )
         .then((r) => r.data),
     staleTime: 5 * 60 * 1000,
+    enabled: hasHydrated && isAuthenticated && isCorrectJourneyRestaurant,
   })
 
-  const allItems = menuData?.results ?? []
+  const allItems = useMemo(() => menuData?.results ?? [], [menuData])
 
   const categories = useMemo(
     () => [
@@ -67,6 +92,10 @@ export default function MenuPage() {
     }, {})
   }, [displayed, activeCategory])
 
+  if (!hasHydrated || !isAuthenticated || !isCorrectJourneyRestaurant) {
+    return null
+  }
+
   async function handleAdd(item: MenuItem) {
     if (!bus) {
       toast.error('Bus information missing. Please scan the QR again.')
@@ -79,6 +108,7 @@ export default function MenuPage() {
         bus_id: bus.id,
       })
       setCart(data.id, data.bus, data.restaurant, data.items)
+      touchJourney()
     } catch (err: unknown) {
       const axiosErr = err as { response?: { data?: { error?: { code?: string } } } }
       if (axiosErr?.response?.data?.error?.code === 'restaurant_mismatch') {
@@ -97,6 +127,7 @@ export default function MenuPage() {
         quantity: current.quantity + 1,
       })
       setCart(cartId, data.bus, data.restaurant, data.items)
+      touchJourney()
     } catch {
       toast.error('Could not update quantity.')
     }
@@ -114,6 +145,7 @@ export default function MenuPage() {
         })
         setCart(cartId, data.bus, data.restaurant, data.items)
       }
+      touchJourney()
     } catch {
       toast.error('Could not update quantity.')
     }
@@ -146,7 +178,11 @@ export default function MenuPage() {
       <div className="sticky top-0 z-30 bg-bg border-b border-border">
         <div className="px-4 pt-4 pb-2">
           <div className="flex items-start justify-between gap-2">
-            <div>
+            <div className="flex items-start gap-3">
+              <button onClick={() => router.push('/home')} className="mt-0.5">
+                <ArrowLeft className="h-5 w-5 text-text-secondary" />
+              </button>
+              <div>
               <h1 className="text-lg font-bold text-text-primary">
                 {restaurant?.name ?? 'Menu'}
               </h1>
@@ -158,6 +194,7 @@ export default function MenuPage() {
                   </span>
                 </div>
               )}
+              </div>
             </div>
           </div>
 

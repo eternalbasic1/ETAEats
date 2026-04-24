@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
 import { useAuthStore } from '@/stores/auth.store'
+import { useOrderTrackingStore } from '@/stores/orderTracking.store'
 import type { OrderStatus, OrderStatusPayload } from '@/lib/api.types'
 
 export type ConnectionState = 'connecting' | 'connected' | 'reconnecting' | 'disconnected'
@@ -12,7 +13,8 @@ interface UseOrderSocketOptions {
 
 export function useOrderSocket({ orderId, onStatusChange }: UseOrderSocketOptions) {
   const { accessToken } = useAuthStore()
-  const [connectionState, setConnectionState] = useState<ConnectionState>('connecting')
+  const { setConnectionState: setGlobalConnectionState } = useOrderTrackingStore()
+  const [connectionState, setLocalConnectionState] = useState<ConnectionState>('connecting')
   const wsRef = useRef<WebSocket | null>(null)
   const retryCount = useRef(0)
   const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -20,7 +22,8 @@ export function useOrderSocket({ orderId, onStatusChange }: UseOrderSocketOption
 
   useEffect(() => {
     if (!accessToken) {
-      setConnectionState('disconnected')
+      setLocalConnectionState('disconnected')
+      setGlobalConnectionState('disconnected')
       return
     }
 
@@ -29,10 +32,12 @@ export function useOrderSocket({ orderId, onStatusChange }: UseOrderSocketOption
       const url = `${WS_BASE}/ws/user/?token=${accessToken}`
       const ws = new WebSocket(url)
       wsRef.current = ws
-      setConnectionState(retryCount.current > 0 ? 'reconnecting' : 'connecting')
+      setLocalConnectionState(retryCount.current > 0 ? 'reconnecting' : 'connecting')
+      setGlobalConnectionState(retryCount.current > 0 ? 'reconnecting' : 'connecting')
 
       ws.onopen = () => {
-        setConnectionState('connected')
+        setLocalConnectionState('connected')
+        setGlobalConnectionState('connected')
         retryCount.current = 0
       }
 
@@ -49,16 +54,19 @@ export function useOrderSocket({ orderId, onStatusChange }: UseOrderSocketOption
 
       ws.onclose = (event) => {
         if (event.code === 1000 || event.code === 4401) {
-          setConnectionState('disconnected')
+          setLocalConnectionState('disconnected')
+          setGlobalConnectionState('disconnected')
           return
         }
         if (retryCount.current < maxRetries) {
           const delay = Math.pow(2, retryCount.current) * 1000 // 1s, 2s, 4s
           retryCount.current += 1
-          setConnectionState('reconnecting')
+          setLocalConnectionState('reconnecting')
+          setGlobalConnectionState('reconnecting')
           retryTimer.current = setTimeout(connect, delay)
         } else {
-          setConnectionState('disconnected')
+          setLocalConnectionState('disconnected')
+          setGlobalConnectionState('disconnected')
         }
       }
 

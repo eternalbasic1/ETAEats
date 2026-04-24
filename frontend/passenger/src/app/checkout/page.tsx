@@ -4,9 +4,11 @@ import { useRouter } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui'
+import { BottomNav } from '@/components/layout/BottomNav'
 import { useCartStore } from '@/stores/cart.store'
 import { useAuthStore } from '@/stores/auth.store'
-import { useSessionStore } from '@/stores/session.store'
+import { useJourneyStore } from '@/stores/journey.store'
+import { useOrderTrackingStore } from '@/stores/orderTracking.store'
 import { openRazorpay } from '@/lib/razorpay'
 import api from '@/lib/api'
 import type { Order, RazorpayOrderPayload } from '@/lib/api.types'
@@ -15,7 +17,10 @@ export default function CheckoutPage() {
   const router = useRouter()
   const { cartId, busId, items, totalPrice, clearCart } = useCartStore()
   const { user } = useAuthStore()
-  const { bus, restaurant } = useSessionStore()
+  const { activeJourney } = useJourneyStore()
+  const { setActiveOrder } = useOrderTrackingStore()
+  const bus = activeJourney?.bus ?? null
+  const restaurant = activeJourney?.restaurant ?? null
   const [loading, setLoading] = useState(false)
 
   async function handlePay() {
@@ -50,8 +55,15 @@ export default function CheckoutPage() {
               razorpay_payment_id: rpResponse.razorpay_payment_id,
               razorpay_signature: rpResponse.razorpay_signature,
             })
+            setActiveOrder({
+              id: order.id,
+              restaurantName: order.restaurant_name,
+              totalAmount: order.total_amount,
+              createdAt: order.created_at,
+              status: 'CONFIRMED',
+            })
             clearCart()
-            router.replace(`/order/${order.id}`)
+            router.replace('/home')
           } catch {
             toast.error('Payment confirmation failed. Your order ID is: ' + order.id.slice(0, 8))
             router.replace(`/order/${order.id}`)
@@ -70,7 +82,7 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bg pb-32">
+    <div className="min-h-screen bg-bg pb-52">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
         <button onClick={() => router.back()}>
@@ -112,11 +124,13 @@ export default function CheckoutPage() {
       </div>
 
       {/* Pay CTA */}
-      <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-border">
+      <div className="fixed bottom-24 inset-x-0 p-4 bg-bg border-t border-border z-30">
         <Button className="w-full" size="lg" onClick={handlePay} loading={loading}>
           Pay ₹{totalPrice().toFixed(0)} with Razorpay
         </Button>
       </div>
+
+      <BottomNav />
     </div>
   )
 }

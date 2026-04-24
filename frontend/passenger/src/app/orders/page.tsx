@@ -22,25 +22,26 @@ const STATUS_BADGE: Record<
 
 export default function OrdersPage() {
   const router = useRouter()
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, hasHydrated } = useAuthStore()
 
   useEffect(() => {
-    if (!isAuthenticated) router.replace('/scan/invalid')
-  }, [isAuthenticated, router])
+    if (!hasHydrated) return
+    if (!isAuthenticated) router.replace('/auth/login')
+  }, [hasHydrated, isAuthenticated, router])
 
   const { data, isLoading } = useQuery({
     queryKey: ['orders'],
     queryFn: () =>
       api.get<Paginated<Order>>('/orders/my/').then((r) => r.data),
-    enabled: isAuthenticated,
+    enabled: hasHydrated && isAuthenticated,
   })
 
-  if (!isAuthenticated) return null
+  if (!hasHydrated || !isAuthenticated) return null
 
   return (
     <div className="min-h-screen bg-bg">
       <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
-        <button onClick={() => router.back()}>
+        <button onClick={() => router.push('/home')}>
           <ArrowLeft className="h-5 w-5 text-text-secondary" />
         </button>
         <h1 className="text-lg font-bold text-text-primary">Order History</h1>

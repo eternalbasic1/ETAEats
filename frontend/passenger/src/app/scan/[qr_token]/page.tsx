@@ -5,14 +5,16 @@ import { useQueryClient } from '@tanstack/react-query'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Utensils, AlertCircle } from 'lucide-react'
 import { Spinner } from '@/components/ui'
-import { useSessionStore } from '@/stores/session.store'
+import { useJourneyStore } from '@/stores/journey.store'
+import { useCartStore } from '@/stores/cart.store'
 import api from '@/lib/api'
 import type { BusScanResult, Paginated, MenuItem } from '@/lib/api.types'
 
 export default function ScanPage() {
   const router = useRouter()
   const { qr_token } = useParams<{ qr_token: string }>()
-  const { setSession } = useSessionStore()
+  const { setJourneyFromScan, activeJourney } = useJourneyStore()
+  const { restaurantId, busId, totalItems, clearCart } = useCartStore()
   const queryClient = useQueryClient()
   const [error, setError] = useState<string | null>(null)
 
@@ -25,20 +27,30 @@ export default function ScanPage() {
           router.replace('/scan/no-restaurant')
           return
         }
-        setSession(
-          qr_token,
-          {
+        const nextBus = {
             id: data.bus.id,
             name: data.bus.name,
             numberPlate: data.bus.number_plate,
-          },
-          {
+          }
+        const nextRestaurant = {
             id: data.restaurant.id,
             name: data.restaurant.name,
             address: data.restaurant.address,
             hygieneRating: data.restaurant.hygiene_rating,
-          },
-        )
+          }
+
+        const hasConflict =
+          totalItems() > 0 &&
+          ((restaurantId !== null && restaurantId !== nextRestaurant.id) ||
+            (busId !== null && busId !== nextBus.id))
+        if (hasConflict) clearCart()
+
+        setJourneyFromScan({
+          qrToken: qr_token,
+          bus: nextBus,
+          restaurant: nextRestaurant,
+          source: activeJourney ? 'manual' : 'camera',
+        })
         // Seed the menu query cache so the menu page renders instantly
         // without a second network round-trip.
         if (data.menu.length > 0) {
@@ -53,7 +65,7 @@ export default function ScanPage() {
         router.replace(`/menu/${data.restaurant.id}`)
       })
       .catch(() => setError('This QR code is invalid or has expired.'))
-  }, [qr_token, router, setSession, queryClient])
+  }, [qr_token, router, setJourneyFromScan, queryClient, restaurantId, busId, totalItems, clearCart, activeJourney])
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4">

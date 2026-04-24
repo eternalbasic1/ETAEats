@@ -2,10 +2,17 @@ import { useState } from 'react'
 import { toast } from 'sonner'
 import api from '@/lib/api'
 import { useAuthStore } from '@/stores/auth.store'
+import { useCartStore } from '@/stores/cart.store'
+import { useJourneyStore } from '@/stores/journey.store'
+import { useOrderTrackingStore } from '@/stores/orderTracking.store'
 import type { AuthResponse } from '@/lib/api.types'
 
 export function useAuth() {
   const { setAuth, clearAuth, isAuthenticated, user } = useAuthStore()
+  const clearCart = useCartStore((s) => s.clearCart)
+  const clearJourney = useJourneyStore((s) => s.clearJourney)
+  const setActiveOrder = useOrderTrackingStore((s) => s.setActiveOrder)
+  const setConnectionState = useOrderTrackingStore((s) => s.setConnectionState)
   const [loading, setLoading] = useState(false)
 
   async function requestOTP(phoneNumber: string): Promise<boolean> {
@@ -40,6 +47,17 @@ export function useAuth() {
 
   function logout() {
     clearAuth()
+    clearCart()
+    clearJourney()
+    setActiveOrder(null)
+    setConnectionState('idle')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('eta-auth')
+      localStorage.removeItem('eta-auth-state')
+      localStorage.removeItem('eta-cart')
+      localStorage.removeItem('eta-journey')
+      localStorage.removeItem('eta-order-tracking')
+    }
   }
 
   return { requestOTP, verifyOTP, logout, loading, isAuthenticated, user }

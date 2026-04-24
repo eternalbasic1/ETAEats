@@ -6,6 +6,7 @@ import { ArrowLeft } from 'lucide-react'
 import { Badge, Spinner } from '@/components/ui'
 import { StatusStepper } from '@/components/order/StatusStepper'
 import { useOrderSocket } from '@/hooks/useOrderSocket'
+import { useOrderTrackingStore } from '@/stores/orderTracking.store'
 import api from '@/lib/api'
 import type { Order, OrderStatus } from '@/lib/api.types'
 
@@ -13,12 +14,15 @@ export default function OrderTrackingPage() {
   const { orderId } = useParams<{ orderId: string }>()
   const router = useRouter()
   const [liveStatus, setLiveStatus] = useState<OrderStatus | null>(null)
+  const { setActiveOrder, updateOrderStatus, clearIfComplete } = useOrderTrackingStore()
 
   const { connectionState } = useOrderSocket({
     orderId,
     onStatusChange: (status) => {
       setLiveStatus(status)
+      updateOrderStatus(status)
       if (status === 'PICKED_UP') {
+        clearIfComplete()
         setTimeout(() => router.replace(`/order/${orderId}/complete`), 1500)
       }
     },
@@ -32,6 +36,17 @@ export default function OrderTrackingPage() {
   })
 
   const effectiveStatus = liveStatus ?? order?.status ?? 'PENDING'
+
+  useEffect(() => {
+    if (!order) return
+    setActiveOrder({
+      id: order.id,
+      restaurantName: order.restaurant_name,
+      totalAmount: order.total_amount,
+      createdAt: order.created_at,
+      status: effectiveStatus,
+    })
+  }, [order, effectiveStatus, setActiveOrder])
 
   useEffect(() => {
     if (effectiveStatus === 'PICKED_UP') {
@@ -51,7 +66,7 @@ export default function OrderTrackingPage() {
     <div className="min-h-screen bg-bg">
       <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/orders')}>
+          <button onClick={() => router.push('/home')}>
             <ArrowLeft className="h-5 w-5 text-text-secondary" />
           </button>
           <div className="flex-1">

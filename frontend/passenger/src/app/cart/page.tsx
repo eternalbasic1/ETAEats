@@ -1,10 +1,8 @@
 'use client'
-import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ArrowLeft, ShoppingBag, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { AuthBottomSheet } from '@/components/cart/AuthBottomSheet'
 import { Button } from '@/components/ui'
 import { useCartStore } from '@/stores/cart.store'
 import { useAuthStore } from '@/stores/auth.store'
@@ -15,7 +13,6 @@ export default function CartPage() {
   const router = useRouter()
   const { cartId, items, setCart, totalPrice } = useCartStore()
   const { isAuthenticated } = useAuthStore()
-  const [authOpen, setAuthOpen] = useState(false)
 
   async function handleRemove(cartItemId: number) {
     if (!cartId) return
@@ -39,14 +36,9 @@ export default function CartPage() {
 
   function handleCheckout() {
     if (!isAuthenticated) {
-      setAuthOpen(true)
+      router.push('/auth/login')
       return
     }
-    router.push('/checkout')
-  }
-
-  function onAuthSuccess() {
-    setAuthOpen(false)
     router.push('/checkout')
   }
 
@@ -134,12 +126,6 @@ export default function CartPage() {
           Place Order · ₹{totalPrice().toFixed(0)}
         </Button>
       </div>
-
-      <AuthBottomSheet
-        open={authOpen}
-        onSuccess={onAuthSuccess}
-        onClose={() => setAuthOpen(false)}
-      />
     </div>
   )
 }
