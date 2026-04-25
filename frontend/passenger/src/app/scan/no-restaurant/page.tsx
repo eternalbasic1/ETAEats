@@ -1,17 +1,17 @@
 import { Utensils } from 'lucide-react'
+import { EmptyState } from '@/components/ui'
 
 export default function NoRestaurantPage() {
   return (
-    <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6 text-center">
-      <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-warning-bg border border-warning/30 mx-auto mb-6">
-        <Utensils className="h-10 w-10 text-warning" />
+    <div className="min-h-[100dvh] bg-bg flex items-center justify-center px-6">
+      <div className="w-full max-w-md">
+        <EmptyState
+          icon={<Utensils className="h-6 w-6" strokeWidth={1.7} />}
+          tone="peach"
+          title="No restaurant assigned yet"
+          description="This bus doesn't have a highway kitchen assigned right now. We'll reach out the moment one is ready."
+        />
       </div>
-      <h1 className="text-xl font-bold text-text-primary mb-3">
-        No restaurant assigned yet
-      </h1>
-      <p className="text-text-secondary text-sm max-w-xs">
-        This bus doesn&apos;t have a restaurant assigned right now. Check back once your bus is closer to the food stop.
-      </p>
     </div>
   )
 }

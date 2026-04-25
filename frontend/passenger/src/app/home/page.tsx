@@ -3,9 +3,10 @@ import Link from 'next/link'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { Package, Clock3 } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { Package, Clock3, QrCode, ArrowRight, Utensils, Sparkles } from 'lucide-react'
 import { BrandMark } from '@/components/layout/BrandMark'
-import { Badge, Spinner } from '@/components/ui'
+import { Badge, Button, Card, EmptyState, SectionHeader, Spinner } from '@/components/ui'
 import { useAuthStore } from '@/stores/auth.store'
 import { useOrderTrackingStore } from '@/stores/orderTracking.store'
 import api from '@/lib/api'
@@ -20,9 +21,18 @@ const LABEL: Record<OrderStatus, string> = {
   CANCELLED: 'Cancelled',
 }
 
+const STATUS_TONE: Record<OrderStatus, 'powder' | 'cream' | 'peach' | 'mint' | 'neutral' | 'error'> = {
+  PENDING:   'cream',
+  CONFIRMED: 'powder',
+  PREPARING: 'powder',
+  READY:     'peach',
+  PICKED_UP: 'mint',
+  CANCELLED: 'error',
+}
+
 export default function HomePage() {
   const router = useRouter()
-  const { isAuthenticated, hasHydrated } = useAuthStore()
+  const { user, isAuthenticated, hasHydrated } = useAuthStore()
   const { activeOrder, setActiveOrder } = useOrderTrackingStore()
 
   useEffect(() => {
@@ -52,83 +62,163 @@ export default function HomePage() {
 
   if (!hasHydrated || !isAuthenticated) return null
 
+  const firstName = (user?.full_name?.split(' ')[0] ?? '').trim() || 'traveller'
+  const recentOrders = data?.results?.slice(0, 4) ?? []
+
   return (
-    <div className="app-shell">
-      <div className="app-shell-inner px-4">
-      <section className="rounded-card border border-border bg-surface p-5 shadow-e1">
-        <BrandMark size="sm" subtitle="Highway food pre-ordering" />
-        <h1 className="mt-4 text-xl font-bold text-text-primary">
-          Order food before your bus reaches the stop
-        </h1>
-        <div className="mt-4 grid grid-cols-2 gap-2">
-          <Link
-            href="/scan"
-            className="rounded-xl bg-primary text-white px-4 py-3 text-sm font-semibold text-center"
-          >
-            Open Scanner
-          </Link>
-          <Link
-            href="/scan"
-            className="rounded-xl border border-border px-4 py-3 text-sm font-semibold text-text-primary text-center"
-          >
-            Enter QR Code
-          </Link>
+    <div className="app-shell slux-fade-in">
+      <div className="app-shell-inner pt-6 lg:pt-12 px-4 lg:px-0">
+        {/* Greeting — desktop only shows without BrandMark which sits in the rail */}
+        <div className="flex items-center justify-between lg:hidden mb-6">
+          <BrandMark size="sm" compact />
+          <Badge variant="mint" size="sm" dot>Live</Badge>
         </div>
-      </section>
 
-      {activeOrder && (
-        <button
-          onClick={() => router.push(`/order/${activeOrder.id}`)}
-          className="w-full mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-4 text-left"
-        >
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-wide text-text-muted">Active order</p>
-              <p className="text-sm font-semibold text-text-primary">{activeOrder.restaurantName}</p>
-            </div>
-            <Badge variant="primary" dot>{LABEL[activeOrder.status]}</Badge>
-          </div>
-          <p className="text-xs text-text-secondary mt-2">
-            Order #{activeOrder.id.slice(0, 8)} · ₹{activeOrder.totalAmount}
+        {/* Editorial hero */}
+        <section>
+          <p className="text-label text-text-muted">Good to see you, {firstName}</p>
+          <h1 className="mt-3 text-h1 lg:text-display-l text-text-primary max-w-xl">
+            Order food before your bus <span className="text-accent-ink-powder-blue">arrives.</span>
+          </h1>
+          <p className="mt-3 text-body lg:text-body-lg text-text-tertiary max-w-lg">
+            Scan the QR inside your bus and pre-order from the assigned highway kitchen. We&rsquo;ll have it ready when you step off.
           </p>
-        </button>
-      )}
 
-      <section className="mt-6">
-        <div className="flex items-center gap-2 mb-3">
-          <Clock3 className="h-4 w-4 text-text-muted" />
-          <h2 className="text-sm font-bold text-text-primary">Recent orders</h2>
-        </div>
-        {isLoading && (
-          <div className="flex justify-center py-8">
-            <Spinner className="h-6 w-6" />
+          <div className="mt-6 flex flex-col sm:flex-row gap-3 max-w-xl">
+            <Button size="lg" fullWidth onClick={() => router.push('/scan')}>
+              <QrCode className="h-4 w-4" />
+              Scan Bus QR
+            </Button>
+            <Button size="lg" variant="secondary" fullWidth onClick={() => router.push('/scan')}>
+              Enter 6-digit code
+            </Button>
           </div>
-        )}
-        {!isLoading && !data?.results?.length && (
-          <div className="rounded-xl border border-border bg-surface2 p-6 text-center">
-            <Package className="h-8 w-8 text-text-muted mx-auto mb-2" />
-            <p className="text-sm text-text-secondary">No orders yet.</p>
-          </div>
-        )}
-        {data?.results?.slice(0, 3).map((order) => (
-          <button
-            key={order.id}
-            onClick={() => router.push(`/order/${order.id}`)}
-            className="w-full rounded-xl border border-border bg-surface p-4 mb-2 text-left"
+        </section>
+
+        {/* Live order card */}
+        {activeOrder && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="mt-8"
           >
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <p className="text-sm font-semibold text-text-primary">{order.restaurant_name}</p>
-                <p className="text-xs text-text-muted">#{order.id.slice(0, 8)}</p>
+            <Card
+              as="button"
+              tone="powder"
+              padding="md"
+              radius="card"
+              shadow="e2"
+              interactive
+              bordered={false}
+              onClick={() => router.push(`/order/${activeOrder.id}`)}
+              className="w-full"
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="text-label text-accent-ink-powder-blue">Active order</p>
+                  <p className="mt-2 text-h3 text-text-primary truncate">{activeOrder.restaurantName}</p>
+                  <p className="mt-1 text-body-sm text-text-tertiary">
+                    #{activeOrder.id.slice(0, 8)} · ₹{activeOrder.totalAmount}
+                  </p>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <Badge variant="neutral" size="md" dot>{LABEL[activeOrder.status]}</Badge>
+                  <span className="inline-flex items-center gap-1 text-body-sm text-accent-ink-powder-blue font-semibold">
+                    Track <ArrowRight className="h-3.5 w-3.5" />
+                  </span>
+                </div>
               </div>
-              <Badge variant="muted">{LABEL[order.status]}</Badge>
+            </Card>
+          </motion.div>
+        )}
+
+        {/* Features strip — desktop */}
+        <section className="mt-10 hidden lg:grid grid-cols-3 gap-4">
+          <Card tone="default" padding="lg" radius="card" shadow="e1">
+            <div className="h-10 w-10 rounded-lg bg-accent-muted-mint flex items-center justify-center">
+              <Utensils className="h-5 w-5 text-accent-ink-muted-mint" />
             </div>
-            <p className="text-xs text-text-secondary mt-2">
-              {order.items.slice(0, 2).map((i) => i.menu_item_name).join(', ')}
-            </p>
-          </button>
-        ))}
-      </section>
+            <p className="mt-4 text-h4 text-text-primary">Route-aware menus</p>
+            <p className="mt-1.5 text-body-sm text-text-tertiary">Only the kitchen assigned to your bus, nothing else.</p>
+          </Card>
+          <Card tone="default" padding="lg" radius="card" shadow="e1">
+            <div className="h-10 w-10 rounded-lg bg-accent-soft-cream flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-accent-ink-soft-cream" />
+            </div>
+            <p className="mt-4 text-h4 text-text-primary">Ready on arrival</p>
+            <p className="mt-1.5 text-body-sm text-text-tertiary">Your food is prepped in sync with your ETA.</p>
+          </Card>
+          <Card tone="default" padding="lg" radius="card" shadow="e1">
+            <div className="h-10 w-10 rounded-lg bg-accent-peach flex items-center justify-center">
+              <Clock3 className="h-5 w-5 text-accent-ink-peach" />
+            </div>
+            <p className="mt-4 text-h4 text-text-primary">Skip the queue</p>
+            <p className="mt-1.5 text-body-sm text-text-tertiary">Pay once on your phone. Walk up and grab it.</p>
+          </Card>
+        </section>
+
+        {/* Recent orders */}
+        <section className="mt-10">
+          <SectionHeader
+            eyebrow="History"
+            title="Recent orders"
+            action={
+              recentOrders.length > 0 && (
+                <Link href="/orders" className="text-body-sm font-semibold text-text-primary hover:underline underline-offset-4">
+                  View all
+                </Link>
+              )
+            }
+          />
+
+          {isLoading && (
+            <div className="flex justify-center py-10">
+              <Spinner className="h-6 w-6" />
+            </div>
+          )}
+
+          {!isLoading && recentOrders.length === 0 && (
+            <Card tone="sunk" padding="lg" radius="card" bordered shadow="none">
+              <EmptyState
+                icon={<Package className="h-6 w-6" />}
+                title="No orders yet"
+                description="Your first pre-order will appear here. Scan a bus QR to get started."
+                tone="neutral"
+              />
+            </Card>
+          )}
+
+          <div className="grid gap-3 lg:grid-cols-2">
+            {recentOrders.map((order) => (
+              <Card
+                key={order.id}
+                as="button"
+                tone="default"
+                padding="md"
+                radius="card"
+                shadow="e1"
+                interactive
+                onClick={() => router.push(`/order/${order.id}`)}
+                className="w-full"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-h4 text-text-primary truncate">{order.restaurant_name}</p>
+                    <p className="text-caption text-text-muted mt-0.5">
+                      #{order.id.slice(0, 8)} · {new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}
+                    </p>
+                  </div>
+                  <Badge variant={STATUS_TONE[order.status]} size="sm">{LABEL[order.status]}</Badge>
+                </div>
+                <p className="mt-3 text-body-sm text-text-tertiary line-clamp-1">
+                  {order.items.slice(0, 3).map((i) => i.menu_item_name).join(' · ')}
+                </p>
+                <p className="mt-3 text-h4 text-text-primary">₹{order.total_amount}</p>
+              </Card>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   )

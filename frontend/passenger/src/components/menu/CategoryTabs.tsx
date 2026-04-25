@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import { cn } from '@/lib/utils'
+import { Chip } from '@/components/ui'
 
 interface CategoryTabsProps {
   categories: string[]
@@ -16,23 +16,18 @@ export function CategoryTabs({ categories, active, onChange }: CategoryTabsProps
   }, [active])
 
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 py-2">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 lg:px-0 py-3">
       {['All', ...categories].map((cat) => {
         const isActive = cat === active
         return (
-          <button
+          <Chip
             key={cat}
             ref={isActive ? activeRef : undefined}
+            active={isActive}
             onClick={() => onChange(cat)}
-            className={cn(
-              'flex-shrink-0 rounded-full px-4 py-1.5 text-xs font-semibold transition-all',
-              isActive
-                ? 'bg-primary text-white'
-                : 'bg-surface text-text-secondary border border-border hover:border-primary',
-            )}
           >
             {cat}
-          </button>
+          </Chip>
         )
       })}
     </div>

@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, X } from 'lucide-react'
+import { Button, IconButton } from '@/components/ui'
 import type { MenuItem } from '@/lib/api.types'
 
 interface SearchOverlayProps {
@@ -18,7 +19,7 @@ export function SearchOverlay({ open, items, onClose, onAdd }: SearchOverlayProp
   useEffect(() => {
     if (open) {
       setQuery('')
-      setTimeout(() => inputRef.current?.focus(), 100)
+      setTimeout(() => inputRef.current?.focus(), 80)
     }
   }, [open])
 
@@ -28,7 +29,7 @@ export function SearchOverlay({ open, items, onClose, onAdd }: SearchOverlayProp
         (i) =>
           i.is_available &&
           (i.name.toLowerCase().includes(query.toLowerCase()) ||
-            i.description.toLowerCase().includes(query.toLowerCase())),
+            (i.description ?? '').toLowerCase().includes(query.toLowerCase())),
       )
 
   return (
@@ -40,42 +41,45 @@ export function SearchOverlay({ open, items, onClose, onAdd }: SearchOverlayProp
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-50 bg-bg flex flex-col"
         >
-          <div className="flex items-center gap-3 p-4 border-b border-border">
-            <Search className="h-5 w-5 text-text-secondary flex-shrink-0" />
+          <div className="flex items-center gap-3 px-4 lg:px-8 py-4 border-b border-border-subtle bg-bg/95 backdrop-blur-md">
+            <Search className="h-5 w-5 text-text-tertiary flex-shrink-0" />
             <input
               ref={inputRef}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search dal, chicken, lassi…"
-              className="flex-1 bg-transparent text-text-primary placeholder:text-text-muted text-sm focus:outline-none"
+              className="flex-1 bg-transparent text-body text-text-primary placeholder:text-text-muted focus:outline-none"
             />
-            <button onClick={onClose}>
-              <X className="h-5 w-5 text-text-secondary" />
-            </button>
+            <IconButton aria-label="Close search" tone="ghost" size="sm" onClick={onClose}>
+              <X className="h-5 w-5" />
+            </IconButton>
           </div>
 
-          <div className="flex-1 overflow-y-auto px-4">
+          <div className="flex-1 overflow-y-auto px-4 lg:px-8">
             {query.trim().length < 2 && (
-              <p className="text-center text-text-muted text-sm mt-8">Type at least 2 characters…</p>
+              <p className="text-center text-body-sm text-text-muted mt-10">
+                Type at least 2 characters to search the menu.
+              </p>
             )}
             {query.trim().length >= 2 && results.length === 0 && (
-              <p className="text-center text-text-muted text-sm mt-8">No items found for &quot;{query}&quot;</p>
+              <p className="text-center text-body-sm text-text-muted mt-10">
+                No items found for &quot;{query}&quot;.
+              </p>
             )}
-            {results.map((item) => (
-              <div key={item.id} className="flex items-center justify-between py-3 border-b border-border">
-                <div>
-                  <p className="text-sm font-semibold text-text-primary">{item.name}</p>
-                  <p className="text-xs text-text-secondary mt-0.5">{item.category_name}</p>
-                  <p className="text-sm font-bold text-primary mt-1">₹{item.price}</p>
+            <div className="max-w-2xl mx-auto">
+              {results.map((item) => (
+                <div key={item.id} className="flex items-center justify-between py-4 border-b border-border-subtle last:border-0">
+                  <div className="min-w-0">
+                    <p className="text-body font-semibold text-text-primary truncate">{item.name}</p>
+                    <p className="text-caption text-text-tertiary mt-0.5">{item.category_name}</p>
+                    <p className="text-h4 text-text-primary mt-1.5">₹{item.price}</p>
+                  </div>
+                  <Button variant="primary" size="sm" onClick={() => { onAdd(item); onClose() }}>
+                    Add
+                  </Button>
                 </div>
-                <button
-                  onClick={() => { onAdd(item); onClose() }}
-                  className="rounded-lg bg-primary hover:bg-primary-dark text-white text-xs font-bold px-4 py-2"
-                >
-                  + ADD
-                </button>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </motion.div>
       )}

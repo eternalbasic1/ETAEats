@@ -1,9 +1,10 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
-import { ArrowLeft, ShoppingBag, Trash2 } from 'lucide-react'
+import { ShoppingBag, Trash2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui'
+import { Button, Card, EmptyState, IconButton, Stepper } from '@/components/ui'
+import { TopBar } from '@/components/layout/TopBar'
 import { useCartStore } from '@/stores/cart.store'
 import { useAuthStore } from '@/stores/auth.store'
 import api from '@/lib/api'
@@ -35,100 +36,91 @@ export default function CartPage() {
   }
 
   function handleCheckout() {
-    if (!isAuthenticated) {
-      router.push('/auth/login')
-      return
-    }
+    if (!isAuthenticated) return router.push('/auth/login')
     router.push('/checkout')
   }
 
   if (items.length === 0) {
     return (
       <div className="app-shell">
-        <div className="app-shell-inner flex flex-col items-center justify-center gap-4 p-6 text-center">
-          <ShoppingBag className="h-12 w-12 text-text-muted" />
-          <p className="text-text-secondary">Your cart is empty</p>
-          <button
-            onClick={() => router.back()}
-            className="text-primary text-sm font-semibold"
-          >
-            ← Go back to menu
-          </button>
+        <div className="app-shell-inner pt-12">
+          <EmptyState
+            icon={<ShoppingBag className="h-6 w-6" strokeWidth={1.7} />}
+            tone="cream"
+            title="Your cart is empty"
+            description="Add something you love from the menu to get started."
+            action={<Button variant="secondary" onClick={() => router.back()}>Back to menu</Button>}
+          />
         </div>
       </div>
     )
   }
 
+  const subtotal = totalPrice()
+
   return (
-    <div className="app-shell">
-      <div className="app-shell-inner">
-      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
-        <button onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5 text-text-secondary" />
-        </button>
-        <h1 className="text-lg font-bold text-text-primary">Your Cart</h1>
-        <span className="text-sm text-text-muted ml-auto">
-          {items.length} item{items.length > 1 ? 's' : ''}
-        </span>
-      </div>
+    <div className="app-shell slux-fade-in">
+      <div className="app-shell-inner lg:pt-10">
+        <TopBar
+          title="Your cart"
+          subtitle={`${items.length} item${items.length > 1 ? 's' : ''}`}
+          onBack={() => router.back()}
+        />
 
-      <div className="px-4 py-2">
-        {items.map((item) => (
-          <motion.div
-            key={item.id}
-            layout
-            className="flex items-center gap-3 py-4 border-b border-border"
-          >
-            <div className="flex-1">
-              <p className="text-sm font-semibold text-text-primary">{item.menu_item_name}</p>
-              <p className="text-sm text-primary font-bold mt-0.5">
-                ₹{item.unit_price} × {item.quantity}
-              </p>
-            </div>
-            <div className="flex items-center gap-1 bg-surface2 rounded-lg border border-border overflow-hidden">
-              <button
-                onClick={() =>
-                  item.quantity > 1
-                    ? handleUpdate(item.id, item.quantity - 1)
-                    : handleRemove(item.id)
-                }
-                className="px-3 py-1.5 text-primary"
+        <div className="px-4 lg:px-0 pb-40 space-y-4">
+          <Card tone="default" padding="none" radius="card" shadow="e1" className="px-5 py-2">
+            {items.map((item) => (
+              <motion.div
+                key={item.id}
+                layout
+                className="flex items-center gap-4 py-4 border-b border-border-subtle last:border-0"
               >
-                −
-              </button>
-              <span className="px-2 py-1.5 text-sm font-bold text-text-primary">
-                {item.quantity}
-              </span>
-              <button
-                onClick={() => handleUpdate(item.id, item.quantity + 1)}
-                className="px-3 py-1.5 text-primary"
-              >
-                +
-              </button>
-            </div>
-            <button onClick={() => handleRemove(item.id)} className="ml-1">
-              <Trash2 className="h-4 w-4 text-text-muted" />
-            </button>
-          </motion.div>
-        ))}
-      </div>
+                <div className="h-14 w-14 flex-shrink-0 rounded-xl bg-accent-soft-cream border border-border-subtle flex items-center justify-center text-2xl">
+                  🍛
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-body font-semibold text-text-primary truncate">{item.menu_item_name}</p>
+                  <p className="text-body-sm text-text-tertiary mt-0.5">₹{item.unit_price} each</p>
+                </div>
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <Stepper
+                    value={item.quantity}
+                    onIncrement={() => handleUpdate(item.id, item.quantity + 1)}
+                    onDecrement={() =>
+                      item.quantity > 1 ? handleUpdate(item.id, item.quantity - 1) : handleRemove(item.id)
+                    }
+                    size="sm"
+                  />
+                  <IconButton aria-label="Remove" tone="ghost" size="sm" onClick={() => handleRemove(item.id)}>
+                    <Trash2 className="h-4 w-4" strokeWidth={1.7} />
+                  </IconButton>
+                </div>
+              </motion.div>
+            ))}
+          </Card>
 
-      <div className="mx-4 mt-4 rounded-xl bg-surface2 border border-border p-4">
-        <div className="flex justify-between text-sm text-text-secondary mb-2">
-          <span>Subtotal</span>
-          <span>₹{totalPrice().toFixed(2)}</span>
-        </div>
-        <div className="flex justify-between text-base font-bold text-text-primary border-t border-border pt-2 mt-2">
-          <span>Total</span>
-          <span>₹{totalPrice().toFixed(2)}</span>
+          <Card tone="sunk" padding="md" radius="card" bordered shadow="none">
+            <p className="text-label text-text-muted">Summary</p>
+            <div className="mt-3 flex justify-between text-body-sm text-text-tertiary">
+              <span>Subtotal</span>
+              <span className="text-text-primary font-medium">₹{subtotal.toFixed(2)}</span>
+            </div>
+            <div className="mt-2 flex justify-between text-body-sm text-text-tertiary">
+              <span>Delivery</span>
+              <span className="text-text-primary font-medium">Pickup · Free</span>
+            </div>
+            <div className="mt-3 pt-3 border-t border-border-subtle flex justify-between items-baseline">
+              <span className="text-h4 text-text-primary">Total</span>
+              <span className="text-h2 text-text-primary">₹{subtotal.toFixed(2)}</span>
+            </div>
+          </Card>
         </div>
       </div>
-      </div>
 
-      <div className="fixed bottom-0 inset-x-0 p-4 bg-bg border-t border-border">
-        <div className="mx-auto w-full max-w-md">
-          <Button className="w-full" size="lg" onClick={handleCheckout}>
-            Place Order · ₹{totalPrice().toFixed(0)}
+      <div className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pl-80 lg:pr-10">
+        <div className="mx-auto w-full max-w-md lg:max-w-3xl">
+          <Button fullWidth size="lg" onClick={handleCheckout}>
+            Place order · ₹{subtotal.toFixed(0)}
           </Button>
         </div>
       </div>

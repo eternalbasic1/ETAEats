@@ -26,7 +26,7 @@ export function OTPInput({ value, onChange, disabled }: OTPInputProps) {
   }
 
   return (
-    <div className="flex gap-2 justify-center">
+    <div className="flex gap-2 justify-between">
       {Array.from({ length: 6 }).map((_, i) => (
         <input
           key={i}
@@ -38,7 +38,10 @@ export function OTPInput({ value, onChange, disabled }: OTPInputProps) {
           disabled={disabled}
           onChange={(e) => handleChange(i, e.target.value)}
           onKeyDown={(e) => handleKeyDown(i, e)}
-          className="h-12 w-11 rounded-lg bg-surface2 border border-border text-center text-lg font-semibold text-text-primary shadow-e1 focus:border-border-strong focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50"
+          className="h-13 w-11 sm:w-12 rounded-lg bg-surface2 border border-border text-center text-[20px] font-semibold tracking-[-0.01em] text-text-primary
+                     transition-all duration-base ease-standard
+                     focus:border-border-strong focus:bg-surface focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-border-strong
+                     disabled:opacity-50"
         />
       ))}
     </div>

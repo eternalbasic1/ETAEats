@@ -2,13 +2,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft, Search, Star } from 'lucide-react'
+import { Search, Star, MapPin, Clock } from 'lucide-react'
 import { toast } from 'sonner'
 import { CategoryTabs } from '@/components/menu/CategoryTabs'
 import { MenuItemRow } from '@/components/menu/MenuItemRow'
 import { SearchOverlay } from '@/components/menu/SearchOverlay'
 import { CartBar } from '@/components/menu/CartBar'
-import { Spinner } from '@/components/ui'
+import { Badge, Card, Spinner, EmptyState, Button } from '@/components/ui'
+import { TopBar } from '@/components/layout/TopBar'
 import { useAuthStore } from '@/stores/auth.store'
 import { useJourneyStore } from '@/stores/journey.store'
 import { useCartStore } from '@/stores/cart.store'
@@ -29,7 +30,7 @@ export default function MenuPage() {
   const [searchOpen, setSearchOpen] = useState(false)
   const hasActiveJourney = Boolean(activeJourney)
   const isCorrectJourneyRestaurant =
-    hasActiveJourney && String(activeJourney.restaurant.id) === String(restaurantId)
+    hasActiveJourney && String(activeJourney!.restaurant.id) === String(restaurantId)
 
   useEffect(() => {
     if (!hasHydrated) return
@@ -49,15 +50,8 @@ export default function MenuPage() {
 
   const { data: menuData, isLoading, isError, refetch } = useQuery({
     queryKey: ['menu', restaurantId],
-    // Fetch all items (available + unavailable) so greyed-out unavailable
-    // items still show. The cache is pre-seeded by the scan page, so this
-    // network call is usually skipped on first load.
     queryFn: () =>
-      api
-        .get<Paginated<MenuItem>>(
-          `/restaurants/menu-items/?restaurant=${restaurantId}&page_size=100`,
-        )
-        .then((r) => r.data),
+      api.get<Paginated<MenuItem>>(`/restaurants/menu-items/?restaurant=${restaurantId}&page_size=100`).then((r) => r.data),
     staleTime: 5 * 60 * 1000,
     enabled: hasHydrated && isAuthenticated && isCorrectJourneyRestaurant,
   })
@@ -65,21 +59,12 @@ export default function MenuPage() {
   const allItems = useMemo(() => menuData?.results ?? [], [menuData])
 
   const categories = useMemo(
-    () => [
-      ...new Set(
-        allItems
-          .map((i) => i.category_name ?? 'Other')
-          .filter(Boolean),
-      ),
-    ],
+    () => [...new Set(allItems.map((i) => i.category_name ?? 'Other').filter(Boolean))],
     [allItems],
   )
 
   const displayed = useMemo(
-    () =>
-      activeCategory === 'All'
-        ? allItems
-        : allItems.filter((i) => i.category_name === activeCategory),
+    () => (activeCategory === 'All' ? allItems : allItems.filter((i) => i.category_name === activeCategory)),
     [allItems, activeCategory],
   )
 
@@ -123,9 +108,7 @@ export default function MenuPage() {
     const current = cartItems.find((i) => i.id === cartItemId)
     if (!current || !cartId) return
     try {
-      const { data } = await api.patch<Cart>(`/orders/cart/items/${cartItemId}/`, {
-        quantity: current.quantity + 1,
-      })
+      const { data } = await api.patch<Cart>(`/orders/cart/items/${cartItemId}/`, { quantity: current.quantity + 1 })
       setCart(cartId, data.bus, data.restaurant, data.items)
       touchJourney()
     } catch {
@@ -140,9 +123,7 @@ export default function MenuPage() {
         const { data } = await api.delete<Cart>(`/orders/cart/items/${cartItemId}/`)
         setCart(cartId, data.bus, data.restaurant, data.items)
       } else {
-        const { data } = await api.patch<Cart>(`/orders/cart/items/${cartItemId}/`, {
-          quantity: quantity - 1,
-        })
+        const { data } = await api.patch<Cart>(`/orders/cart/items/${cartItemId}/`, { quantity: quantity - 1 })
         setCart(cartId, data.bus, data.restaurant, data.items)
       }
       touchJourney()
@@ -154,8 +135,8 @@ export default function MenuPage() {
   if (isLoading) {
     return (
       <div className="app-shell">
-        <div className="app-shell-inner flex items-center justify-center">
-          <Spinner className="h-8 w-8" />
+        <div className="app-shell-inner flex items-center justify-center pt-20">
+          <Spinner className="h-7 w-7" />
         </div>
       </div>
     )
@@ -164,91 +145,92 @@ export default function MenuPage() {
   if (isError) {
     return (
       <div className="app-shell">
-        <div className="app-shell-inner flex flex-col items-center justify-center gap-4 px-6 text-center">
-          <p className="text-text-secondary">Could not load menu. Check your connection.</p>
-          <button
-            onClick={() => refetch()}
-            className="text-primary text-sm font-semibold"
-          >
-            Try again
-          </button>
+        <div className="app-shell-inner pt-12">
+          <EmptyState
+            tone="peach"
+            title="Could not load menu"
+            description="Check your connection and try again."
+            action={<Button variant="secondary" onClick={() => refetch()}>Try again</Button>}
+          />
         </div>
       </div>
     )
   }
 
   return (
-    <div className="app-shell">
-      <div className="app-shell-inner">
-      <div className="sticky top-0 z-30 bg-bg border-b border-border">
-        <div className="px-4 pt-4 pb-2">
-          <div className="flex items-start justify-between gap-2">
-            <div className="flex items-start gap-3">
-              <button onClick={() => router.push('/home')} className="mt-0.5">
-                <ArrowLeft className="h-5 w-5 text-text-secondary" />
-              </button>
-              <div>
-              <h1 className="text-lg font-bold text-text-primary">
-                {restaurant?.name ?? 'Menu'}
-              </h1>
-              {restaurant?.hygieneRating && (
-                <div className="flex items-center gap-1 mt-0.5">
-                  <Star className="h-3 w-3 fill-warning text-warning" />
-                  <span className="text-xs text-text-secondary">
-                    {restaurant.hygieneRating}
-                  </span>
-                </div>
-              )}
-              </div>
-            </div>
+    <div className="app-shell slux-fade-in">
+      <div className="app-shell-inner lg:pt-10">
+        {/* Sticky header */}
+        <div className="sticky top-0 z-30 bg-bg/95 backdrop-blur-md">
+          <TopBar
+            title={restaurant?.name ?? 'Menu'}
+            subtitle={restaurant?.address ?? undefined}
+            onBack={() => router.push('/home')}
+            right={
+              restaurant?.hygieneRating ? (
+                <Badge variant="cream" size="sm">
+                  <Star className="h-3 w-3 fill-current" />
+                  {restaurant.hygieneRating}
+                </Badge>
+              ) : undefined
+            }
+            sticky={false}
+            transparent
+          />
+
+          <div className="px-4 lg:px-0 pb-3">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="w-full flex items-center gap-3 bg-surface rounded-pill border border-border px-5 py-3
+                         shadow-e1 transition-all duration-base ease-standard
+                         hover:border-border-strong hover:shadow-e2"
+            >
+              <Search className="h-4 w-4 text-text-tertiary" />
+              <span className="text-body-sm text-text-muted">Search dal, chicken, lassi…</span>
+            </button>
           </div>
 
-          <button
-            onClick={() => setSearchOpen(true)}
-            className="mt-3 w-full flex items-center gap-2 bg-surface2 rounded-xl px-4 py-2.5 border border-border"
-          >
-            <Search className="h-4 w-4 text-text-muted" />
-            <span className="text-sm text-text-muted">Search dal, chicken, lassi…</span>
-          </button>
+          <CategoryTabs categories={categories} active={activeCategory} onChange={setActiveCategory} />
         </div>
 
-        <CategoryTabs
-          categories={categories}
-          active={activeCategory}
-          onChange={setActiveCategory}
-        />
-      </div>
-
-      <div className="px-4">
-        {Object.entries(grouped).map(([cat, items]) => (
-          <div key={cat}>
-            {activeCategory === 'All' && (
-              <h2 className="text-sm font-bold text-text-primary mt-5 mb-1 pb-1 border-b border-border">
-                {cat}
-              </h2>
-            )}
-            {items.map((item) => (
-              <MenuItemRow
-                key={item.id}
-                item={item}
-                cartItem={cartItems.find((c) => c.menu_item === item.id)}
-                onAdd={handleAdd}
-                onIncrement={handleIncrement}
-                onDecrement={handleDecrement}
-              />
-            ))}
+        {/* Journey context band */}
+        {bus && (
+          <div className="mx-4 lg:mx-0 mt-3 rounded-xl bg-accent-powder-blue px-4 py-3 flex items-center gap-3">
+            <MapPin className="h-4 w-4 text-accent-ink-powder-blue flex-shrink-0" strokeWidth={1.8} />
+            <p className="text-body-sm text-accent-ink-powder-blue flex-1 truncate">
+              Assigned to your bus · <span className="font-semibold">{bus.name}</span>
+            </p>
+            <Clock className="h-3.5 w-3.5 text-accent-ink-powder-blue/70" />
           </div>
-        ))}
-      </div>
+        )}
 
-      <SearchOverlay
-        open={searchOpen}
-        items={allItems}
-        onClose={() => setSearchOpen(false)}
-        onAdd={handleAdd}
-      />
+        <div className="px-4 lg:px-0 pb-40 lg:pb-24">
+          {Object.entries(grouped).map(([cat, items]) => (
+            <div key={cat}>
+              {activeCategory === 'All' && (
+                <div className="mt-8 mb-2">
+                  <p className="text-label text-text-muted">Category</p>
+                  <h2 className="mt-1.5 text-h3 text-text-primary">{cat}</h2>
+                </div>
+              )}
+              <Card tone="default" padding="none" radius="card" shadow="e1" className="px-5 lg:px-7 mt-3">
+                {items.map((item) => (
+                  <MenuItemRow
+                    key={item.id}
+                    item={item}
+                    cartItem={cartItems.find((c) => c.menu_item === item.id)}
+                    onAdd={handleAdd}
+                    onIncrement={handleIncrement}
+                    onDecrement={handleDecrement}
+                  />
+                ))}
+              </Card>
+            </div>
+          ))}
+        </div>
 
-      <CartBar />
+        <SearchOverlay open={searchOpen} items={allItems} onClose={() => setSearchOpen(false)} onAdd={handleAdd} />
+        <CartBar />
       </div>
     </div>
   )

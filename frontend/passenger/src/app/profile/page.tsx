@@ -1,8 +1,9 @@
 'use client'
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Phone, Mail, LogOut } from 'lucide-react'
-import { Button } from '@/components/ui'
+import { Phone, Mail, LogOut, Shield, Info } from 'lucide-react'
+import { Button, Card } from '@/components/ui'
+import { TopBar } from '@/components/layout/TopBar'
 import { useAuthStore } from '@/stores/auth.store'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -23,51 +24,76 @@ export default function ProfilePage() {
     router.replace('/auth/login')
   }
 
+  const initial = user.full_name ? user.full_name[0]?.toUpperCase() : user.phone_number.slice(-1)
+
   return (
-    <div className="app-shell">
-      <div className="app-shell-inner">
-      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
-        <button onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5 text-text-secondary" />
-        </button>
-        <h1 className="text-lg font-bold text-text-primary">Profile</h1>
-      </div>
+    <div className="app-shell slux-fade-in">
+      <div className="app-shell-inner lg:pt-10">
+        <TopBar title="Your profile" onBack={() => router.back()} />
 
-      <div className="px-4 py-6 space-y-4">
-        <div className="flex flex-col items-center py-4">
-          <div className="h-20 w-20 rounded-full bg-primary text-white flex items-center justify-center text-3xl font-bold mb-3">
-            {user.full_name ? user.full_name[0]?.toUpperCase() : '👤'}
-          </div>
-          <p className="text-lg font-bold text-text-primary">
-            {user.full_name || 'Passenger'}
-          </p>
-          <p className="text-sm text-text-secondary">{user.phone_number}</p>
-        </div>
-
-        <div className="rounded-xl bg-surface border border-border divide-y divide-border">
-          <div className="flex items-center gap-3 p-4">
-            <Phone className="h-4 w-4 text-text-muted" />
-            <div>
-              <p className="text-xs text-text-muted">Phone</p>
-              <p className="text-sm text-text-primary">{user.phone_number}</p>
-            </div>
-          </div>
-          {user.email && (
-            <div className="flex items-center gap-3 p-4">
-              <Mail className="h-4 w-4 text-text-muted" />
-              <div>
-                <p className="text-xs text-text-muted">Email</p>
-                <p className="text-sm text-text-primary">{user.email}</p>
+        <div className="px-4 lg:px-0 pb-16 space-y-5">
+          {/* Identity card */}
+          <Card tone="powder" padding="lg" radius="card" bordered={false} shadow="e1">
+            <div className="flex items-center gap-5">
+              <div className="h-16 w-16 rounded-hero bg-primary text-text-on-dark flex items-center justify-center text-[26px] font-semibold tracking-[-0.02em] shadow-e1">
+                {initial}
+              </div>
+              <div className="min-w-0">
+                <p className="text-label text-accent-ink-powder-blue">Passenger</p>
+                <p className="mt-1 text-h2 text-text-primary truncate">{user.full_name || 'Traveller'}</p>
+                <p className="text-body-sm text-text-tertiary">{user.phone_number}</p>
               </div>
             </div>
-          )}
-        </div>
+          </Card>
 
-        <Button variant="danger" className="w-full" onClick={handleLogout}>
-          <LogOut className="h-4 w-4 mr-2" />
-          Sign Out
-        </Button>
-      </div>
+          <Card tone="default" padding="none" radius="card" shadow="e1">
+            <div className="divide-y divide-border-subtle">
+              <div className="flex items-center gap-4 p-5">
+                <span className="h-10 w-10 rounded-lg bg-surface2 flex items-center justify-center">
+                  <Phone className="h-4 w-4 text-text-tertiary" strokeWidth={1.8} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-label text-text-muted">Phone</p>
+                  <p className="text-body text-text-primary mt-0.5">{user.phone_number}</p>
+                </div>
+              </div>
+              {user.email && (
+                <div className="flex items-center gap-4 p-5">
+                  <span className="h-10 w-10 rounded-lg bg-surface2 flex items-center justify-center">
+                    <Mail className="h-4 w-4 text-text-tertiary" strokeWidth={1.8} />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-label text-text-muted">Email</p>
+                    <p className="text-body text-text-primary mt-0.5">{user.email}</p>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center gap-4 p-5">
+                <span className="h-10 w-10 rounded-lg bg-surface2 flex items-center justify-center">
+                  <Shield className="h-4 w-4 text-text-tertiary" strokeWidth={1.8} />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-label text-text-muted">Security</p>
+                  <p className="text-body text-text-primary mt-0.5">OTP-based sign in</p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <Card tone="elevated" padding="md" radius="card" bordered={false} shadow="none">
+            <div className="flex items-start gap-3">
+              <Info className="h-4 w-4 text-accent-ink-soft-cream mt-1 flex-shrink-0" strokeWidth={1.9} />
+              <p className="text-body-sm text-accent-ink-soft-cream leading-relaxed">
+                ETAEats never stores your bus ticket or payment details. We only need your phone to confirm pickup.
+              </p>
+            </div>
+          </Card>
+
+          <Button variant="secondary" fullWidth onClick={handleLogout}>
+            <LogOut className="h-4 w-4" strokeWidth={1.8} />
+            Sign out
+          </Button>
+        </div>
       </div>
     </div>
   )

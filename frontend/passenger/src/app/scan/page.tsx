@@ -1,9 +1,10 @@
 'use client'
-import { FormEvent, KeyboardEvent, useMemo, useRef, useState } from 'react'
+import { FormEvent, KeyboardEvent, Suspense, useMemo, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { QrCode, Camera, ArrowLeft } from 'lucide-react'
+import { Camera, QrCode } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui'
+import { Button, Card, Spinner } from '@/components/ui'
+import { TopBar } from '@/components/layout/TopBar'
 
 const TOKEN_LENGTH = 6
 
@@ -20,7 +21,7 @@ function parseQRCodeInput(raw: string): string {
   }
 }
 
-export default function ScanHubPage() {
+function ScanHubInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [chars, setChars] = useState<string[]>(Array(TOKEN_LENGTH).fill(''))
@@ -44,7 +45,6 @@ export default function ScanHubPage() {
       fillFromRaw(value)
       return
     }
-
     const next = [...chars]
     next[idx] = value
     setChars(next)
@@ -76,39 +76,39 @@ export default function ScanHubPage() {
   }
 
   return (
-    <div className="app-shell">
-      <div className="app-shell-inner px-4 pt-6">
-        <button
-          onClick={() => router.push('/home')}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-text-secondary"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Home
-        </button>
-        <h1 className="text-xl font-bold text-text-primary">Scan Bus QR</h1>
-        <p className="text-sm text-text-secondary mt-1">
-          Scan using camera or paste the QR token/URL manually.
+    <div className="app-shell-inner px-4 lg:px-0">
+      <TopBar title="Scan bus QR" onBack={() => router.push('/home')} />
+
+      <div className="pt-2">
+        <p className="text-label text-text-muted">Step 1</p>
+        <h1 className="mt-2 text-h2 lg:text-h1 text-text-primary">Find your bus&rsquo;s QR</h1>
+        <p className="mt-2 text-body-sm text-text-tertiary max-w-md">
+          Scan the sticker inside your bus — usually on the seat back or ceiling — or enter the 6-character code printed below it.
         </p>
+
         {fromMenu && (
-          <div className="mt-3 rounded-lg border border-warning/30 bg-warning-bg px-3 py-2 text-xs text-warning">
-            Scan your bus QR first to access the menu.
+          <div className="mt-5 flex items-start gap-3 rounded-lg bg-warning-bg border border-warning-border px-4 py-3">
+            <div className="h-1.5 w-1.5 rounded-full bg-warning mt-2 flex-shrink-0" />
+            <p className="text-body-sm text-warning">Scan your bus QR first to open the menu.</p>
           </div>
         )}
 
-        <button
-          onClick={openCameraFlow}
-          className="mt-5 w-full rounded-xl border border-border bg-surface px-4 py-3 flex items-center justify-center gap-2 text-sm font-semibold text-text-primary"
-        >
-          <Camera className="h-4 w-4" />
-          Open Camera Scanner
-        </button>
+        <Card tone="default" padding="md" radius="card" shadow="e1" className="mt-6">
+          <button onClick={openCameraFlow} className="w-full flex items-center gap-3 text-left">
+            <span className="h-11 w-11 rounded-lg bg-accent-powder-blue text-accent-ink-powder-blue flex items-center justify-center">
+              <Camera className="h-5 w-5" strokeWidth={1.8} />
+            </span>
+            <span className="flex-1">
+              <span className="block text-h4 text-text-primary">Open camera scanner</span>
+              <span className="block text-body-sm text-text-tertiary">Point your phone at the QR sticker</span>
+            </span>
+          </button>
+        </Card>
 
-        <form onSubmit={handleSubmit} className="mt-4 rounded-xl border border-border bg-surface p-4">
-          <label className="text-xs uppercase tracking-wide text-text-muted">
-            Enter 6-character bus code
-          </label>
-          <div className="mt-3">
-            <div className="flex items-center justify-center gap-2">
+        <Card tone="default" padding="md" radius="card" shadow="e1" className="mt-4">
+          <form onSubmit={handleSubmit}>
+            <p className="text-label text-text-muted">Or enter 6-digit code</p>
+            <div className="mt-4 flex items-center justify-between gap-2">
               {Array.from({ length: TOKEN_LENGTH }).map((_, idx) => (
                 <input
                   key={idx}
@@ -119,20 +119,38 @@ export default function ScanHubPage() {
                   onPaste={handlePaste}
                   inputMode="text"
                   maxLength={1}
-                  className="h-12 w-11 rounded-md bg-surface2 border border-border text-center text-lg font-bold uppercase text-text-primary focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+                  className="h-13 w-11 sm:w-12 rounded-lg bg-surface2 border border-border text-center text-[20px] font-semibold uppercase text-text-primary
+                             transition-all duration-base ease-standard
+                             focus:border-border-strong focus:bg-surface focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-border-strong"
                 />
               ))}
             </div>
-            <div className="mt-2 flex items-center justify-center gap-1 text-xs text-text-muted">
+            <div className="mt-3 flex items-center justify-center gap-1.5 text-caption text-text-muted">
               <QrCode className="h-3.5 w-3.5" />
-              <span>Code format: A1B2C3 (caps alphanumeric)</span>
+              <span>Format: A1B2C3 — uppercase letters & numbers</span>
             </div>
-          </div>
-          <Button className="w-full mt-4" disabled={token.length !== TOKEN_LENGTH}>
-            Continue to Menu
-          </Button>
-        </form>
+            <Button fullWidth size="lg" className="mt-5" disabled={token.length !== TOKEN_LENGTH}>
+              Continue to menu
+            </Button>
+          </form>
+        </Card>
       </div>
+    </div>
+  )
+}
+
+export default function ScanHubPage() {
+  return (
+    <div className="app-shell slux-fade-in">
+      <Suspense
+        fallback={
+          <div className="app-shell-inner flex items-center justify-center pt-20">
+            <Spinner className="h-7 w-7" />
+          </div>
+        }
+      >
+        <ScanHubInner />
+      </Suspense>
     </div>
   )
 }

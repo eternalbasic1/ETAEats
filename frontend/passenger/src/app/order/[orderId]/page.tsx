@@ -2,8 +2,9 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
-import { ArrowLeft } from 'lucide-react'
-import { Badge, Spinner } from '@/components/ui'
+import { PartyPopper } from 'lucide-react'
+import { Badge, Card, Spinner } from '@/components/ui'
+import { TopBar } from '@/components/layout/TopBar'
 import { StatusStepper } from '@/components/order/StatusStepper'
 import { useOrderSocket } from '@/hooks/useOrderSocket'
 import { useOrderTrackingStore } from '@/stores/orderTracking.store'
@@ -28,7 +29,6 @@ export default function OrderTrackingPage() {
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', orderId],
     queryFn: () => api.get<Order>(`/orders/my/${orderId}/`).then((r) => r.data),
-    // Poll every 8 seconds when WebSocket is disconnected (fallback)
     refetchInterval: connectionState === 'disconnected' ? 8000 : false,
   })
 
@@ -48,75 +48,77 @@ export default function OrderTrackingPage() {
   if (isLoading || !order) {
     return (
       <div className="app-shell">
-        <div className="app-shell-inner flex items-center justify-center">
-          <Spinner className="h-8 w-8" />
+        <div className="app-shell-inner flex items-center justify-center pt-20">
+          <Spinner className="h-7 w-7" />
         </div>
       </div>
     )
   }
 
+  const connectionBadge = (() => {
+    if (connectionState === 'connected') return <Badge variant="mint" size="sm" dot>Live</Badge>
+    if (connectionState === 'reconnecting') return <Badge variant="cream" size="sm" dot>Reconnecting…</Badge>
+    return <Badge variant="neutral" size="sm">Offline</Badge>
+  })()
+
   return (
-    <div className="app-shell">
-      <div className="app-shell-inner">
-      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4">
-        <div className="flex items-center gap-3">
-          <button onClick={() => router.push('/home')}>
-            <ArrowLeft className="h-5 w-5 text-text-secondary" />
-          </button>
-          <div className="flex-1">
-            <h1 className="text-base font-bold text-text-primary">
-              {order.restaurant_name}
-            </h1>
-            <p className="text-xs text-text-muted">Order #{order.id.slice(0, 8)}</p>
-          </div>
-          {connectionState === 'connected' && (
-            <Badge variant="primary" dot>LIVE</Badge>
-          )}
-          {connectionState === 'reconnecting' && (
-            <Badge variant="warning" dot>Reconnecting…</Badge>
-          )}
-          {connectionState === 'disconnected' && (
-            <Badge variant="muted">Offline</Badge>
-          )}
-        </div>
-      </div>
-
-      <div className="px-4 py-6">
-        {effectiveStatus === 'READY' && (
-          <div className="rounded-xl bg-success-bg border border-success/30 p-4 mb-6 text-center">
-            <p className="text-success font-bold">🔔 Your food is ready!</p>
-            <p className="text-sm text-text-secondary mt-1">
-              Head to the counter to pick it up.
-            </p>
-          </div>
-        )}
-
-        <StatusStepper
-          currentStatus={effectiveStatus}
-          timestamps={{
-            created_at: order.created_at,
-            confirmed_at: order.confirmed_at,
-            ready_at: order.ready_at,
-            picked_up_at: order.picked_up_at,
-          }}
+    <div className="app-shell slux-fade-in">
+      <div className="app-shell-inner lg:pt-10">
+        <TopBar
+          title={order.restaurant_name}
+          subtitle={`Order #${order.id.slice(0, 8)}`}
+          onBack={() => router.push('/home')}
+          right={connectionBadge}
         />
 
-        <div className="mt-8 rounded-xl bg-surface border border-border p-4">
-          <p className="text-xs text-text-muted uppercase tracking-wider mb-3">Your order</p>
-          {order.items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm py-1">
-              <span className="text-text-secondary">
-                {item.menu_item_name} × {item.quantity}
-              </span>
-              <span className="text-text-primary">₹{item.line_total}</span>
+        <div className="px-4 lg:px-0 pb-10 space-y-6">
+          {effectiveStatus === 'READY' && (
+            <Card tone="peach" padding="md" radius="card" bordered={false} shadow="e2">
+              <div className="flex items-start gap-3">
+                <span className="h-10 w-10 rounded-lg bg-white/60 flex items-center justify-center flex-shrink-0">
+                  <PartyPopper className="h-5 w-5 text-accent-ink-peach" strokeWidth={1.7} />
+                </span>
+                <div>
+                  <p className="text-h4 text-text-primary">Your food is ready</p>
+                  <p className="text-body-sm text-accent-ink-peach mt-1">Head to the counter to pick it up.</p>
+                </div>
+              </div>
+            </Card>
+          )}
+
+          <Card tone="default" padding="md" radius="card" shadow="e1">
+            <p className="text-label text-text-muted">Progress</p>
+            <div className="mt-5">
+              <StatusStepper
+                currentStatus={effectiveStatus}
+                timestamps={{
+                  created_at: order.created_at,
+                  confirmed_at: order.confirmed_at,
+                  ready_at: order.ready_at,
+                  picked_up_at: order.picked_up_at,
+                }}
+              />
             </div>
-          ))}
-          <div className="flex justify-between text-sm font-bold text-text-primary border-t border-border pt-2 mt-2">
-            <span>Total</span>
-            <span>₹{order.total_amount}</span>
-          </div>
+          </Card>
+
+          <Card tone="default" padding="md" radius="card" shadow="e1">
+            <p className="text-label text-text-muted">Your order</p>
+            <div className="mt-4 space-y-2.5">
+              {order.items.map((item) => (
+                <div key={item.id} className="flex items-baseline justify-between text-body-sm">
+                  <span className="text-text-secondary truncate pr-3">
+                    {item.menu_item_name} <span className="text-text-muted">× {item.quantity}</span>
+                  </span>
+                  <span className="text-text-primary font-medium tabular-nums">₹{item.line_total}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t border-border-subtle flex justify-between items-baseline">
+              <span className="text-h4 text-text-primary">Total</span>
+              <span className="text-h3 text-text-primary tabular-nums">₹{order.total_amount}</span>
+            </div>
+          </Card>
         </div>
-      </div>
       </div>
     </div>
   )

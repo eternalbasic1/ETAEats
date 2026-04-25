@@ -1,9 +1,10 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft } from 'lucide-react'
+import { MapPin, Bus, Receipt, ShieldCheck } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui'
+import { Button, Card } from '@/components/ui'
+import { TopBar } from '@/components/layout/TopBar'
 import { useCartStore } from '@/stores/cart.store'
 import { useAuthStore } from '@/stores/auth.store'
 import { useJourneyStore } from '@/stores/journey.store'
@@ -26,7 +27,6 @@ export default function CheckoutPage() {
     let effectiveCartId = cartId
     let effectiveBusId = busId ?? bus?.id ?? null
 
-    // Recover from backend cart if local persisted snapshot is missing fields.
     if (!effectiveCartId || !effectiveBusId) {
       try {
         const { data: serverCart } = await api.get<Cart>('/orders/cart/')
@@ -36,9 +36,7 @@ export default function CheckoutPage() {
           effectiveCartId = serverCart.id
           effectiveBusId = recoveredBusId
         }
-      } catch {
-        // keep fallback guard below
-      }
+      } catch { /* fall through */ }
     }
 
     if (!effectiveCartId || !effectiveBusId) {
@@ -47,24 +45,15 @@ export default function CheckoutPage() {
     }
     setLoading(true)
     try {
-      // 1. Checkout cart → create PENDING order
       const { data: order } = await api.post<Order>('/orders/checkout/', {
         cart_id: effectiveCartId,
         bus_id: effectiveBusId,
       })
-
-      // 2. Create Razorpay order
-      const { data: rpPayload } = await api.post<RazorpayOrderPayload>(
-        '/payments/razorpay/order/',
-        { order_id: order.id },
-      )
-
-      // 3. Open Razorpay checkout sheet
+      const { data: rpPayload } = await api.post<RazorpayOrderPayload>('/payments/razorpay/order/', { order_id: order.id })
       await openRazorpay(
         rpPayload,
         user?.phone_number ?? '',
         async (rpResponse) => {
-          // 4. Confirm payment signature with backend
           try {
             await api.post('/payments/razorpay/confirm/', {
               order_id: order.id,
@@ -98,59 +87,74 @@ export default function CheckoutPage() {
     }
   }
 
+  const subtotal = totalPrice()
+
   return (
-    <div className="app-shell">
-      <div className="app-shell-inner">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-bg border-b border-border px-4 py-4 flex items-center gap-3">
-        <button onClick={() => router.back()}>
-          <ArrowLeft className="h-5 w-5 text-text-secondary" />
-        </button>
-        <h1 className="text-lg font-bold text-text-primary">Order Summary</h1>
-      </div>
+    <div className="app-shell slux-fade-in">
+      <div className="app-shell-inner lg:pt-10">
+        <TopBar title="Review & pay" onBack={() => router.back()} />
 
-      <div className="px-4 py-4 space-y-4">
-        {/* Bus + Restaurant */}
-        <div className="rounded-xl bg-surface border border-border p-4">
-          <p className="text-xs text-text-muted uppercase tracking-wider mb-2">Pickup from</p>
-          <p className="text-sm font-semibold text-text-primary">{restaurant?.name}</p>
-          <p className="text-xs text-text-secondary mt-0.5">{restaurant?.address}</p>
-          <div className="mt-3 pt-3 border-t border-border">
-            <p className="text-xs text-text-muted uppercase tracking-wider mb-1">Your bus</p>
-            <p className="text-sm text-text-primary">
-              {bus?.name} · {bus?.numberPlate}
-            </p>
-          </div>
-        </div>
-
-        {/* Order items */}
-        <div className="rounded-xl bg-surface border border-border p-4 space-y-2">
-          <p className="text-xs text-text-muted uppercase tracking-wider mb-3">Your order</p>
-          {items.map((item) => (
-            <div key={item.id} className="flex justify-between text-sm">
-              <span className="text-text-secondary">
-                {item.menu_item_name} × {item.quantity}
+        <div className="px-4 lg:px-0 pb-40 space-y-4">
+          <Card tone="powder" padding="md" radius="card" bordered={false} shadow="e1">
+            <p className="text-label text-accent-ink-powder-blue">Pickup from</p>
+            <div className="mt-3 flex items-start gap-3">
+              <span className="h-10 w-10 rounded-lg bg-white/70 flex items-center justify-center flex-shrink-0">
+                <MapPin className="h-4 w-4 text-accent-ink-powder-blue" strokeWidth={1.8} />
               </span>
-              <span className="text-text-primary font-medium">₹{item.line_total}</span>
+              <div className="min-w-0">
+                <p className="text-h4 text-text-primary truncate">{restaurant?.name}</p>
+                <p className="text-body-sm text-text-tertiary mt-0.5 line-clamp-2">{restaurant?.address}</p>
+              </div>
             </div>
-          ))}
-          <div className="flex justify-between text-base font-bold text-text-primary border-t border-border pt-3 mt-2">
-            <span>Total</span>
-            <span>₹{totalPrice().toFixed(2)}</span>
+
+            <div className="mt-4 pt-4 border-t border-white/40 flex items-center gap-3">
+              <span className="h-10 w-10 rounded-lg bg-white/70 flex items-center justify-center flex-shrink-0">
+                <Bus className="h-4 w-4 text-accent-ink-powder-blue" strokeWidth={1.8} />
+              </span>
+              <div className="min-w-0">
+                <p className="text-label text-accent-ink-powder-blue">Your bus</p>
+                <p className="text-body text-text-primary mt-0.5">
+                  <span className="font-semibold">{bus?.name}</span> · {bus?.numberPlate}
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card tone="default" padding="md" radius="card" shadow="e1">
+            <div className="flex items-center gap-2">
+              <Receipt className="h-4 w-4 text-text-muted" strokeWidth={1.8} />
+              <p className="text-label text-text-muted">Your order</p>
+            </div>
+            <div className="mt-4 space-y-2.5">
+              {items.map((item) => (
+                <div key={item.id} className="flex items-baseline justify-between text-body-sm">
+                  <span className="text-text-secondary truncate pr-3">
+                    {item.menu_item_name} <span className="text-text-muted">× {item.quantity}</span>
+                  </span>
+                  <span className="text-text-primary font-medium tabular-nums flex-shrink-0">₹{item.line_total}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 pt-4 border-t border-border-subtle flex items-baseline justify-between">
+              <span className="text-h4 text-text-primary">Total</span>
+              <span className="text-h2 text-text-primary tabular-nums">₹{subtotal.toFixed(2)}</span>
+            </div>
+          </Card>
+
+          <div className="flex items-start gap-2 text-caption text-text-muted px-1">
+            <ShieldCheck className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" strokeWidth={1.9} />
+            <p>Payments are encrypted and processed by Razorpay. Your card details never touch our servers.</p>
           </div>
         </div>
       </div>
-      </div>
 
-      {/* Pay CTA */}
-      <div className="fixed bottom-24 inset-x-0 p-4 bg-bg border-t border-border z-30">
-        <div className="mx-auto w-full max-w-md">
-          <Button className="w-full" size="lg" onClick={handlePay} loading={loading}>
-            Pay ₹{totalPrice().toFixed(0)} with Razorpay
+      <div className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pl-80 lg:pr-10">
+        <div className="mx-auto w-full max-w-md lg:max-w-3xl">
+          <Button fullWidth size="lg" onClick={handlePay} loading={loading}>
+            Pay ₹{subtotal.toFixed(0)} securely
           </Button>
         </div>
       </div>
-
     </div>
   )
 }
