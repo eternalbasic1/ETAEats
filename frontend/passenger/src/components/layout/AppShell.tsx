@@ -1,7 +1,9 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { DesktopRail } from './DesktopRail'
 import { MobileBottomNav } from './MobileBottomNav'
+import { useSidebarStore } from '@/stores/sidebar.store'
 
 const HIDE_CHROME_ROUTES = ['/', '/auth']
 
@@ -11,20 +13,23 @@ function shouldHideChrome(pathname: string) {
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const bare = shouldHideChrome(pathname)
+  const persistedCollapsed = useSidebarStore((s) => s.collapsed)
+  const [hydrated, setHydrated] = useState(false)
+  useEffect(() => { setHydrated(true) }, [])
+  const collapsed = hydrated && persistedCollapsed
 
-  if (bare) {
+  if (shouldHideChrome(pathname)) {
     return <main className="min-h-[100dvh] bg-bg">{children}</main>
   }
 
   return (
-    <>
-      {/* Desktop left rail — hidden on mobile */}
-      <DesktopRail />
-      {/* Primary content */}
+    <div
+      style={{ ['--rail-width' as string]: collapsed ? '5rem' : '18rem' }}
+      className="contents"
+    >
+      <DesktopRail collapsed={collapsed} />
       <main>{children}</main>
-      {/* Floating bottom nav pill — hidden on ≥lg */}
       <MobileBottomNav />
-    </>
+    </div>
   )
 }
