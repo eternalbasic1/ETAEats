@@ -76,7 +76,7 @@ function ScanHubInner() {
   }
 
   return (
-    <div className="app-shell-inner px-4 lg:px-0">
+    <div className="app-shell-inner pt-6 lg:pt-10">
       <TopBar title="Scan bus QR" onBack={() => router.push('/home')} />
 
       <div className="pt-2">

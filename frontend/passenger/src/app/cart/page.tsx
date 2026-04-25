@@ -67,7 +67,7 @@ export default function CartPage() {
           onBack={() => router.back()}
         />
 
-        <div className="px-4 lg:px-0 pb-40 space-y-4">
+        <div className="pb-40 space-y-4">
           <Card tone="default" padding="none" radius="card" shadow="e1" className="px-5 py-2">
             {items.map((item) => (
               <motion.div
@@ -117,7 +117,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pl-80 lg:pr-10">
+      <div className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)]">
         <div className="mx-auto w-full max-w-md lg:max-w-3xl">
           <Button fullWidth size="lg" onClick={handleCheckout}>
             Place order · ₹{subtotal.toFixed(0)}

@@ -17,7 +17,7 @@ export function CartBar() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 80, opacity: 0 }}
           transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-          className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:px-10 pointer-events-none"
+          className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)] pointer-events-none"
         >
           <div className="mx-auto w-full max-w-md lg:max-w-3xl pointer-events-auto">
             <button

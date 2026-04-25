@@ -71,7 +71,7 @@ export default function OrderTrackingPage() {
           right={connectionBadge}
         />
 
-        <div className="px-4 lg:px-0 pb-10 space-y-6">
+        <div className="pb-10 space-y-6">
           {effectiveStatus === 'READY' && (
             <Card tone="peach" padding="md" radius="card" bordered={false} shadow="e2">
               <div className="flex items-start gap-3">

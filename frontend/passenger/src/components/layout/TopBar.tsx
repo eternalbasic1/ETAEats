@@ -35,7 +35,7 @@ export function TopBar({
   return (
     <div
       className={cn(
-        'z-30 px-4 lg:px-0 pt-4 pb-3',
+        'z-30 pt-4 pb-3',
         sticky && 'sticky top-0',
         transparent ? 'bg-transparent' : 'bg-bg/90 backdrop-blur-md border-b border-border-subtle',
         className,

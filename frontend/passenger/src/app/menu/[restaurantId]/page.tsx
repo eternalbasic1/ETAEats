@@ -178,7 +178,7 @@ export default function MenuPage() {
             transparent
           />
 
-          <div className="px-4 lg:px-0 pb-3">
+          <div className="pb-3">
             <button
               onClick={() => setSearchOpen(true)}
               className="w-full flex items-center gap-3 bg-surface rounded-pill border border-border px-5 py-3
@@ -204,7 +204,7 @@ export default function MenuPage() {
           </div>
         )}
 
-        <div className="px-4 lg:px-0 pb-40 lg:pb-24">
+        <div className="pb-40 lg:pb-24">
           {Object.entries(grouped).map(([cat, items]) => (
             <div key={cat}>
               {activeCategory === 'All' && (

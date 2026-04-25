@@ -40,7 +40,7 @@ export default function OrdersPage() {
       <div className="app-shell-inner lg:pt-10">
         <TopBar title="Order history" onBack={() => router.push('/home')} />
 
-        <div className="px-4 lg:px-0 pb-10">
+        <div className="pb-10">
           {isLoading && (
             <div className="flex justify-center py-14">
               <Spinner className="h-7 w-7" />

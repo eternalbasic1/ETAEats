@@ -31,7 +31,7 @@ export default function ProfilePage() {
       <div className="app-shell-inner lg:pt-10">
         <TopBar title="Your profile" onBack={() => router.back()} />
 
-        <div className="px-4 lg:px-0 pb-16 space-y-5">
+        <div className="pb-16 space-y-5">
           {/* Identity card */}
           <Card tone="powder" padding="lg" radius="card" bordered={false} shadow="e1">
             <div className="flex items-center gap-5">

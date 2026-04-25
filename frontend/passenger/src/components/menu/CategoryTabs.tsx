@@ -16,7 +16,7 @@ export function CategoryTabs({ categories, active, onChange }: CategoryTabsProps
   }, [active])
 
   return (
-    <div className="flex gap-2 overflow-x-auto no-scrollbar px-4 lg:px-0 py-3">
+    <div className="flex gap-2 overflow-x-auto no-scrollbar py-3">
       {['All', ...categories].map((cat) => {
         const isActive = cat === active
         return (

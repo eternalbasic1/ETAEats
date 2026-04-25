@@ -88,7 +88,7 @@ export default function HomePage() {
 
   return (
     <div className="app-shell slux-fade-in">
-      <div className="app-shell-inner pt-6 lg:pt-12 px-4 lg:px-0">
+      <div className="app-shell-inner pt-6 lg:pt-10">
         {/* Greeting — desktop only shows without BrandMark which sits in the rail */}
         <div className="flex items-center justify-between lg:hidden mb-6">
           <BrandMark size="sm" compact />
