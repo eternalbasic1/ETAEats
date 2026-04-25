@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { Dialog, Button, Textarea } from '@/components/ui'
+import { cn } from '@/lib/utils'
 
 const REASONS = ['Out of stock', 'Kitchen closed', 'Too busy', 'Other']
 
@@ -24,25 +25,39 @@ export function CancelOrderDialog({ open, onClose, onConfirm, orderShortId }: Ca
   }
 
   return (
-    <Dialog open={open} onClose={onClose} title={`Cancel order #${orderShortId}?`}>
-      <p className="text-sm text-text-secondary mb-4">
-        This cannot be undone. The passenger will be notified and refunded if paid.
-      </p>
-
-      <div className="space-y-2 mb-4">
-        {REASONS.map((r) => (
-          <label key={r} className="flex items-center gap-2 p-2 rounded-md hover:bg-surface2 cursor-pointer">
-            <input
-              type="radio"
-              name="reason"
-              value={r}
-              checked={reason === r}
-              onChange={() => setReason(r)}
-              className="accent-primary"
-            />
-            <span className="text-sm text-text-primary">{r}</span>
-          </label>
-        ))}
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={`Cancel order #${orderShortId}?`}
+      description="The passenger will be notified and refunded if paid. This cannot be undone."
+    >
+      <div className="space-y-2 mb-5">
+        {REASONS.map((r) => {
+          const selected = reason === r
+          return (
+            <label
+              key={r}
+              className={cn(
+                'flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors duration-base ease-standard',
+                selected
+                  ? 'bg-accent-powder-blue border-transparent'
+                  : 'bg-surface border-border hover:border-border-strong',
+              )}
+            >
+              <input
+                type="radio"
+                name="reason"
+                value={r}
+                checked={selected}
+                onChange={() => setReason(r)}
+                className="h-4 w-4 accent-primary"
+              />
+              <span className={cn('text-body-sm', selected ? 'text-accent-ink-powder-blue font-semibold' : 'text-text-primary')}>
+                {r}
+              </span>
+            </label>
+          )
+        })}
       </div>
 
       {reason === 'Other' && (
@@ -50,7 +65,7 @@ export function CancelOrderDialog({ open, onClose, onConfirm, orderShortId }: Ca
           value={other}
           onChange={(e) => setOther(e.target.value)}
           placeholder="Tell the passenger why…"
-          className="mb-4"
+          className="mb-5"
         />
       )}
 

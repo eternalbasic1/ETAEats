@@ -24,7 +24,7 @@ export function BrandMark({
         className={`${shellSize} rounded-lg bg-accent-powder-blue flex items-center justify-center shadow-e1 ring-1 ring-inset ring-white/40`}
       >
         <img
-          src="/brand/Gemini_Generated_Image_yfra66yfra66yfra.png"
+          src="/brand/image.png"
           alt=""
           aria-hidden="true"
           className="h-[78%] w-[78%] object-contain"

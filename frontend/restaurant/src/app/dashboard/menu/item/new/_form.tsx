@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { ArrowLeft } from 'lucide-react'
-import { Button, Card, Input, Textarea, Switch } from '@/components/ui'
+import { Button, Card, IconButton, Input, Switch, Textarea } from '@/components/ui'
 import { useAuthStore } from '@/stores/auth.store'
 import api from '@/lib/api'
 import type { MenuCategory, MenuItem, Paginated } from '@/lib/api.types'
@@ -70,49 +70,58 @@ export function MenuItemForm({ itemId, defaults }: MenuItemFormProps) {
   const onSubmit = (values: FormValues) => mutation.mutate(values)
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-2 text-sm text-text-secondary hover:text-text-primary mb-4"
-      >
-        <ArrowLeft className="h-4 w-4" /> Back to menu
-      </button>
+    <div className="px-6 lg:px-10 py-8 max-w-3xl">
+      <div className="flex items-center gap-3 mb-6">
+        <IconButton aria-label="Back" tone="ghost" size="sm" onClick={() => router.back()}>
+          <ArrowLeft className="h-[18px] w-[18px]" strokeWidth={1.8} />
+        </IconButton>
+        <span className="text-body-sm text-text-tertiary">Back to menu</span>
+      </div>
 
-      <Card>
-        <h1 className="text-lg font-bold text-text-primary mb-6">
-          {itemId ? 'Edit menu item' : 'New menu item'}
-        </h1>
+      <Card tone="default" padding="lg" radius="card" shadow="e1">
+        <p className="text-label text-text-muted">{itemId ? 'Edit' : 'New'}</p>
+        <h1 className="mt-2 text-h2 text-text-primary">{itemId ? 'Edit menu item' : 'New menu item'}</h1>
+        <p className="mt-1.5 text-body-sm text-text-tertiary">
+          Passengers see this exactly as you write it. Keep names short and prices accurate.
+        </p>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="mt-7 space-y-5">
+          <Input
+            label="Name"
+            placeholder="e.g. Dal Makhani"
+            error={errors.name?.message}
+            {...register('name')}
+          />
+
           <div>
-            <label className="text-xs font-semibold text-text-secondary block mb-1">Name *</label>
-            <Input {...register('name')} placeholder="e.g. Dal Makhani" />
-            {errors.name && <p className="text-xs text-error mt-1">{errors.name.message}</p>}
+            <span className="block text-label text-text-muted mb-2">Description</span>
+            <Textarea {...register('description')} placeholder="Slow-cooked black lentils, butter, cream." />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Price (₹)"
+              placeholder="160.00"
+              error={errors.price?.message}
+              {...register('price')}
+            />
+            <Input
+              label="Prep time (min)"
+              type="number"
+              min={1}
+              max={120}
+              error={errors.prep_time_minutes?.message}
+              {...register('prep_time_minutes')}
+            />
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-text-secondary block mb-1">Description</label>
-            <Textarea {...register('description')} placeholder="Slow-cooked black lentils, butter" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-xs font-semibold text-text-secondary block mb-1">Price (₹) *</label>
-              <Input {...register('price')} placeholder="160.00" />
-              {errors.price && <p className="text-xs text-error mt-1">{errors.price.message}</p>}
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-text-secondary block mb-1">Prep time (minutes) *</label>
-              <Input type="number" {...register('prep_time_minutes')} min={1} max={120} />
-              {errors.prep_time_minutes && <p className="text-xs text-error mt-1">{errors.prep_time_minutes.message}</p>}
-            </div>
-          </div>
-
-          <div>
-            <label className="text-xs font-semibold text-text-secondary block mb-1">Category</label>
+            <span className="block text-label text-text-muted mb-2">Category</span>
             <select
               {...register('category')}
-              className="h-10 w-full rounded-md border border-border bg-surface px-3 text-sm"
+              className="h-12 w-full rounded-lg border border-border bg-surface px-4 text-body text-text-primary
+                         transition-colors duration-base ease-standard
+                         focus:border-border-strong focus:outline-none"
               defaultValue=""
             >
               <option value="">(None)</option>
@@ -122,14 +131,18 @@ export function MenuItemForm({ itemId, defaults }: MenuItemFormProps) {
             </select>
           </div>
 
-          <div>
-            <label className="text-xs font-semibold text-text-secondary block mb-1">Photo URL</label>
-            <Input {...register('photo_url')} placeholder="https://…" />
-          </div>
+          <Input
+            label="Photo URL"
+            placeholder="https://…"
+            {...register('photo_url')}
+          />
 
-          <div className="flex items-center gap-3">
-            <Switch checked={isAvailable} onChange={(v) => setValue('is_available', v)} />
-            <span className="text-sm text-text-primary">Available</span>
+          <div className="flex items-center justify-between rounded-lg bg-surface2 border border-border-subtle px-4 py-3">
+            <div>
+              <p className="text-body font-semibold text-text-primary">Available</p>
+              <p className="text-caption text-text-muted mt-0.5">Toggle off to temporarily hide from passengers</p>
+            </div>
+            <Switch checked={isAvailable} onChange={(v) => setValue('is_available', v, { shouldDirty: true })} />
           </div>
 
           <div className="flex gap-3 justify-end pt-2">

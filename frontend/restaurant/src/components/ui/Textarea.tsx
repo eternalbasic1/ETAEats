@@ -3,16 +3,21 @@ import { cn } from '@/lib/utils'
 
 type TextareaProps = React.TextareaHTMLAttributes<HTMLTextAreaElement>
 
-export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, ...props }, ref) => (
+export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
+  { className, ...props },
+  ref,
+) {
+  return (
     <textarea
       ref={ref}
       className={cn(
-        'min-h-[80px] w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-muted focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary resize-y',
+        'min-h-[96px] w-full rounded-lg border border-border bg-surface px-4 py-3 text-body text-text-primary',
+        'placeholder:text-text-muted resize-y',
+        'transition-colors duration-base ease-standard',
+        'focus:border-border-strong focus:outline-none focus:ring-0',
         className,
       )}
       {...props}
     />
-  ),
-)
-Textarea.displayName = 'Textarea'
+  )
+})

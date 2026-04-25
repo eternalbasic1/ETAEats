@@ -17,8 +17,8 @@ export default function Home() {
   }, [isAuthenticated, restaurantId, router])
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-bg">
-      <Spinner className="h-8 w-8" />
+    <div className="min-h-[100dvh] flex items-center justify-center bg-bg">
+      <Spinner className="h-7 w-7" />
     </div>
   )
 }

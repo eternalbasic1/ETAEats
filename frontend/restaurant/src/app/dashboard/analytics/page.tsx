@@ -30,7 +30,6 @@ export default function AnalyticsPage() {
     const cancelled = orders.filter((o) => o.status === 'CANCELLED')
     const revenue = paid.reduce((s, o) => s + parseFloat(o.total_amount), 0)
 
-    // Top items
     const itemCounts = new Map<string, { count: number; revenue: number }>()
     paid.forEach((o) => {
       o.items.forEach((i) => {
@@ -45,7 +44,6 @@ export default function AnalyticsPage() {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5)
 
-    // Hourly buckets (00..23)
     const buckets: { hour: string; revenue: number; orders: number }[] = Array.from({ length: 24 }, (_, h) => ({
       hour: `${h.toString().padStart(2, '0')}:00`,
       revenue: 0,
@@ -59,7 +57,6 @@ export default function AnalyticsPage() {
         bucket.orders += 1
       }
     })
-    // Trim to hours that have data so the chart is readable
     const firstIdx = buckets.findIndex((b) => b.orders > 0)
     const lastIdx = buckets.length - 1 - [...buckets].reverse().findIndex((b) => b.orders > 0)
     const trimmed = firstIdx === -1 ? [] : buckets.slice(firstIdx, lastIdx + 1)
@@ -74,36 +71,45 @@ export default function AnalyticsPage() {
   }, [orders])
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-full"><Spinner className="h-8 w-8" /></div>
+    return (
+      <div className="flex items-center justify-center pt-20">
+        <Spinner className="h-7 w-7" />
+      </div>
+    )
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="grid grid-cols-3 gap-4">
+    <div className="px-6 lg:px-10 py-8 space-y-6 max-w-6xl">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatTile
           label="Today's revenue"
           value={`₹${stats.revenue.toFixed(0)}`}
           delta={`${stats.orderCount} paid order${stats.orderCount !== 1 ? 's' : ''}`}
-          accent="primary"
+          accent="powder"
         />
         <StatTile
           label="Orders completed"
           value={String(stats.orderCount)}
-          accent="success"
+          delta={`${stats.orderCount} today`}
+          accent="mint"
         />
         <StatTile
           label="Cancelled"
           value={String(stats.cancelledCount)}
-          accent="error"
+          delta={stats.cancelledCount === 0 ? 'A clean morning.' : 'Review reasons in history.'}
+          accent="cream"
         />
       </div>
 
-      <Card>
-        <h2 className="text-sm font-bold text-text-primary mb-4">Revenue by hour</h2>
+      <Card tone="default" padding="lg" radius="card" shadow="e1">
+        <p className="text-label text-text-muted">Pace</p>
+        <h2 className="mt-1.5 text-h3 text-text-primary">Revenue by hour</h2>
         {stats.hourly.length === 0 ? (
-          <p className="text-sm text-text-muted py-8 text-center">No orders yet today.</p>
+          <p className="mt-6 text-body-sm text-text-muted text-center py-10">No orders yet today.</p>
         ) : (
-          <HourlyRevenueChart data={stats.hourly} />
+          <div className="mt-6">
+            <HourlyRevenueChart data={stats.hourly} />
+          </div>
         )}
       </Card>
 

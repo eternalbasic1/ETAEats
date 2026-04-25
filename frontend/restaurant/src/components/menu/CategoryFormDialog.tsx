@@ -46,21 +46,27 @@ export function CategoryFormDialog({ open, onClose, editing }: Props) {
   })
 
   return (
-    <Dialog open={open} onClose={onClose} title={editing ? 'Edit category' : 'New category'}>
+    <Dialog
+      open={open}
+      onClose={onClose}
+      title={editing ? 'Edit category' : 'New category'}
+      description="Categories appear as filter chips on the passenger menu."
+    >
       <div className="space-y-4">
-        <div>
-          <label className="text-xs font-semibold text-text-secondary block mb-1">Name</label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Main Course" />
-        </div>
-        <div>
-          <label className="text-xs font-semibold text-text-secondary block mb-1">Sort order</label>
-          <Input
-            type="number"
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-          />
-        </div>
-        <div className="flex gap-3 justify-end">
+        <Input
+          label="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. Main course"
+        />
+        <Input
+          label="Sort order"
+          type="number"
+          value={sortOrder}
+          onChange={(e) => setSortOrder(e.target.value)}
+          hint="Lower numbers appear first."
+        />
+        <div className="flex gap-3 justify-end pt-2">
           <Button variant="ghost" onClick={onClose} disabled={mutation.isPending}>Cancel</Button>
           <Button onClick={() => mutation.mutate()} loading={mutation.isPending} disabled={!name.trim()}>
             {editing ? 'Save' : 'Create'}

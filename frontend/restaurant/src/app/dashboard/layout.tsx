@@ -12,11 +12,11 @@ import { useSoundAlert } from '@/hooks/useSoundAlert'
 import type { OrderStatusPayload } from '@/lib/api.types'
 
 const PAGE_TITLES: Record<string, { title: string; subtitle?: string }> = {
-  '/dashboard':            { title: 'Live Orders' },
-  '/dashboard/orders':     { title: 'Order History' },
-  '/dashboard/menu':       { title: 'Menu Management' },
-  '/dashboard/analytics':  { title: 'Analytics' },
-  '/dashboard/profile':    { title: 'Profile' },
+  '/dashboard':            { title: 'Live orders',     subtitle: 'New, cooking, and ready — at a glance.'   },
+  '/dashboard/orders':     { title: 'Order history',   subtitle: 'Filter, search, and audit past orders.'   },
+  '/dashboard/menu':       { title: 'Menu management', subtitle: 'Categories, items, and availability.'    },
+  '/dashboard/analytics':  { title: 'Analytics',       subtitle: 'Today\'s revenue, top items, and pace.'  },
+  '/dashboard/profile':    { title: 'Profile',         subtitle: 'Your account and restaurant details.'    },
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -47,7 +47,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     enabled: mounted && isAuthenticated && !!restaurantId,
   })
 
-  // Unlock audio on first user interaction anywhere in the dashboard.
   useEffect(() => {
     const handler = () => unlockSound()
     document.addEventListener('click', handler, { once: true })
@@ -56,13 +55,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   if (!mounted || !isAuthenticated || !restaurantId) return null
 
-  const pageMeta = PAGE_TITLES[pathname] ?? (
-    pathname.startsWith('/dashboard/menu/item') ? { title: 'Menu Management' } : { title: 'Dashboard' }
-  )
+  const pageMeta =
+    PAGE_TITLES[pathname] ??
+    (pathname.startsWith('/dashboard/menu/item')
+      ? { title: 'Menu management', subtitle: 'Editing item' }
+      : { title: 'Dashboard' })
 
   return (
     <DashboardContext.Provider value={{ connectionState }}>
-      <div className="min-h-screen flex bg-bg">
+      <div className="min-h-[100dvh] flex bg-bg">
         <Sidebar restaurantName={restaurantName} />
         <div className="flex-1 flex flex-col min-w-0">
           <TopBar
@@ -72,7 +73,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             soundEnabled={soundEnabled}
             onSoundToggle={() => setSoundEnabled(!soundEnabled)}
           />
-          <main className="flex-1 overflow-auto">{children}</main>
+          <main className="flex-1 overflow-auto slux-fade-in">{children}</main>
         </div>
       </div>
     </DashboardContext.Provider>

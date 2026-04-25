@@ -1,17 +1,23 @@
 import Link from 'next/link'
-import { Button } from '@/components/ui'
+import { Compass } from 'lucide-react'
+import { Button, EmptyState } from '@/components/ui'
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-bg flex flex-col items-center justify-center p-6 text-center">
-      <div className="text-5xl mb-4">🤷</div>
-      <h2 className="text-xl font-bold text-text-primary mb-2">Page not found</h2>
-      <p className="text-text-secondary text-sm mb-6">
-        The page you&apos;re looking for doesn&apos;t exist.
-      </p>
-      <Link href="/dashboard">
-        <Button>Go to dashboard</Button>
-      </Link>
+    <div className="min-h-[100dvh] bg-bg flex items-center justify-center px-6">
+      <div className="w-full max-w-md">
+        <EmptyState
+          icon={<Compass className="h-6 w-6" strokeWidth={1.7} />}
+          tone="powder"
+          title="Page not found"
+          description="The page you're looking for doesn't exist."
+          action={
+            <Link href="/dashboard">
+              <Button variant="primary">Go to dashboard</Button>
+            </Link>
+          }
+        />
+      </div>
     </div>
   )
 }

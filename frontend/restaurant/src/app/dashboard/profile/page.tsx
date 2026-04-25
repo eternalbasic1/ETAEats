@@ -3,8 +3,8 @@ import { useRouter } from 'next/navigation'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { LogOut, Mail, Phone, Store, User as UserIcon } from 'lucide-react'
-import { Button, Card, Input, Spinner } from '@/components/ui'
+import { LogOut, Mail, Phone, Store, Info } from 'lucide-react'
+import { Button, Card, Input, SectionHeader, Spinner } from '@/components/ui'
 import { useAuthStore } from '@/stores/auth.store'
 import { useAuth } from '@/hooks/useAuth'
 import api from '@/lib/api'
@@ -51,36 +51,37 @@ export default function ProfilePage() {
   }
 
   const restaurant = restaurantQ.data
+  const initial = user?.full_name ? user.full_name[0]?.toUpperCase() : (user?.phone_number ?? '?').slice(-1)
 
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
-      {/* User profile */}
-      <Card>
-        <div className="flex items-center gap-4 mb-5">
-          <div className="h-12 w-12 rounded-full bg-primary-soft flex items-center justify-center text-primary font-bold">
-            {user?.full_name ? user.full_name[0]?.toUpperCase() : <UserIcon className="h-5 w-5" />}
+    <div className="px-6 lg:px-10 py-8 max-w-3xl space-y-6">
+      {/* Identity card */}
+      <Card tone="powder" padding="lg" radius="card" bordered={false} shadow="e1">
+        <div className="flex items-center gap-5">
+          <div className="h-16 w-16 rounded-hero bg-primary text-text-on-dark flex items-center justify-center text-[26px] font-semibold tracking-[-0.02em] shadow-e1">
+            {initial}
           </div>
-          <div>
-            <h2 className="text-base font-bold text-text-primary">Your profile</h2>
-            <p className="text-xs text-text-secondary">Signed in as {user?.phone_number}</p>
+          <div className="min-w-0">
+            <p className="text-label text-accent-ink-powder-blue">Staff</p>
+            <p className="mt-1 text-h2 text-text-primary truncate">{user?.full_name || 'Kitchen staff'}</p>
+            <p className="text-body-sm text-text-tertiary">{user?.phone_number}</p>
           </div>
         </div>
+      </Card>
 
-        <form onSubmit={handleSubmit((v) => updateMutation.mutate(v))} className="space-y-4">
-          <div>
-            <label className="text-xs font-semibold text-text-secondary block mb-1">Full name</label>
-            <Input {...register('full_name')} placeholder="Your name" />
-          </div>
-          <div>
-            <label className="text-xs font-semibold text-text-secondary block mb-1">Email</label>
-            <Input type="email" {...register('email')} placeholder="you@example.com" />
-          </div>
+      {/* Editable profile */}
+      <Card tone="default" padding="lg" radius="card" shadow="e1">
+        <SectionHeader eyebrow="Account" title="Your profile" description="Used by ETAEats to address you in alerts." />
 
-          <div className="flex gap-3">
-            <Phone className="h-4 w-4 text-text-muted mt-0.5" />
+        <form onSubmit={handleSubmit((v) => updateMutation.mutate(v))} className="space-y-5 mt-6">
+          <Input label="Full name" placeholder="Your name" {...register('full_name')} />
+          <Input label="Email" type="email" placeholder="you@example.com" {...register('email')} />
+
+          <div className="flex items-center gap-3 rounded-lg bg-surface2 border border-border-subtle px-4 py-3">
+            <Phone className="h-4 w-4 text-text-tertiary" strokeWidth={1.8} />
             <div>
-              <p className="text-xs text-text-muted">Phone (can&apos;t be changed)</p>
-              <p className="text-sm text-text-primary">{user?.phone_number}</p>
+              <p className="text-label text-text-muted">Phone (read-only)</p>
+              <p className="text-body text-text-primary mt-0.5">{user?.phone_number}</p>
             </div>
           </div>
 
@@ -92,54 +93,64 @@ export default function ProfilePage() {
         </form>
       </Card>
 
-      {/* Restaurant info (read-only) */}
-      <Card>
-        <div className="flex items-center gap-3 mb-4">
-          <Store className="h-5 w-5 text-primary" />
-          <h2 className="text-base font-bold text-text-primary">Restaurant details</h2>
-        </div>
+      {/* Restaurant info */}
+      <Card tone="default" padding="lg" radius="card" shadow="e1">
+        <SectionHeader
+          eyebrow="Kitchen"
+          title="Restaurant details"
+          description="Managed by the ETAEats admin team."
+          action={
+            <span className="h-10 w-10 rounded-lg bg-accent-soft-cream text-accent-ink-soft-cream flex items-center justify-center">
+              <Store className="h-4 w-4" strokeWidth={1.8} />
+            </span>
+          }
+        />
 
         {restaurantQ.isLoading && <Spinner className="h-6 w-6" />}
         {restaurant && (
-          <dl className="divide-y divide-border">
-            <div className="py-2 flex justify-between text-sm">
-              <dt className="text-text-secondary">Name</dt>
-              <dd className="text-text-primary font-semibold">{restaurant.name}</dd>
+          <dl className="mt-2 divide-y divide-border-subtle">
+            <div className="py-3 flex justify-between items-baseline gap-4 text-body-sm">
+              <dt className="text-text-tertiary">Name</dt>
+              <dd className="text-text-primary font-semibold text-right">{restaurant.name}</dd>
             </div>
-            <div className="py-2 flex justify-between text-sm">
-              <dt className="text-text-secondary">Address</dt>
+            <div className="py-3 flex justify-between items-baseline gap-4 text-body-sm">
+              <dt className="text-text-tertiary">Address</dt>
               <dd className="text-text-primary text-right max-w-sm">{restaurant.address}</dd>
             </div>
-            <div className="py-2 flex justify-between text-sm">
-              <dt className="text-text-secondary">Phone</dt>
-              <dd className="text-text-primary">{restaurant.phone_number}</dd>
+            <div className="py-3 flex justify-between items-baseline gap-4 text-body-sm">
+              <dt className="text-text-tertiary">Phone</dt>
+              <dd className="text-text-primary text-right">{restaurant.phone_number}</dd>
             </div>
-            <div className="py-2 flex justify-between text-sm">
-              <dt className="text-text-secondary">FSSAI</dt>
-              <dd className="text-text-primary font-mono text-xs">{restaurant.fssai_license_number}</dd>
+            <div className="py-3 flex justify-between items-baseline gap-4 text-body-sm">
+              <dt className="text-text-tertiary">FSSAI</dt>
+              <dd className="text-text-primary font-mono text-caption text-right">{restaurant.fssai_license_number}</dd>
             </div>
-            <div className="py-2 flex justify-between text-sm">
-              <dt className="text-text-secondary">Hygiene rating</dt>
-              <dd className="text-text-primary">{restaurant.hygiene_rating ?? '—'}</dd>
+            <div className="py-3 flex justify-between items-baseline gap-4 text-body-sm">
+              <dt className="text-text-tertiary">Hygiene rating</dt>
+              <dd className="text-text-primary text-right">{restaurant.hygiene_rating ?? '—'}</dd>
             </div>
           </dl>
         )}
 
-        <p className="text-xs text-text-muted mt-4 flex items-center gap-2">
-          <Mail className="h-3 w-3" />
-          To change restaurant details, contact the ETA Eats admin.
-        </p>
+        <div className="mt-5 flex items-start gap-3 rounded-lg bg-accent-soft-cream px-4 py-3">
+          <Info className="h-4 w-4 mt-0.5 text-accent-ink-soft-cream flex-shrink-0" strokeWidth={1.9} />
+          <p className="text-body-sm text-accent-ink-soft-cream leading-snug flex items-center gap-2">
+            <Mail className="h-3.5 w-3.5 inline-block" />
+            To change restaurant details, contact the ETAEats admin.
+          </p>
+        </div>
       </Card>
 
       {/* Sign out */}
-      <Card>
-        <div className="flex items-center justify-between">
+      <Card tone="sunk" padding="md" radius="card" bordered shadow="none">
+        <div className="flex items-center justify-between gap-4">
           <div>
-            <h2 className="text-sm font-bold text-text-primary">Sign out</h2>
-            <p className="text-xs text-text-secondary">You&apos;ll need to enter your phone &amp; OTP again.</p>
+            <p className="text-h4 text-text-primary">Sign out</p>
+            <p className="text-body-sm text-text-tertiary mt-0.5">You&rsquo;ll need to enter your phone &amp; OTP again.</p>
           </div>
-          <Button variant="danger" onClick={handleLogout}>
-            <LogOut className="h-4 w-4" /> Sign out
+          <Button variant="secondary" onClick={handleLogout}>
+            <LogOut className="h-4 w-4" strokeWidth={1.8} />
+            Sign out
           </Button>
         </div>
       </Card>

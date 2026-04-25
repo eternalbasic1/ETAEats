@@ -12,14 +12,15 @@ export function SoundToggle({ enabled, onToggle }: SoundToggleProps) {
     <button
       onClick={onToggle}
       className={cn(
-        'flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-medium transition-colors',
+        'inline-flex items-center gap-2 h-9 px-3.5 rounded-pill border text-[12px] font-semibold tracking-[0.02em]',
+        'transition-all duration-base ease-standard',
         enabled
-          ? 'bg-success-bg text-success border border-success/30'
-          : 'bg-surface2 text-text-secondary border border-border',
+          ? 'bg-accent-muted-mint text-accent-ink-muted-mint border-transparent'
+          : 'bg-surface text-text-tertiary border-border hover:border-border-strong',
       )}
       title={enabled ? 'Sound alerts on' : 'Sound alerts off'}
     >
-      {enabled ? <Volume2 className="h-3.5 w-3.5" /> : <VolumeX className="h-3.5 w-3.5" />}
+      {enabled ? <Volume2 className="h-3.5 w-3.5" strokeWidth={1.9} /> : <VolumeX className="h-3.5 w-3.5" strokeWidth={1.9} />}
       {enabled ? 'Sound on' : 'Sound off'}
     </button>
   )

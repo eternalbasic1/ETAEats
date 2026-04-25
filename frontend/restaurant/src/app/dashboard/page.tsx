@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { KanbanColumn } from '@/components/orders/KanbanColumn'
-import { Spinner } from '@/components/ui'
+import { Button, EmptyState, Spinner } from '@/components/ui'
+import { AlertCircle } from 'lucide-react'
 import api from '@/lib/api'
 import type { Order, OrderStatus, Paginated } from '@/lib/api.types'
 
@@ -16,16 +17,12 @@ export default function LiveOrdersPage() {
 
   const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['orders', 'live'],
-    queryFn: () =>
-      api
-        .get<Paginated<Order>>('/orders/restaurant/?page_size=100')
-        .then((r) => r.data),
+    queryFn: () => api.get<Paginated<Order>>('/orders/restaurant/?page_size=100').then((r) => r.data),
     refetchInterval: 8000,
   })
 
   const orders = data?.results ?? []
 
-  // Detect newly-arrived orders to apply pulse animation
   useEffect(() => {
     const currentIds = new Set(orders.map((o) => o.id))
     const additions = new Set<string>()
@@ -63,9 +60,7 @@ export default function LiveOrdersPage() {
       const axiosErr = err as { response?: { data?: { error?: { message?: string } } } }
       toast.error(axiosErr?.response?.data?.error?.message ?? 'Could not update order.')
     },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['orders', 'live'] })
-    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['orders', 'live'] }),
   })
 
   const handleAdvance = useCallback(
@@ -82,34 +77,38 @@ export default function LiveOrdersPage() {
   )
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-full"><Spinner className="h-8 w-8" /></div>
-  }
-  if (isError) {
     return (
-      <div className="flex flex-col items-center justify-center h-full gap-3 p-6">
-        <p className="text-sm text-text-secondary">Could not load orders.</p>
-        <button onClick={() => refetch()} className="text-sm text-primary font-semibold">Retry</button>
+      <div className="flex items-center justify-center h-full pt-20">
+        <Spinner className="h-7 w-7" />
       </div>
     )
   }
 
-  // Kanban policy:
-  // - New: only paid confirmed orders
-  // - Cooking: orders actively being prepared
-  // - Ready: orders ready for pickup
-  const newOrders = orders.filter(
-    (o) => o.status === 'CONFIRMED' && o.payment_status === 'CAPTURED'
-  )
+  if (isError) {
+    return (
+      <div className="px-6 lg:px-10 pt-10">
+        <EmptyState
+          icon={<AlertCircle className="h-6 w-6" strokeWidth={1.7} />}
+          tone="peach"
+          title="Could not load orders"
+          description="Check your connection and try again."
+          action={<Button variant="secondary" onClick={() => refetch()}>Try again</Button>}
+        />
+      </div>
+    )
+  }
+
+  const newOrders = orders.filter((o) => o.status === 'CONFIRMED' && o.payment_status === 'CAPTURED')
   const cookingOrders = orders.filter((o) => o.status === 'PREPARING')
   const readyOrders = orders.filter((o) => o.status === 'READY')
 
   return (
-    <div className="h-full p-6">
-      <div className="h-full flex gap-4 min-h-0">
+    <div className="h-full px-6 lg:px-10 pb-10 pt-4">
+      <div className="h-full flex flex-col xl:flex-row gap-4 min-h-0">
         <KanbanColumn
           title="New"
           count={newOrders.length}
-          accent="primary"
+          accent="powder"
           orders={newOrders}
           newOrderIds={newOrderIds}
           onAdvance={handleAdvance}
@@ -118,7 +117,7 @@ export default function LiveOrdersPage() {
         <KanbanColumn
           title="Cooking"
           count={cookingOrders.length}
-          accent="warning"
+          accent="cream"
           orders={cookingOrders}
           newOrderIds={newOrderIds}
           onAdvance={handleAdvance}
@@ -127,7 +126,7 @@ export default function LiveOrdersPage() {
         <KanbanColumn
           title="Ready"
           count={readyOrders.length}
-          accent="success"
+          accent="mint"
           orders={readyOrders}
           newOrderIds={newOrderIds}
           onAdvance={handleAdvance}
