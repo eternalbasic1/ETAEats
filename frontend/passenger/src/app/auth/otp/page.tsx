@@ -17,6 +17,8 @@ function OTPInner() {
   const phone = searchParams.get('phone') ?? ''
   const [otp, setOtp] = useState('')
   const { requestOTP, verifyOTP, loading } = useAuth()
+  const formattedPhone =
+    phone.length > 5 ? `${phone.slice(0, 5)} ${phone.slice(5, 10)}` : phone
 
   useEffect(() => {
     if (!hasHydrated) return
@@ -48,15 +50,15 @@ function OTPInner() {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="w-full max-w-sm rounded-card border border-border bg-surface p-6 lg:p-8 shadow-e2"
+      className="w-full max-w-sm rounded-card border border-border bg-surface p-5 sm:p-6 lg:p-8 shadow-e2 overflow-hidden"
     >
       <BrandMark size="sm" subtitle="Secure passenger sign-in" />
 
       <div className="mt-8">
         <p className="text-label text-text-muted">Verify</p>
         <h1 className="mt-3 text-h1 text-text-primary">Enter OTP</h1>
-        <p className="mt-2 text-body-sm text-text-tertiary">
-          Code sent to <span className="text-text-primary font-medium">+91 {phone}</span>
+        <p className="mt-2 text-body-sm text-text-tertiary break-words">
+          Code sent to <span className="text-text-primary font-medium">+91 {formattedPhone}</span>
         </p>
       </div>
 
@@ -75,7 +77,7 @@ function OTPInner() {
         Verify & continue
       </Button>
 
-      <div className="mt-5 flex items-center justify-between">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <button
           onClick={handleResend}
           disabled={loading}
@@ -93,7 +95,7 @@ function OTPInner() {
 
 export default function OTPPage() {
   return (
-    <div className="min-h-[100dvh] bg-bg flex items-center justify-center px-6 py-12">
+    <div className="min-h-[100dvh] bg-bg flex items-center justify-center px-4 sm:px-6 py-8 sm:py-12">
       <Suspense fallback={<Spinner className="h-7 w-7" />}>
         <OTPInner />
       </Suspense>
