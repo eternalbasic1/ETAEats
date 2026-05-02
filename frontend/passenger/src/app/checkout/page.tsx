@@ -90,11 +90,11 @@ export default function CheckoutPage() {
   const subtotal = totalPrice()
 
   return (
-    <div className="app-shell slux-fade-in">
+    <div className="app-shell">
       <div className="app-shell-inner lg:pt-10">
         <TopBar title="Review & pay" onBack={() => router.back()} />
 
-        <div className="pb-40 space-y-4">
+        <div className="pb-44 space-y-4">
           <Card tone="powder" padding="md" radius="card" bordered={false} shadow="e1">
             <p className="text-label text-accent-ink-powder-blue">Pickup from</p>
             <div className="mt-3 flex items-start gap-3">
@@ -148,7 +148,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)]">
+      <div className="mobile-floating-cta px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)]">
         <div className="mx-auto w-full max-w-md lg:max-w-3xl">
           <Button fullWidth size="lg" onClick={handlePay} loading={loading}>
             Pay ₹{subtotal.toFixed(0)} securely

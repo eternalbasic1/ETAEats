@@ -260,3 +260,23 @@ button,
 a {
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Shared mobile floating CTA positioning (cart bar, place-order, pay CTA) */
+.mobile-floating-cta {
+  position: fixed;
+  inset-inline: 0;
+  z-index: 50;
+  bottom: calc(6.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+@media (max-width: 380px) {
+  .mobile-floating-cta {
+    bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-floating-cta {
+    bottom: 2rem;
+  }
+}
