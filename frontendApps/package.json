@@ -1,0 +1,31 @@
+{
+  "name": "eta-eats-mobile",
+  "version": "0.1.0",
+  "private": true,
+  "description": "ETA Eats — React Native mobile workspace (passenger / restaurant / admin)",
+  "packageManager": "pnpm@9.12.0",
+  "engines": {
+    "node": ">=20.11.0",
+    "pnpm": ">=9.12.0"
+  },
+  "scripts": {
+    "lint": "pnpm -r --parallel run lint",
+    "typecheck": "pnpm -r --parallel run typecheck",
+    "test": "pnpm -r run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,json,md}\"",
+    "passenger": "pnpm --filter passenger",
+    "restaurant": "pnpm --filter restaurant",
+    "admin": "pnpm --filter admin",
+    "passenger:start": "pnpm --filter passenger start",
+    "restaurant:start": "pnpm --filter restaurant start",
+    "admin:start": "pnpm --filter admin start",
+    "clean": "pnpm -r exec rm -rf node_modules .expo ios/build android/build && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "eslint": "^9.10.0",
+    "prettier": "^3.3.3",
+    "typescript": "5.5.4"
+  }
+}
