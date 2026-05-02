@@ -4,7 +4,11 @@ import { useRouter } from 'next/navigation'
 import { ShoppingBag, ArrowRight } from 'lucide-react'
 import { useCartStore } from '@/stores/cart.store'
 
-export function CartBar() {
+interface CartBarProps {
+  visible?: boolean
+}
+
+export function CartBar({ visible = true }: CartBarProps) {
   const router = useRouter()
   const totalItems = useCartStore((s) => s.totalItems())
   const totalPrice = useCartStore((s) => s.totalPrice())
@@ -14,12 +18,12 @@ export function CartBar() {
       {totalItems > 0 && (
         <motion.div
           initial={{ y: 80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
+          animate={{ y: visible ? 0 : 92, opacity: visible ? 1 : 0 }}
           exit={{ y: 80, opacity: 0 }}
-          transition={{ type: 'spring', stiffness: 280, damping: 30 }}
-          className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)] pointer-events-none"
+          transition={{ duration: 0.2, ease: 'easeOut' }}
+          className="mobile-floating-cta pointer-events-none px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)]"
         >
-          <div className="mx-auto w-full max-w-md lg:max-w-3xl pointer-events-auto">
+          <div className={`mx-auto w-full max-w-md lg:max-w-3xl ${visible ? 'pointer-events-auto' : 'pointer-events-none'}`}>
             <button
               onClick={() => router.push('/cart')}
               className="group w-full rounded-card bg-primary text-text-on-dark shadow-cta

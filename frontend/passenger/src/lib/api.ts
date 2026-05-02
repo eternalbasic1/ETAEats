@@ -1,6 +1,15 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios'
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+function getBaseUrl() {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL
+  if (typeof window !== 'undefined') {
+    // Mobile-on-LAN testing: when FE is opened via laptop IP, use same host for backend.
+    return `${window.location.protocol}//${window.location.hostname}:8000`
+  }
+  return 'http://localhost:8000'
+}
+
+const BASE_URL = getBaseUrl()
 
 const api = axios.create({
   baseURL: `${BASE_URL}/api/v1`,

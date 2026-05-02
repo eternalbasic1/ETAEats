@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { useQuery } from '@tanstack/react-query'
 import { Search, Star, MapPin, Clock } from 'lucide-react'
+import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
 import { CategoryTabs } from '@/components/menu/CategoryTabs'
 import { MenuItemRow } from '@/components/menu/MenuItemRow'
@@ -14,7 +15,7 @@ import { useAuthStore } from '@/stores/auth.store'
 import { useJourneyStore } from '@/stores/journey.store'
 import { useCartStore } from '@/stores/cart.store'
 import api from '@/lib/api'
-import type { Cart, MenuItem, Paginated } from '@/lib/api.types'
+import type { Cart, CartItem, MenuItem, Paginated } from '@/lib/api.types'
 
 export default function MenuPage() {
   const router = useRouter()
@@ -24,10 +25,12 @@ export default function MenuPage() {
   const touchJourney = useJourneyStore((s) => s.touchJourney)
   const restaurant = activeJourney?.restaurant ?? null
   const bus = activeJourney?.bus ?? null
-  const { cartId, items: cartItems, setCart } = useCartStore()
+  const { cartId, items: cartItems, setCart, setItems } = useCartStore()
 
   const [activeCategory, setActiveCategory] = useState('All')
   const [searchOpen, setSearchOpen] = useState(false)
+  const [showCategoryTabs, setShowCategoryTabs] = useState(true)
+  const [showCartBar, setShowCartBar] = useState(true)
   const hasActiveJourney = Boolean(activeJourney)
   const isCorrectJourneyRestaurant =
     hasActiveJourney && String(activeJourney!.restaurant.id) === String(restaurantId)
@@ -47,6 +50,64 @@ export default function MenuPage() {
       router.replace(`/menu/${activeJourney.restaurant.id}`)
     }
   }, [hasHydrated, isAuthenticated, activeJourney, isCorrectJourneyRestaurant, router])
+
+  useEffect(() => {
+    let lastY = 0
+    let lastToggleY = 0
+    let ticking = false
+    let controlsVisible = true
+
+    // Hysteresis values to avoid rapid show/hide flips while scrolling.
+    const TOP_SHOW_THRESHOLD = 72
+    const HIDE_AFTER_Y = 120
+    const TOGGLE_TRAVEL_PX = 28
+
+    const setControls = (visible: boolean, y: number) => {
+      if (controlsVisible === visible) return
+      controlsVisible = visible
+      setShowCategoryTabs(visible)
+      setShowCartBar(visible)
+      lastToggleY = y
+    }
+
+    function update() {
+      const y = window.scrollY
+      const delta = y - lastY
+
+      // Always show near top.
+      if (y <= TOP_SHOW_THRESHOLD) {
+        setControls(true, y)
+        lastY = y
+        ticking = false
+        return
+      }
+
+      if (delta > 0) {
+        // Scrolling down: hide only after enough distance and only once.
+        if (controlsVisible && y >= HIDE_AFTER_Y && y - lastToggleY >= TOGGLE_TRAVEL_PX) {
+          setControls(false, y)
+        }
+      } else if (delta < 0) {
+        // Scrolling up: show only after enough reverse travel.
+        if (!controlsVisible && lastToggleY - y >= TOGGLE_TRAVEL_PX) {
+          setControls(true, y)
+        }
+      }
+
+      lastY = y
+      ticking = false
+    }
+
+    const onScroll = () => {
+      if (ticking) return
+      ticking = true
+      window.requestAnimationFrame(update)
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const { data: menuData, isLoading, isError, refetch } = useQuery({
     queryKey: ['menu', restaurantId],
@@ -81,11 +142,50 @@ export default function MenuPage() {
     return null
   }
 
+  async function refreshCartFromServer() {
+    try {
+      const { data } = await api.get<Cart>('/orders/cart/')
+      setCart(data.id, data.bus, data.restaurant, data.items)
+    } catch {
+      // Ignore here; caller handles user-facing toast.
+    }
+  }
+
   async function handleAdd(item: MenuItem) {
     if (!bus) {
       toast.error('Bus information missing. Please scan the QR again.')
       return
     }
+
+    const previousItems = cartItems
+    const existing = cartItems.find((ci) => ci.menu_item === item.id)
+
+    const optimisticItems: CartItem[] = existing
+      ? cartItems.map((ci) =>
+          ci.menu_item === item.id
+            ? {
+                ...ci,
+                quantity: ci.quantity + 1,
+                line_total: (Number(ci.unit_price) * (ci.quantity + 1)).toFixed(2),
+              }
+            : ci,
+        )
+      : [
+          ...cartItems,
+          {
+            id: -Date.now(),
+            menu_item: item.id,
+            menu_item_name: item.name,
+            quantity: 1,
+            unit_price: Number(item.price).toFixed(2),
+            line_total: Number(item.price).toFixed(2),
+          },
+        ]
+
+    // Optimistic update so cart bar appears instantly after tapping "Add".
+    setItems(optimisticItems)
+    touchJourney()
+
     try {
       const { data } = await api.post<Cart>('/orders/cart/', {
         menu_item: item.id,
@@ -93,8 +193,8 @@ export default function MenuPage() {
         bus_id: bus.id,
       })
       setCart(data.id, data.bus, data.restaurant, data.items)
-      touchJourney()
     } catch (err: unknown) {
+      setItems(previousItems)
       const axiosErr = err as { response?: { data?: { error?: { code?: string } } } }
       if (axiosErr?.response?.data?.error?.code === 'restaurant_mismatch') {
         toast.error('Your cart has items from another restaurant. Clear cart to continue.')
@@ -111,7 +211,12 @@ export default function MenuPage() {
       const { data } = await api.patch<Cart>(`/orders/cart/items/${cartItemId}/`, { quantity: current.quantity + 1 })
       setCart(cartId, data.bus, data.restaurant, data.items)
       touchJourney()
-    } catch {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 404) {
+        await refreshCartFromServer()
+        toast.message('Cart refreshed. Please try again.')
+        return
+      }
       toast.error('Could not update quantity.')
     }
   }
@@ -127,7 +232,12 @@ export default function MenuPage() {
         setCart(cartId, data.bus, data.restaurant, data.items)
       }
       touchJourney()
-    } catch {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 404) {
+        await refreshCartFromServer()
+        toast.message('Cart refreshed. That item is no longer available.')
+        return
+      }
       toast.error('Could not update quantity.')
     }
   }
@@ -158,7 +268,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="app-shell slux-fade-in">
+    <div className="app-shell">
       <div className="app-shell-inner lg:pt-10">
         {/* Sticky header */}
         <div className="sticky top-0 z-30 bg-bg/95 backdrop-blur-md">
@@ -190,7 +300,16 @@ export default function MenuPage() {
             </button>
           </div>
 
-          <CategoryTabs categories={categories} active={activeCategory} onChange={setActiveCategory} />
+          <div
+            className={
+              `transition-all duration-base ease-standard overflow-hidden ` +
+              (showCategoryTabs
+                ? 'max-h-24 opacity-100 translate-y-0 pb-1'
+                : 'max-h-0 opacity-0 -translate-y-1 pointer-events-none')
+            }
+          >
+            <CategoryTabs categories={categories} active={activeCategory} onChange={setActiveCategory} />
+          </div>
         </div>
 
         {/* Journey context band */}
@@ -230,7 +349,7 @@ export default function MenuPage() {
         </div>
 
         <SearchOverlay open={searchOpen} items={allItems} onClose={() => setSearchOpen(false)} onAdd={handleAdd} />
-        <CartBar />
+        <CartBar visible={showCartBar} />
       </div>
     </div>
   )

@@ -28,7 +28,11 @@ export function useOrderSocket({ orderId, onStatusChange }: UseOrderSocketOption
     }
 
     function connect() {
-      const WS_BASE = process.env.NEXT_PUBLIC_WS_URL ?? 'ws://localhost:8000'
+      const WS_BASE =
+        process.env.NEXT_PUBLIC_WS_URL ??
+        (typeof window !== 'undefined'
+          ? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.hostname}:8000`
+          : 'ws://localhost:8000')
       const url = `${WS_BASE}/ws/user/?token=${accessToken}`
       const ws = new WebSocket(url)
       wsRef.current = ws

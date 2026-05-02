@@ -2,6 +2,7 @@
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { ShoppingBag, Trash2 } from 'lucide-react'
+import { isAxiosError } from 'axios'
 import { toast } from 'sonner'
 import { Button, Card, EmptyState, IconButton, Stepper } from '@/components/ui'
 import { TopBar } from '@/components/layout/TopBar'
@@ -15,12 +16,26 @@ export default function CartPage() {
   const { cartId, items, setCart, totalPrice } = useCartStore()
   const { isAuthenticated } = useAuthStore()
 
+  async function refreshCartFromServer() {
+    try {
+      const { data } = await api.get<Cart>('/orders/cart/')
+      setCart(data.id, data.bus, data.restaurant, data.items)
+    } catch {
+      // Ignore here; caller handles user-facing toast.
+    }
+  }
+
   async function handleRemove(cartItemId: number) {
     if (!cartId) return
     try {
       const { data } = await api.delete<Cart>(`/orders/cart/items/${cartItemId}/`)
       setCart(cartId, data.bus, data.restaurant, data.items)
-    } catch {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 404) {
+        await refreshCartFromServer()
+        toast.message('Cart refreshed.')
+        return
+      }
       toast.error('Could not remove item.')
     }
   }
@@ -30,7 +45,12 @@ export default function CartPage() {
     try {
       const { data } = await api.patch<Cart>(`/orders/cart/items/${cartItemId}/`, { quantity })
       setCart(cartId, data.bus, data.restaurant, data.items)
-    } catch {
+    } catch (err) {
+      if (isAxiosError(err) && err.response?.status === 404) {
+        await refreshCartFromServer()
+        toast.message('Cart refreshed. Please try again.')
+        return
+      }
       toast.error('Could not update quantity.')
     }
   }
@@ -59,7 +79,7 @@ export default function CartPage() {
   const subtotal = totalPrice()
 
   return (
-    <div className="app-shell slux-fade-in">
+    <div className="app-shell">
       <div className="app-shell-inner lg:pt-10">
         <TopBar
           title="Your cart"
@@ -67,7 +87,7 @@ export default function CartPage() {
           onBack={() => router.back()}
         />
 
-        <div className="pb-40 space-y-4">
+        <div className="pb-44 space-y-4">
           <Card tone="default" padding="none" radius="card" shadow="e1" className="px-5 py-2">
             {items.map((item) => (
               <motion.div
@@ -117,7 +137,7 @@ export default function CartPage() {
         </div>
       </div>
 
-      <div className="fixed bottom-24 lg:bottom-8 inset-x-0 z-40 px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)]">
+      <div className="mobile-floating-cta px-4 lg:pr-10 lg:pl-[calc(var(--rail-width,18rem)+4rem)] xl:pl-[calc(var(--rail-width,18rem)+5rem)]">
         <div className="mx-auto w-full max-w-md lg:max-w-3xl">
           <Button fullWidth size="lg" onClick={handleCheckout}>
             Place order · ₹{subtotal.toFixed(0)}
