@@ -26,10 +26,6 @@ services:
       - .:/app
     ports:
       - '8000:8000'
-    environment:
-      # Inside docker-compose, services talk via service names (not localhost)
-      DATABASE_URL: postgis://postgres:postgres@db:5432/eta_eats_v2
-      REDIS_URL: redis://redis:6379/0
     env_file:
       - .env
     depends_on:
@@ -41,9 +37,6 @@ services:
     command: celery -A config worker -l info
     volumes:
       - .:/app
-    environment:
-      DATABASE_URL: postgis://postgres:postgres@db:5432/eta_eats_v2
-      REDIS_URL: redis://redis:6379/0
     env_file:
       - .env
     depends_on:
@@ -55,9 +48,6 @@ services:
     command: celery -A config beat -l info --scheduler django_celery_beat.schedulers:DatabaseScheduler
     volumes:
       - .:/app
-    environment:
-      DATABASE_URL: postgis://postgres:postgres@db:5432/eta_eats_v2
-      REDIS_URL: redis://redis:6379/0
     env_file:
       - .env
     depends_on:
