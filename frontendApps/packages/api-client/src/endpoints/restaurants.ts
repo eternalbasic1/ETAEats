@@ -17,7 +17,7 @@ export const restaurantEndpoints = {
     api.patch(`/restaurants/${id}/`, payload),
 
   menuCategories: (restaurantId?: number) =>
-    api.get('/restaurants/menu-categories/', { params: restaurantId ? { restaurant: restaurantId } : undefined }),
+    api.get('/restaurants/menu-categories/', { params: { ...(restaurantId ? { restaurant: restaurantId } : {}), page_size: 100 } }),
 
   createMenuCategory: (payload: { name: string; restaurant: number; sort_order?: number }) =>
     api.post('/restaurants/menu-categories/', payload),
@@ -25,7 +25,7 @@ export const restaurantEndpoints = {
   deleteMenuCategory: (id: number) =>
     api.delete(`/restaurants/menu-categories/${id}/`),
 
-  menuItems: (params?: { restaurant?: number; category?: number }) =>
+  menuItems: (params?: { restaurant?: number; category?: number; page_size?: number }) =>
     api.get('/restaurants/menu-items/', { params }),
 
   createMenuItem: (payload: Record<string, unknown>) =>

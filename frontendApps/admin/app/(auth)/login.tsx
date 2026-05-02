@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { View, Text, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, StyleSheet, KeyboardAvoidingView, Platform, ScrollView, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Button, Input, Card, useTheme } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
 import { isValidIndianMobile } from '@eta/utils';
-import type { AuthUser } from '@eta/auth';
 import { authEndpoints } from '@eta/api-client';
 
 type LoginStep = 'phone' | 'otp' | 'role_error';
@@ -63,10 +62,10 @@ export default function AdminLoginScreen() {
           id: user.id,
           phone_number: user.phone_number,
           role: user.role as any,
-          first_name: user.first_name,
-          last_name: user.last_name,
+          full_name: user.full_name,
           email: user.email,
-          memberships: user.memberships,
+          gender: user.gender ?? '',
+          memberships: user.memberships ?? [],
         },
         tokens.access,
         tokens.refresh,
@@ -115,11 +114,16 @@ export default function AdminLoginScreen() {
   }
 
   return (
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <KeyboardAvoidingView
-      style={[styles.container, { paddingTop: insets.top + 40, backgroundColor: t.colors.bg }]}
+      style={[styles.container, { backgroundColor: t.colors.bg }]}
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
-      <View style={styles.content}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingTop: insets.top + 40, paddingBottom: insets.bottom + 40 }]}
+        keyboardShouldPersistTaps="handled"
+        bounces={false}
+      >
         <Text style={[styles.eyebrow, { ...t.typography.label, color: t.colors.textMuted }]}>
           ADMIN PORTAL
         </Text>
@@ -151,7 +155,7 @@ export default function AdminLoginScreen() {
                     }}
                     keyboardType="number-pad"
                     maxLength={10}
-                    error={error || undefined}
+                    error={error || ''}
                     accessibilityLabel="Admin phone number"
                     autoFocus
                   />
@@ -177,7 +181,7 @@ export default function AdminLoginScreen() {
                 }}
                 keyboardType="number-pad"
                 maxLength={6}
-                error={error || undefined}
+                error={error || ''}
                 accessibilityLabel="OTP code"
                 autoFocus
               />
@@ -204,14 +208,15 @@ export default function AdminLoginScreen() {
             </>
           )}
         </Card>
-      </View>
+      </ScrollView>
     </KeyboardAvoidingView>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  content: { flex: 1, paddingHorizontal: 20 },
+  content: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 20 },
   eyebrow: { marginBottom: 8 },
   title: { marginBottom: 8 },
   subtitle: { marginBottom: 32 },

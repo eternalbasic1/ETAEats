@@ -60,6 +60,16 @@ export default function RootLayout() {
         });
 
         await hydrate();
+
+        const state = useAuthStore.getState();
+        if (state.isAuthenticated && !state.user) {
+          try {
+            const { data: me } = await authEndpoints.me();
+            useAuthStore.getState().setUser(me as any);
+          } catch {
+            await useAuthStore.getState().clearAuth();
+          }
+        }
       } catch (e) {
         console.warn('Bootstrap error:', e);
       } finally {
