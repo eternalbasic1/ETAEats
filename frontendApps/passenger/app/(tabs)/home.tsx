@@ -63,15 +63,7 @@ export default function HomeScreen() {
         Good to see you, {firstName}
       </Text>
 
-      {/* Hero */}
-      <Text style={[styles.heroTitle, { ...t.typography.h1, color: t.colors.textPrimary, paddingHorizontal: 4 }]}>
-        Food on Your{" "}
-        <Text style={{ color: t.colors.accentPowderBlueInk }}>Arrival.</Text>
-      </Text>
-
-      <Text style={[styles.heroSub, { ...t.typography.body, color: t.colors.textTertiary, paddingHorizontal: 4 }]}>
-         Order on the go. Pick up on arrival.
-      </Text>
+    
 
       <JourneyCard />
 
