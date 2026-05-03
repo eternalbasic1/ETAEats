@@ -6,6 +6,7 @@ import { Button, Card } from '@eta/ui-components';
 import { useTheme } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
 import { authEndpoints } from '@eta/api-client';
+import Logo from '../../assets/logo.svg';
 
 export default function OTPScreen() {
   const t = useTheme();
@@ -103,9 +104,7 @@ export default function OTPScreen() {
         >
           <Card tone="default" padding="lg" radius="card" border>
             {/* Brand */}
-            <Text style={{ ...t.typography.h4, color: t.colors.textPrimary, fontWeight: '700' }}>
-              ETA Eats
-            </Text>
+            <Logo width={80} height={80} />
             <Text style={{ ...t.typography.caption, color: t.colors.textMuted, marginTop: 2 }}>
               Secure passenger sign-in
             </Text>
