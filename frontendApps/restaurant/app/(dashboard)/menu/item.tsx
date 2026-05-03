@@ -206,7 +206,7 @@ export default function MenuItemScreen() {
           { backgroundColor: t.colors.bg },
         ]}
       >
-        <Spinner size="lg" />
+        <Spinner size="large" />
       </View>
     );
   }

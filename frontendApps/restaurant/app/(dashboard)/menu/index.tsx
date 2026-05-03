@@ -299,7 +299,7 @@ export default function MenuScreen() {
           { backgroundColor: t.colors.bg },
         ]}
       >
-        <Spinner size="lg" />
+        <Spinner size="large" />
       </View>
     );
   }

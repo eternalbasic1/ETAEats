@@ -1,6 +1,6 @@
 import { Tabs, router } from 'expo-router';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
-import { useTheme } from '@eta/ui-components';
+import { Platform, StyleSheet, View } from 'react-native';
+import { Spinner, useTheme } from '@eta/ui-components';
 import { useRequireRole } from '@eta/auth';
 import {
   ClipboardList,
@@ -22,8 +22,11 @@ export default function DashboardLayout() {
 
   if (isLoading) {
     return (
-      <View style={[styles.loading, { backgroundColor: t.colors.bg }]}>
-        <ActivityIndicator size="large" color={t.colors.primary} />
+      <View
+        style={[styles.loading, { backgroundColor: t.colors.bg }]}
+        collapsable={Platform.OS === 'android' ? false : undefined}
+      >
+        <Spinner size="large" color="primary" />
       </View>
     );
   }

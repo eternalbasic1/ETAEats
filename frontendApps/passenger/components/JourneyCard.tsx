@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Animated, Easing, ViewProps, Dimensions } from 'react-native';
+import { passengerFontFaces } from '../theme/passengerTheme';
 import Svg, {
   Defs,
   LinearGradient,
@@ -115,8 +116,9 @@ const Hotel = ({ glow }: { glow: Animated.Value }) => {
         x={HOTEL_X}
         y={HOTEL_Y - 72}
         fill="#92400E"
+        fontFamily={passengerFontFaces.bold}
         fontSize="10"
-        fontWeight="bold"
+        fontWeight="700"
         textAnchor="middle"
         letterSpacing="1"
       >

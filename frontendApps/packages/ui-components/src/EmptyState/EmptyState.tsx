@@ -48,7 +48,6 @@ export function EmptyState({
           styles.title,
           {
             ...t.typography.h3,
-            fontFamily: t.fontFamily.sans,
             color: t.colors.textPrimary,
           },
         ]}
@@ -61,7 +60,6 @@ export function EmptyState({
             styles.description,
             {
               ...t.typography.bodySm,
-              fontFamily: t.fontFamily.sans,
               color: t.colors.textTertiary,
             },
           ]}

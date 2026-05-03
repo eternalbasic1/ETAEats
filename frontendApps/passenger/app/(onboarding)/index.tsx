@@ -22,7 +22,7 @@ import Svg, {
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Button } from '@eta/ui-components';
-import { fontFamily } from '@eta/ui-tokens';
+import { passengerFontFaces } from '../../theme/passengerTheme';
 
 /** Max readable column width; centered on wide phones / small tablets */
 const SLIDE_CONTENT_MAX = 400;
@@ -510,7 +510,7 @@ const howStyles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
-    fontFamily: fontFamily.sans,
+    fontFamily: passengerFontFaces.bold,
   },
   stepText: { flex: 1 },
   qrCard: {
@@ -597,7 +597,7 @@ const etaStyles = StyleSheet.create({
     color: '#666666',
     letterSpacing: 1.2,
     marginBottom: 12,
-    fontFamily: fontFamily.sans,
+    fontFamily: passengerFontFaces.semibold,
     textAlign: 'center',
   },
   columns: {
@@ -606,8 +606,8 @@ const etaStyles = StyleSheet.create({
     marginBottom: 16,
   },
   col: { alignItems: 'center', gap: 4 },
-  colValue: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: fontFamily.sans },
-  colSub: { fontSize: 11, color: '#888888', fontFamily: fontFamily.sans },
+  colValue: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: passengerFontFaces.bold },
+  colSub: { fontSize: 11, color: '#888888', fontFamily: passengerFontFaces.medium },
   routeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -616,8 +616,8 @@ const etaStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#2A2A2A',
   },
-  routeCity: { fontSize: 11, color: '#AAAAAA', fontFamily: fontFamily.sans },
-  routeStop: { fontSize: 10, color: '#FFFFFF', fontFamily: fontFamily.sans, fontWeight: '600' },
+  routeCity: { fontSize: 11, color: '#AAAAAA', fontFamily: passengerFontFaces.medium },
+  routeStop: { fontSize: 10, color: '#FFFFFF', fontFamily: passengerFontFaces.semibold, fontWeight: '600' },
   routeLine: {
     flex: 1,
     height: 2,
@@ -731,7 +731,7 @@ const trustedStyles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     fontWeight: '700',
-    fontFamily: fontFamily.sans,
+    fontFamily: passengerFontFaces.bold,
   },
 });
 

@@ -49,7 +49,6 @@ export function Input({
         wrapper: {},
         label: {
           ...theme.typography.label,
-          fontFamily: theme.fontFamily.sans,
           color: theme.colors.textSecondary,
           marginBottom: theme.spacing[1],
         },
@@ -75,20 +74,17 @@ export function Input({
         input: {
           flex: 1,
           ...theme.typography.body,
-          fontFamily: theme.fontFamily.sans,
           color: theme.colors.textPrimary,
           paddingVertical: theme.spacing[3],
           minHeight: 44,
         },
         hint: {
           ...theme.typography.caption,
-          fontFamily: theme.fontFamily.sans,
           color: theme.colors.textTertiary,
           marginTop: theme.spacing[1],
         },
         error: {
           ...theme.typography.caption,
-          fontFamily: theme.fontFamily.sans,
           color: theme.colors.errorFg,
           marginTop: theme.spacing[1],
         },

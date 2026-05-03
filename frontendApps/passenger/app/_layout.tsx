@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@eta/ui-components';
+import { passengerTheme } from '../theme/passengerTheme';
 import { useAuthStore, setAppPrefix, tokenStore } from '@eta/auth';
 import { initEnv, getEnv } from '@eta/utils';
 import {
@@ -103,7 +104,7 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
+      <ThemeProvider theme={passengerTheme}>
         <QueryClientProvider client={queryClient}>
           <Stack
             screenOptions={{

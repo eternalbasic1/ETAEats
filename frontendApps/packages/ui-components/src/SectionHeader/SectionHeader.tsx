@@ -16,7 +16,6 @@ export function SectionHeader({ label, actionLabel, onAction }: SectionHeaderPro
       <Text
         style={{
           ...t.typography.label,
-          fontFamily: t.fontFamily.sans,
           color: t.colors.textMuted,
         }}
         accessibilityRole="header"
@@ -33,7 +32,6 @@ export function SectionHeader({ label, actionLabel, onAction }: SectionHeaderPro
           <Text
             style={{
               ...t.typography.bodySm,
-              fontFamily: t.fontFamily.sans,
               color: t.colors.accentPowderBlueInk,
               fontWeight: '600',
             }}

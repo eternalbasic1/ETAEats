@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -11,6 +12,7 @@ import {
 } from 'react-native';
 import { useTheme } from '../ThemeProvider';
 import type { Theme } from '@eta/ui-tokens';
+import { JsSpinnerRing } from '../Spinner/JsSpinnerRing';
 
 type ButtonVariant =
   | 'primary'
@@ -131,7 +133,6 @@ export function Button({
         },
         label: {
           ...theme.typography.button,
-          fontFamily: theme.fontFamily.sans,
           color: vs.text,
         },
         labelLoading: {
@@ -139,6 +140,12 @@ export function Button({
         },
         spinner: {
           marginRight: theme.spacing[2],
+        },
+        spinnerHost: {
+          width: 22,
+          height: 22,
+          alignItems: 'center',
+          justifyContent: 'center',
         },
       }),
     [theme, variant, size, fullWidth, vs],
@@ -159,11 +166,16 @@ export function Button({
       ]}
     >
       {loading && (
-        <ActivityIndicator
-          size="small"
-          color={vs.spinnerColor}
-          style={styles.spinner}
-        />
+        <View
+          style={[styles.spinnerHost, styles.spinner]}
+          collapsable={Platform.OS === 'android' ? false : undefined}
+        >
+          {Platform.OS === 'android' ? (
+            <JsSpinnerRing size="small" color={vs.spinnerColor} />
+          ) : (
+            <ActivityIndicator size="small" color={vs.spinnerColor} />
+          )}
+        </View>
       )}
       <Text style={[styles.label, loading && styles.labelLoading]}>
         {label}
