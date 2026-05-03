@@ -14,6 +14,14 @@ import {
 } from '@eta/api-client';
 import Constants from 'expo-constants';
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
+import {
+  Lora_400Regular,
+  Lora_500Medium,
+  Lora_600SemiBold,
+  Lora_700Bold,
+  Lora_400Regular_Italic,
+} from '@expo-google-fonts/lora';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +34,15 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const hydrate = useAuthStore((s) => s.hydrate);
+
+  const [fontsLoaded] = useFonts({
+    Lora: Lora_400Regular,
+    Lora_400Regular,
+    Lora_500Medium,
+    Lora_600SemiBold,
+    Lora_700Bold,
+    Lora_400Regular_Italic,
+  });
 
   useEffect(() => {
     async function bootstrap() {
@@ -82,7 +99,7 @@ export default function RootLayout() {
     bootstrap();
   }, [hydrate]);
 
-  if (!ready) return null;
+  if (!ready || !fontsLoaded) return null;
 
   return (
     <SafeAreaProvider>

@@ -1,8 +1,8 @@
 import { Platform } from 'react-native';
 
 export const fontFamily = {
-  sans:    'Satoshi-Variable',
-  display: 'Satoshi-Variable',
+  sans:    'Lora',
+  display: 'Lora',
   mono:    Platform.select({
     ios: 'Menlo',
     android: 'monospace',

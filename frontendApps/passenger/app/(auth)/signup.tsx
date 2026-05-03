@@ -145,6 +145,20 @@ export default function SignupScreen() {
               size="lg"
             />
 
+            <Text
+              style={[styles.loginPrompt, { ...t.typography.bodySm, color: t.colors.textTertiary, textAlign: 'center' }]}
+            >
+              Already signed up?{' '}
+              <Text
+                onPress={() => router.push('/(auth)/login')}
+                style={{ color: t.colors.primary, fontWeight: '600' }}
+                accessibilityRole="link"
+                accessibilityLabel="Log in"
+              >
+                Log in
+              </Text>
+            </Text>
+
             <Text style={[styles.footer, { ...t.typography.caption, color: t.colors.textMuted }]}>
               By signing up you agree to our Terms of Service and Privacy Policy.
             </Text>
@@ -164,5 +178,6 @@ const styles = StyleSheet.create({
   mt2: { marginTop: 8 },
   formWrap: { marginTop: 28, marginBottom: 24 },
   inputSpacing: { marginBottom: 16 },
-  footer: { marginTop: 20, textAlign: 'center' },
+  loginPrompt: { marginTop: 16 },
+  footer: { marginTop: 16, textAlign: 'center' },
 });
