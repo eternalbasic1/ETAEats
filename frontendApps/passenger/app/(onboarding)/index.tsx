@@ -250,14 +250,97 @@ const etaStyles = StyleSheet.create({
   },
 });
 
+const RESTAURANTS = [
+  { name: 'Shreeji Dhaba',   cuisine: 'North Indian · Thali', rating: '4.7', badge: 'FSSAI ✓',   badgeColor: '#2E5D38' },
+  { name: 'Highway Biryani', cuisine: 'Biryani · Mughlai',    rating: '4.8', badge: 'Hygiene A+', badgeColor: '#2B4A63' },
+  { name: 'Café Pit Stop',   cuisine: 'Snacks · Coffee',      rating: '4.4', badge: 'FSSAI ✓',   badgeColor: '#2E5D38' },
+] as const;
+
 function SlideTrusted() {
   const t = useTheme();
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
-      <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>Trusted</Text>
+    <View style={slideStyles.root}>
+      <Text style={[slideStyles.label, { ...t.typography.label, color: t.colors.successFg }]}>
+        TRUSTED FOOD ONLY
+      </Text>
+      <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>
+        Only clean,{'\n'}verified dhabas.
+      </Text>
+      <Text style={[slideStyles.mt16, { ...t.typography.body, color: t.colors.textTertiary }]}>
+        Every restaurant is FSSAI-certified and reviewed by thousands of real highway travelers.
+      </Text>
+
+      {/* Restaurant list */}
+      <View style={[
+        trustedStyles.card,
+        slideStyles.mt24,
+        { backgroundColor: t.colors.surface, borderColor: t.colors.border },
+      ]}>
+        {RESTAURANTS.map((r, i) => (
+          <View
+            key={r.name}
+            style={[
+              trustedStyles.row,
+              i < RESTAURANTS.length - 1 && { borderBottomWidth: 1, borderBottomColor: t.colors.border },
+            ]}
+          >
+            <View style={[trustedStyles.photo, { backgroundColor: t.colors.surfaceSunk }]}>
+              <Text style={{ fontSize: 20 }}>🍽</Text>
+            </View>
+            <View style={trustedStyles.info}>
+              <Text style={{ ...t.typography.h4, color: t.colors.textPrimary }}>{r.name}</Text>
+              <Text style={[slideStyles.mt8, { ...t.typography.caption, color: t.colors.textTertiary }]}>
+                {r.cuisine}
+              </Text>
+            </View>
+            <View style={trustedStyles.right}>
+              <Text style={{ ...t.typography.bodySm, color: t.colors.textPrimary, fontWeight: '600' }}>
+                ★ {r.rating}
+              </Text>
+              <View style={[trustedStyles.badge, { backgroundColor: r.badgeColor + '1A' }]}>
+                <Text style={[trustedStyles.badgeText, { color: r.badgeColor }]}>{r.badge}</Text>
+              </View>
+            </View>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
+
+const trustedStyles = StyleSheet.create({
+  card: {
+    borderWidth: 1,
+    borderRadius: 16,
+    overflow: 'hidden',
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    gap: 12,
+  },
+  photo: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+  },
+  info: { flex: 1 },
+  right: { alignItems: 'flex-end', gap: 4 },
+  badge: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  badgeText: {
+    fontSize: 10,
+    fontWeight: '700',
+    fontFamily: 'Lora',
+  },
+});
 
 // ─── Data ─────────────────────────────────────────────────────────────────
 
