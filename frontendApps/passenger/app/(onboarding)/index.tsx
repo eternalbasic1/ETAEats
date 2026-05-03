@@ -1,10 +1,8 @@
 import { useRef, useState } from 'react';
-import { Dimensions, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Button } from '@eta/ui-components';
-
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 // ─── Slide stubs (replaced in Tasks 3–6) ──────────────────────────────────
 
@@ -53,6 +51,8 @@ const SLIDES_DATA = [
   { key: 'trusted', component: SlideTrusted },
 ];
 
+const SLIDE_COUNT = SLIDES_DATA.length;
+
 // ─── Screen ───────────────────────────────────────────────────────────────
 
 export default function OnboardingScreen() {
@@ -60,6 +60,7 @@ export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const { width: SCREEN_WIDTH } = useWindowDimensions();
 
   function goToSlide(index: number) {
     setCurrentIndex(index);
@@ -67,16 +68,16 @@ export default function OnboardingScreen() {
   }
 
   function handleNext() {
-    if (currentIndex < 3) goToSlide(currentIndex + 1);
+    if (currentIndex < SLIDE_COUNT - 1) goToSlide(currentIndex + 1);
   }
 
-  const isLast = currentIndex === 3;
+  const isLast = currentIndex === SLIDE_COUNT - 1;
 
   return (
     <View style={[styles.container, { backgroundColor: t.colors.bg }]}>
       {/* Progress bar */}
       <View style={[styles.progressRow, { paddingTop: insets.top + 12, paddingHorizontal: 20 }]}>
-        {[0, 1, 2, 3].map((i) => (
+        {Array.from({ length: SLIDE_COUNT }, (_, i) => i).map((i) => (
           <View
             key={i}
             style={[
@@ -121,14 +122,14 @@ export default function OnboardingScreen() {
           size="lg"
         />
         {currentIndex === 0 && (
-          <Pressable onPress={() => router.replace('/(auth)/login')} style={styles.secondaryBtn}>
+          <Pressable onPress={() => router.replace('/(auth)/login')} style={styles.secondaryBtn} accessibilityRole="button">
             <Text style={{ ...t.typography.body, color: t.colors.textSecondary, textAlign: 'center' }}>
               I have an account
             </Text>
           </Pressable>
         )}
         {isLast && (
-          <Pressable onPress={() => router.replace('/(auth)/login')} style={styles.secondaryBtn}>
+          <Pressable onPress={() => router.replace('/(auth)/login')} style={styles.secondaryBtn} accessibilityRole="button">
             <Text style={{ ...t.typography.bodySm, color: t.colors.textTertiary, textAlign: 'center' }}>
               Already joined?{' '}
               <Text style={{ color: t.colors.primary, fontWeight: '600' }}>Sign in</Text>
