@@ -20,16 +20,11 @@ export function BrandMark({
 
   return (
     <div className="flex items-center gap-3">
-      <div
-        className={`${shellSize} rounded-lg bg-accent-powder-blue flex items-center justify-center shadow-e1 ring-1 ring-inset ring-white/40`}
-      >
-        <img
-          src="/brand/image.png"
-          alt=""
-          aria-hidden="true"
-          className="h-[78%] w-[78%] object-contain"
-        />
-      </div>
+      <img
+        src="/brand/logo.svg"
+        alt="ETA Eats Logo"
+        className={`${shellSize} object-contain`}
+      />
       {!compact && (
         <div className="min-w-0">
           <p

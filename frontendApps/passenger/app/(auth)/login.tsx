@@ -6,6 +6,7 @@ import { Button, Input, Card } from '@eta/ui-components';
 import { useTheme } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
 import { authEndpoints } from '@eta/api-client';
+import Logo from '../../assets/logo.svg';
 
 function formatPhoneDisplay(digits: string): string {
   const clean = digits.replace(/\D/g, '').slice(0, 10);
@@ -66,9 +67,7 @@ export default function LoginScreen() {
         >
           {/* Brand */}
           <View style={styles.brand}>
-            <Text style={{ ...t.typography.h2, color: t.colors.textPrimary, fontWeight: '700' }}>
-              ETA Eats
-            </Text>
+            <Logo width={140} height={140} />
           </View>
 
           {/* Form card */}
