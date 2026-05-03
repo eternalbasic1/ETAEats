@@ -9,8 +9,40 @@ import { useTheme, Button } from '@eta/ui-components';
 function SlideWelcome() {
   const t = useTheme();
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
-      <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>Welcome</Text>
+    <View style={slideStyles.root}>
+      {/* Illustration */}
+      <View style={slideStyles.illustrationBox}>
+        <Text style={{ fontSize: 52, letterSpacing: 4 }}>🏠🌳{'  '}🚌{'  '}🌳🏨</Text>
+        <View style={{
+          marginTop: 10,
+          width: '70%',
+          height: 6,
+          backgroundColor: t.colors.borderStrong,
+          borderRadius: 3,
+        }} />
+      </View>
+
+      {/* Text */}
+      <View style={slideStyles.textBlock}>
+        <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>
+          Order food before{'\n'}your bus stops.
+        </Text>
+        <Text style={[slideStyles.mt16, { ...t.typography.body, color: t.colors.textTertiary }]}>
+          ETAEats lets bus travelers pre-order from restaurants assigned to their route. Food is ready when you arrive.
+        </Text>
+
+        {/* Feature pills */}
+        <View style={[slideStyles.pillRow, slideStyles.mt24]}>
+          {(['🚌 Highway food', '✅ Verified restaurants', '⚡ No waiting'] as const).map((label) => (
+            <View
+              key={label}
+              style={[slideStyles.pill, { backgroundColor: t.colors.surfaceSunk, borderColor: t.colors.border }]}
+            >
+              <Text style={{ ...t.typography.caption, color: t.colors.textSecondary }}>{label}</Text>
+            </View>
+          ))}
+        </View>
+      </View>
     </View>
   );
 }
