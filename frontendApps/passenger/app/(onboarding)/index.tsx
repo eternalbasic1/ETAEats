@@ -47,14 +47,102 @@ function SlideWelcome() {
   );
 }
 
+const STEPS = [
+  {
+    number: '1',
+    color: '#E8703A',
+    title: 'Scan the QR in your bus',
+    body: 'Every ETAEats bus has a QR code or a 6-digit code. Scan it to reveal the restaurant assigned to your route.',
+  },
+  {
+    number: '2',
+    color: '#4A90D9',
+    title: 'Browse the menu & order',
+    body: "See what's available, pick your meal, pay in-app. That's it.",
+  },
+  {
+    number: '3',
+    color: '#2E5D38',
+    title: 'Pick up at your stop',
+    body: 'Your order is timed to your bus ETA. Walk off. Collect. Eat.',
+  },
+] as const;
+
 function SlideHowItWorks() {
   const t = useTheme();
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
-      <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>How it Works</Text>
+    <View style={slideStyles.root}>
+      <Text style={[slideStyles.label, { ...t.typography.label, color: t.colors.successFg }]}>
+        HOW IT WORKS
+      </Text>
+      <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>
+        3 steps.{'\n'}That's all.
+      </Text>
+
+      <View style={slideStyles.mt24}>
+        {STEPS.map((step) => (
+          <View key={step.number} style={howStyles.stepRow}>
+            <View style={[howStyles.circle, { backgroundColor: step.color }]}>
+              <Text style={howStyles.circleText}>{step.number}</Text>
+            </View>
+            <View style={howStyles.stepText}>
+              <Text style={{ ...t.typography.h4, color: t.colors.textPrimary }}>{step.title}</Text>
+              <Text style={[slideStyles.mt8, { ...t.typography.bodySm, color: t.colors.textTertiary }]}>
+                {step.body}
+              </Text>
+            </View>
+          </View>
+        ))}
+      </View>
+
+      {/* QR card */}
+      <View style={[howStyles.qrCard, { backgroundColor: t.colors.primary }]}>
+        <Text style={{ fontSize: 28 }}>⬛</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={{ ...t.typography.h4, color: t.colors.textOnDark }}>
+            Scan Bus QR or enter code
+          </Text>
+          <Text style={[slideStyles.mt8, { ...t.typography.bodySm, color: '#AAAAAA' }]}>
+            One scan reveals your bus restaurant
+          </Text>
+        </View>
+      </View>
     </View>
   );
 }
+
+const howStyles = StyleSheet.create({
+  stepRow: {
+    flexDirection: 'row',
+    gap: 14,
+    marginBottom: 20,
+    alignItems: 'flex-start',
+  },
+  circle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    marginTop: 2,
+  },
+  circleText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    fontFamily: 'Lora',
+  },
+  stepText: { flex: 1 },
+  qrCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+    padding: 16,
+    borderRadius: 16,
+    marginTop: 8,
+  },
+});
 
 function SlideEtaSync() {
   const t = useTheme();
