@@ -147,11 +147,108 @@ const howStyles = StyleSheet.create({
 function SlideEtaSync() {
   const t = useTheme();
   return (
-    <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 }}>
-      <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>ETA Sync</Text>
+    <View style={slideStyles.root}>
+      <Text style={[slideStyles.label, { ...t.typography.label, color: t.colors.accentPowderBlueInk }]}>
+        SMART ETA SYNC
+      </Text>
+      <Text style={{ ...t.typography.h1, color: t.colors.textPrimary }}>
+        Food ready exactly{'\n'}when you arrive.
+      </Text>
+      <Text style={[slideStyles.mt16, { ...t.typography.body, color: t.colors.textTertiary }]}>
+        We track your bus in real-time and alert the restaurant when to start cooking — so it's fresh, not cold.
+      </Text>
+
+      {/* Live sync card */}
+      <View style={[etaStyles.card, slideStyles.mt24]}>
+        <Text style={etaStyles.cardLabel}>LIVE SYNC</Text>
+        <View style={etaStyles.columns}>
+          {([
+            { icon: '🚌', value: '12 min', sub: 'Bus ETA' },
+            { icon: '🍳', value: '10 min', sub: 'Prep time' },
+            { icon: '✅', value: 'Stop', sub: 'Ready at' },
+          ] as const).map((col, i) => (
+            <View key={i} style={etaStyles.col}>
+              <Text style={{ fontSize: 22 }}>{col.icon}</Text>
+              <Text style={etaStyles.colValue}>{col.value}</Text>
+              <Text style={etaStyles.colSub}>{col.sub}</Text>
+            </View>
+          ))}
+        </View>
+
+        {/* Route bar */}
+        <View style={etaStyles.routeRow}>
+          <Text style={etaStyles.routeCity}>Mumbai</Text>
+          <View style={etaStyles.routeLine}>
+            <View style={etaStyles.liveDot} />
+          </View>
+          <Text style={etaStyles.routeStop}>← Nashik Bus Stand</Text>
+          <View style={etaStyles.routeLine} />
+          <Text style={etaStyles.routeCity}>Pune</Text>
+        </View>
+      </View>
+
+      {/* Feature tags */}
+      <View style={[slideStyles.pillRow, slideStyles.mt16]}>
+        {(['🔴 Live GPS', '⚡ Kitchen auto-alert', '❄️ No cold food guarantee'] as const).map((tag) => (
+          <View
+            key={tag}
+            style={[slideStyles.pill, { backgroundColor: t.colors.surfaceSunk, borderColor: t.colors.border }]}
+          >
+            <Text style={{ ...t.typography.caption, color: t.colors.textSecondary }}>{tag}</Text>
+          </View>
+        ))}
+      </View>
     </View>
   );
 }
+
+const etaStyles = StyleSheet.create({
+  card: {
+    backgroundColor: '#1A1A1A',
+    borderRadius: 16,
+    padding: 16,
+  },
+  cardLabel: {
+    fontSize: 10,
+    fontWeight: '600',
+    color: '#666666',
+    letterSpacing: 1.2,
+    marginBottom: 12,
+    fontFamily: 'Lora',
+  },
+  columns: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 16,
+  },
+  col: { alignItems: 'center', gap: 4 },
+  colValue: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: 'Lora' },
+  colSub: { fontSize: 11, color: '#888888', fontFamily: 'Lora' },
+  routeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#2A2A2A',
+  },
+  routeCity: { fontSize: 11, color: '#AAAAAA', fontFamily: 'Lora' },
+  routeStop: { fontSize: 10, color: '#FFFFFF', fontFamily: 'Lora', fontWeight: '600' },
+  routeLine: {
+    flex: 1,
+    height: 2,
+    backgroundColor: '#333333',
+    borderRadius: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  liveDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FF4444',
+  },
+});
 
 function SlideTrusted() {
   const t = useTheme();
