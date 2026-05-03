@@ -3,8 +3,46 @@ import { FlatList, Pressable, StyleSheet, Text, View, useWindowDimensions } from
 import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Button } from '@eta/ui-components';
+import { fontFamily } from '@eta/ui-tokens';
 
-// ─── Slide stubs (replaced in Tasks 3–6) ──────────────────────────────────
+// ─── Shared slide styles ──────────────────────────────────────────────────────
+
+const slideStyles = StyleSheet.create({
+  root: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingTop: 12,
+  },
+  illustrationBox: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    minHeight: 180,
+  },
+  textBlock: {
+    paddingBottom: 20,
+  },
+  pillRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  pill: {
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  label: {
+    marginBottom: 8,
+  },
+  mt8:  { marginTop: 8 },
+  mt12: { marginTop: 12 },
+  mt16: { marginTop: 16 },
+  mt24: { marginTop: 24 },
+});
+
+// ─── Slide components ────────────────────────────────────────────────────────
 
 function SlideWelcome() {
   const t = useTheme();
@@ -131,7 +169,7 @@ const howStyles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
-    fontFamily: 'Lora',
+    fontFamily: fontFamily.sans,
   },
   stepText: { flex: 1 },
   qrCard: {
@@ -214,7 +252,7 @@ const etaStyles = StyleSheet.create({
     color: '#666666',
     letterSpacing: 1.2,
     marginBottom: 12,
-    fontFamily: 'Lora',
+    fontFamily: fontFamily.sans,
   },
   columns: {
     flexDirection: 'row',
@@ -222,8 +260,8 @@ const etaStyles = StyleSheet.create({
     marginBottom: 16,
   },
   col: { alignItems: 'center', gap: 4 },
-  colValue: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: 'Lora' },
-  colSub: { fontSize: 11, color: '#888888', fontFamily: 'Lora' },
+  colValue: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', fontFamily: fontFamily.sans },
+  colSub: { fontSize: 11, color: '#888888', fontFamily: fontFamily.sans },
   routeRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -232,8 +270,8 @@ const etaStyles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#2A2A2A',
   },
-  routeCity: { fontSize: 11, color: '#AAAAAA', fontFamily: 'Lora' },
-  routeStop: { fontSize: 10, color: '#FFFFFF', fontFamily: 'Lora', fontWeight: '600' },
+  routeCity: { fontSize: 11, color: '#AAAAAA', fontFamily: fontFamily.sans },
+  routeStop: { fontSize: 10, color: '#FFFFFF', fontFamily: fontFamily.sans, fontWeight: '600' },
   routeLine: {
     flex: 1,
     height: 2,
@@ -338,7 +376,7 @@ const trustedStyles = StyleSheet.create({
   badgeText: {
     fontSize: 10,
     fontWeight: '700',
-    fontFamily: 'Lora',
+    fontFamily: fontFamily.sans,
   },
 });
 
@@ -397,6 +435,7 @@ export default function OnboardingScreen() {
         pagingEnabled
         scrollEnabled={false}
         showsHorizontalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1 }}
         renderItem={({ item }) => {
           const SlideComponent = item.component;
           return (
@@ -440,43 +479,6 @@ export default function OnboardingScreen() {
     </View>
   );
 }
-
-// ─── Shared slide styles (used by Tasks 3–6) ──────────────────────────────
-
-export const slideStyles = StyleSheet.create({
-  root: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-  },
-  illustrationBox: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 180,
-  },
-  textBlock: {
-    paddingBottom: 20,
-  },
-  pillRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  pill: {
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 20,
-    borderWidth: 1,
-  },
-  label: {
-    marginBottom: 8,
-  },
-  mt8:  { marginTop: 8 },
-  mt12: { marginTop: 12 },
-  mt16: { marginTop: 16 },
-  mt24: { marginTop: 24 },
-});
 
 // ─── Screen styles ────────────────────────────────────────────────────────
 
