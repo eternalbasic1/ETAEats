@@ -8,7 +8,7 @@ import { formatINR } from '@eta/utils';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { Package, QrCode, ArrowRight } from 'lucide-react-native';
-
+import { JourneyCard } from '../../components/JourneyCard';
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending',
   CONFIRMED: 'Confirmed',
@@ -59,19 +59,13 @@ export default function HomeScreen() {
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 100 }]}
     >
       {/* Greeting */}
-      <Text style={{ ...t.typography.label, color: t.colors.textMuted }}>
+      <Text style={{ ...t.typography.label, color: t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
         Good to see you, {firstName}
       </Text>
 
-      {/* Hero */}
-      <Text style={[styles.heroTitle, { ...t.typography.h1, color: t.colors.textPrimary }]}>
-        Order food before your bus{' '}
-        <Text style={{ color: t.colors.accentPowderBlueInk }}>arrives.</Text>
-      </Text>
+    
 
-      <Text style={[styles.heroSub, { ...t.typography.body, color: t.colors.textTertiary }]}>
-        Scan the QR inside your bus and pre-order from the assigned highway kitchen. We'll have it ready when you step off.
-      </Text>
+      <JourneyCard />
 
       {/* CTAs */}
       <View style={styles.ctaRow}>

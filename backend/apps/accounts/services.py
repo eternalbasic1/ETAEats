@@ -44,6 +44,14 @@ def request_otp(phone_number: str, purpose: str = OTPPurpose.LOGIN) -> OTPCode:
     """
     now = timezone.now()
 
+    # Reject unknown numbers for login. Signups must be done explicitly.
+    if purpose == OTPPurpose.LOGIN:
+        if not User.objects.filter(phone_number=phone_number).exists():
+            raise OTPError(
+                'No account found. Please sign up.',
+                code='user_not_found',
+            )
+
     # Check lockout on most-recent outstanding OTP
     latest = (
         OTPCode.objects
@@ -124,24 +132,13 @@ def verify_otp(
     otp.consumed_at = now
     otp.save(update_fields=['consumed_at'])
 
-    user, _ = _get_or_create_passenger_user(phone_number) if purpose == OTPPurpose.LOGIN else (
-        User.objects.filter(phone_number=phone_number).first(),
-        False,
-    )
+    user = User.objects.filter(phone_number=phone_number).first()
     if user is None:
         raise OTPError('No account for this phone number.', code='user_not_found')
 
     user.last_login_at = now
     user.save(update_fields=['last_login_at'])
     return user
-
-
-def _get_or_create_passenger_user(phone_number: str) -> Tuple[User, bool]:
-    user = User.objects.filter(phone_number=phone_number).first()
-    if user:
-        return user, False
-    user = User.objects.create_user(phone_number=phone_number, role=UserRole.PASSENGER)
-    return user, True
 
 
 def issue_tokens(user: User) -> dict:
