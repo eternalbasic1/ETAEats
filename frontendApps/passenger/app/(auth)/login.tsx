@@ -46,7 +46,7 @@ export default function LoginScreen() {
       setError(
         e?.response?.data?.error?.message
           ?? e?.response?.data?.detail
-          ?? 'Your are not with us! Please Register',
+          ?? 'User not Found. Please Register',
       );
     } finally {
       setLoading(false);
