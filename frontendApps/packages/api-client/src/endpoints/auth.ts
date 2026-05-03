@@ -51,7 +51,16 @@ export interface MeResponse {
   }>;
 }
 
+export interface SignupPayload {
+  phone_number: string;
+  email: string;
+  full_name: string;
+}
+
 export const authEndpoints = {
+  signup: (payload: SignupPayload) =>
+    api.post<{ status: string }>('/auth/signup/', payload),
+
   requestOtp: (payload: OtpRequestPayload) =>
     api.post<{ status: string }>('/auth/otp/request/', payload),
 

@@ -13,6 +13,15 @@ class OTPVerifySerializer(serializers.Serializer):
     code = serializers.CharField(min_length=4, max_length=8)
 
 
+class SignupSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+    full_name = serializers.CharField(required=True, min_length=2)
+
+    class Meta:
+        model = User
+        fields = ('phone_number', 'email', 'full_name')
+
+
 class TokenPairSerializer(serializers.Serializer):
     access = serializers.CharField()
     refresh = serializers.CharField()

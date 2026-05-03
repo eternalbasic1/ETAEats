@@ -8,6 +8,7 @@ from . import services
 from .serializers import (
     OTPRequestSerializer,
     OTPVerifySerializer,
+    SignupSerializer,
     UpdateProfileSerializer,
     UserSerializer,
 )
@@ -23,6 +24,20 @@ class RequestOTPView(APIView):
         phone = str(serializer.validated_data['phone_number'])
         services.request_otp(phone)
         return Response({'status': 'sent'}, status=status.HTTP_200_OK)
+
+
+class SignupView(APIView):
+    permission_classes = [AllowAny]
+    serializer_class = SignupSerializer
+
+    def post(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Create user (role defaults to PASSENGER in model creation, but we explicitly set it if needed)
+        user = serializer.save()
+        # Automatically trigger OTP
+        services.request_otp(str(user.phone_number))
+        return Response({'status': 'created_and_otp_sent'}, status=status.HTTP_201_CREATED)
 
 
 class VerifyOTPView(APIView):
