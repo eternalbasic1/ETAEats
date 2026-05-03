@@ -46,7 +46,7 @@ export default function LoginScreen() {
       setError(
         e?.response?.data?.error?.message
           ?? e?.response?.data?.detail
-          ?? 'Could not send OTP. Try again.',
+          ?? 'Your are not with us! Please Register',
       );
     } finally {
       setLoading(false);
