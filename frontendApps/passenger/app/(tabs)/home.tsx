@@ -122,19 +122,16 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: skyColor }]}
+      style={[styles.container, { backgroundColor: t.colors.bg }]}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 100 }]}
     >
-      {/* Sky-colored header block — full bleed, no clipping */}
-      <View style={[styles.skyBlock, { marginTop: -(insets.top + 16), paddingTop: insets.top + 16 }]}>
+      {/* Sky block — explicit sky bg, bleeds full width */}
+      <View style={[styles.skyBlock, { backgroundColor: skyColor, marginTop: -(insets.top + 16), paddingTop: insets.top + 16 }]}>
         <Text style={{ ...t.typography.label, color: skyColor === '#0F172A' ? 'rgba(255,255,255,0.5)' : t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
           Good to see you, {firstName}
         </Text>
         <JourneyCard />
       </View>
-
-      {/* Page bg resumes here — the SVG fade above handles the transition */}
-      <View style={[styles.pageBg, { backgroundColor: t.colors.bg }]}>
 
       {/* CTAs */}
       <View style={styles.ctaRow}>
@@ -242,7 +239,6 @@ export default function HomeScreen() {
           </Pressable>
         ))}
       </View>
-      </View>
     </ScrollView>
   );
 }
@@ -254,12 +250,6 @@ const styles = StyleSheet.create({
     marginHorizontal: -20,
     paddingHorizontal: 20,
     paddingBottom: 0,
-    // No backgroundColor — inherits ScrollView sky color
-  },
-  pageBg: {
-    marginHorizontal: -20,
-    paddingHorizontal: 20,
-    // Covers everything below the card with the page bg color
   },
   heroTitle: { marginTop: 12, maxWidth: 340 },
   heroSub: { marginTop: 12, maxWidth: 360 },

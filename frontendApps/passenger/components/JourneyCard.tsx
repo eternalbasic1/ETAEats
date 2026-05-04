@@ -23,9 +23,9 @@ const AnimatedEllipse = Animated.createAnimatedComponent(Ellipse);
 
 // ─── Layout constants ─────────────────────────────────────────────────────────
 const CARD_WIDTH   = SCREEN_WIDTH;
-const CARD_HEIGHT  = 220;   // extra 20px of fade room at the bottom
+const CARD_HEIGHT  = 260;   // tall enough for a long smooth fade
 const ROAD_Y       = 155;
-const FADE_START_Y = 160;   // where the bottom fade begins — just below the road
+const FADE_START_Y = 168;   // starts below road bottom edge — scene fully visible
 
 const HOTEL_X    = CARD_WIDTH - 90;
 const HOTEL_Y    = ROAD_Y - 10;
@@ -60,10 +60,13 @@ const DaySky = () => (
       <Stop offset="0"   stopColor="#E0F2FE" stopOpacity="1" />
       <Stop offset="1"   stopColor="#F5F5F2" stopOpacity="1" />
     </LinearGradient>
-    {/* Bottom fade — blends card into page bg */}
+    {/* Bottom fade — smooth ease-in curve */}
     <LinearGradient id="dayFade" x1="0" y1="0" x2="0" y2="1">
-      <Stop offset="0"   stopColor="#F5F5F2" stopOpacity="0" />
-      <Stop offset="1"   stopColor="#F5F5F2" stopOpacity="1" />
+      <Stop offset="0"    stopColor="#F5F5F2" stopOpacity="0"    />
+      <Stop offset="0.3"  stopColor="#F5F5F2" stopOpacity="0.08" />
+      <Stop offset="0.6"  stopColor="#F5F5F2" stopOpacity="0.4"  />
+      <Stop offset="0.85" stopColor="#F5F5F2" stopOpacity="0.82" />
+      <Stop offset="1"    stopColor="#F5F5F2" stopOpacity="1"    />
     </LinearGradient>
   </Defs>
 );
@@ -75,10 +78,13 @@ const NightSky = () => (
       <Stop offset="0.6" stopColor="#1E293B" stopOpacity="1" />
       <Stop offset="1"   stopColor="#334155" stopOpacity="1" />
     </LinearGradient>
-    {/* Bottom fade — blends card into page bg */}
+    {/* Bottom fade — smooth ease-in curve */}
     <LinearGradient id="nightFade" x1="0" y1="0" x2="0" y2="1">
-      <Stop offset="0"   stopColor="#F5F5F2" stopOpacity="0" />
-      <Stop offset="1"   stopColor="#F5F5F2" stopOpacity="1" />
+      <Stop offset="0"    stopColor="#F5F5F2" stopOpacity="0"    />
+      <Stop offset="0.3"  stopColor="#F5F5F2" stopOpacity="0.08" />
+      <Stop offset="0.6"  stopColor="#F5F5F2" stopOpacity="0.4"  />
+      <Stop offset="0.85" stopColor="#F5F5F2" stopOpacity="0.82" />
+      <Stop offset="1"    stopColor="#F5F5F2" stopOpacity="1"    />
     </LinearGradient>
     {/* Street-lamp cone glow */}
     <RadialGradient id="lampGlow" cx="50%" cy="0%" r="100%" fx="50%" fy="0%">
