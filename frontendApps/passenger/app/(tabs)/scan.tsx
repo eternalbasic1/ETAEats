@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Button } from '@eta/ui-components';
-import { router, useFocusEffect } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { CameraView, useCameraPermissions, PermissionStatus } from 'expo-camera';
 import { Camera, Keyboard, QrCode, X, AlertCircle, Settings, ChevronRight } from 'lucide-react-native';
 
@@ -542,9 +542,12 @@ function EnterPanel({ chars, inputRefs, onCharChange, onKeyPress, onSubmit }: En
 export default function ScanScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
+  const { tab } = useLocalSearchParams<{ tab?: string }>();
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState<ActiveTab>('scan');
+  // Tab state — default to 'scan', but honour the `tab` param from home.tsx
+  const [activeTab, setActiveTab] = useState<ActiveTab>(
+    tab === 'enter' ? 'enter' : 'scan',
+  );
 
   // Manual entry state
   const [chars, setChars] = useState<string[]>(Array(TOKEN_LENGTH).fill(''));
@@ -556,13 +559,20 @@ export default function ScanScreen() {
   const [permDenied, setPermDenied] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
 
-  // Close camera when screen loses focus (e.g. navigating away)
+  // On every focus: sync the tab from the param.
+  // useFocusEffect runs on every navigation to this screen, so stale params
+  // from a previous visit are always overridden.
   useFocusEffect(
     useCallback(() => {
+      const targetTab: ActiveTab = tab === 'enter' ? 'enter' : 'scan';
+      setActiveTab(targetTab);
+      setPermDenied(false);
+
+      // Close camera when leaving the screen
       return () => {
         setCameraOpen(false);
       };
-    }, []),
+    }, [tab]),
   );
 
   // ── Manual entry handlers ──────────────────────────────────────────────────

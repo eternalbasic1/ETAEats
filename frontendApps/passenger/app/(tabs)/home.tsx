@@ -151,7 +151,7 @@ export default function HomeScreen() {
         <Button
           label="Enter 6-digit code"
           variant="secondary"
-          onPress={() => router.push('/(tabs)/scan')}
+          onPress={() => router.push({ pathname: '/(tabs)/scan', params: { tab: 'enter' } })}
           size="lg"
           fullWidth
         />
