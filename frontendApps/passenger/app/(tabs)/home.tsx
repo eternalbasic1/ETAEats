@@ -9,7 +9,7 @@ import { router } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useUserSocket } from '@eta/realtime';
 import { Package, ArrowRight } from 'lucide-react-native';
-import { JourneyCard } from '../../components/JourneyCard';
+import { JourneyCard, getSkyTopColor } from '../../components/JourneyCard';
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending',
   CONFIRMED: 'Confirmed',
@@ -45,6 +45,14 @@ export default function HomeScreen() {
   useEffect(() => {
     tokenStore.get().then((tok) => setAccessToken(tok?.access ?? null));
   }, [isAuthenticated]);
+
+  // ── Sky color — kept in sync with JourneyCard's time-of-day ──────────────
+  const [skyColor, setSkyColor] = useState(getSkyTopColor());
+  useEffect(() => {
+    setSkyColor(getSkyTopColor());
+    const interval = setInterval(() => setSkyColor(getSkyTopColor()), 60_000);
+    return () => clearInterval(interval);
+  }, []);
 
   // ── Orders query ──────────────────────────────────────────────────────────
   const { data, isLoading } = useQuery({
@@ -117,14 +125,13 @@ export default function HomeScreen() {
       style={[styles.container, { backgroundColor: t.colors.bg }]}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 100 }]}
     >
-      {/* Greeting */}
-      <Text style={{ ...t.typography.label, color: t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
-        Good to see you, {firstName}
-      </Text>
-
-    
-
-      <JourneyCard />
+      {/* Sky-colored header block — matches JourneyCard sky seamlessly */}
+      <View style={[styles.skyBlock, { backgroundColor: skyColor, marginTop: -(insets.top + 16), paddingTop: insets.top + 16 }]}>
+        <Text style={{ ...t.typography.label, color: skyColor === '#0F172A' ? 'rgba(255,255,255,0.5)' : t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
+          Good to see you, {firstName}
+        </Text>
+        <JourneyCard />
+      </View>
 
       {/* CTAs */}
       <View style={styles.ctaRow}>
@@ -239,6 +246,11 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { paddingHorizontal: 20 },
+  skyBlock: {
+    marginHorizontal: -20,   // bleed to full width (parent has paddingHorizontal: 20)
+    paddingHorizontal: 20,
+    paddingBottom: 0,
+  },
   heroTitle: { marginTop: 12, maxWidth: 340 },
   heroSub: { marginTop: 12, maxWidth: 360 },
   ctaRow: { marginTop: 24, gap: 12 },
