@@ -150,7 +150,11 @@ export default function MenuTabScreen() {
 
         {allItems.map((item: any) => {
           const cartItem = cartItems.find((ci) => ci.menu_item === item.id);
-          const unavailable = !item.is_available;
+          const outOfStock =
+            item.quantity_available !== null &&
+            item.quantity_available !== undefined &&
+            item.quantity_available === 0;
+          const unavailable = !item.is_available || outOfStock;
 
           return (
             <View
@@ -169,6 +173,16 @@ export default function MenuTabScreen() {
                     {item.description}
                   </Text>
                 ) : null}
+                {item.quantity_available !== null &&
+                 item.quantity_available !== undefined &&
+                 item.quantity_available > 0 &&
+                 item.quantity_available <= 5 && (
+                  <View style={[styles.lowStockBadge, { backgroundColor: t.colors.warningBg, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start', marginTop: 4 }]}>
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: t.colors.warningFg }}>
+                      Only {item.quantity_available} left
+                    </Text>
+                  </View>
+                )}
                 <View style={styles.priceRow}>
                   <Text style={{ ...t.typography.h4, color: t.colors.textPrimary }}>₹{item.price}</Text>
                   {item.prep_time_minutes ? (
@@ -273,4 +287,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     borderRadius: 16, paddingHorizontal: 20, paddingVertical: 16,
   },
+  lowStockBadge: {},
 });

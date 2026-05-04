@@ -77,6 +77,8 @@ def add_item(cart: Cart, menu_item: MenuItem, quantity: int = 1) -> CartItem:
         raise DomainError('Quantity must be at least 1.', code='invalid_quantity')
     if not menu_item.is_available or menu_item.deleted_at:
         raise DomainError('Item is unavailable.', code='item_unavailable')
+    if menu_item.quantity_available is not None and menu_item.quantity_available == 0:
+        raise DomainError('Item is unavailable.', code='item_unavailable')
 
     # If previous operations emptied this cart, drop stale bus/restaurant pins.
     clear_cart_context_if_empty(cart)
@@ -196,6 +198,7 @@ def advance_status(order: Order, new_status: str, *, reason: str = '') -> Order:
     if new_status == OrderStatus.CONFIRMED:
         order.confirmed_at = now
         update_fields.append('confirmed_at')
+        _deduct_stock_for_order(order)
     elif new_status == OrderStatus.READY:
         order.ready_at = now
         update_fields.append('ready_at')
@@ -208,6 +211,40 @@ def advance_status(order: Order, new_status: str, *, reason: str = '') -> Order:
 
     order.save(update_fields=update_fields)
     return order
+
+
+def _deduct_stock_for_order(order: Order) -> None:
+    """
+    Lock and deduct stock for all finite-stock items in the order.
+    Must be called from within an existing atomic transaction.
+    """
+    order_items = list(order.items.select_related('menu_item'))
+    finite_item_ids = [
+        oi.menu_item_id
+        for oi in order_items
+        if oi.menu_item.quantity_available is not None
+    ]
+    if not finite_item_ids:
+        return
+
+    locked = {
+        mi.pk: mi
+        for mi in MenuItem.objects.select_for_update().filter(pk__in=finite_item_ids)
+    }
+
+    to_update: list[MenuItem] = []
+    for oi in order_items:
+        mi = locked.get(oi.menu_item_id)
+        if mi is None or mi.quantity_available is None:
+            continue
+        new_qty = max(0, mi.quantity_available - oi.quantity)
+        mi.quantity_available = new_qty
+        if new_qty == 0:
+            mi.is_available = False
+        to_update.append(mi)
+
+    if to_update:
+        MenuItem.objects.bulk_update(to_update, ['quantity_available', 'is_available'])
 
 
 def mark_payment(order: Order, *, status: str, razorpay_payment_id: str = '') -> Order:

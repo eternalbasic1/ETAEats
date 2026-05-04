@@ -67,6 +67,14 @@ class MenuItemViewSet(viewsets.ModelViewSet):
             ).distinct()
         return qs
 
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        # Auto-restore availability when restocked
+        qty = instance.quantity_available
+        if qty is not None and qty > 0 and not instance.is_available:
+            instance.is_available = True
+            instance.save(update_fields=['is_available'])
+
     def destroy(self, request, *args, **kwargs):
         """
         Soft-delete menu items so historical OrderItem rows (PROTECT FK) keep
