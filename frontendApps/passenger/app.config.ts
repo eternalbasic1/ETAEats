@@ -22,7 +22,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       backgroundColor: '#F5F5F2',
     },
   },
-  plugins: ['expo-router', 'expo-secure-store', 'expo-font'],
+  plugins: [
+    'expo-router',
+    'expo-secure-store',
+    'expo-font',
+    [
+      'expo-camera',
+      {
+        cameraPermission: 'Allow ETA Eats to access your camera to scan bus QR codes.',
+        microphonePermission: false,
+        recordAudioAndroid: false,
+      },
+    ],
+  ],
   experiments: {
     typedRoutes: true,
   },
