@@ -161,7 +161,14 @@ export default function OTPScreen() {
                       selectTextOnFocus
                       style={[
                         styles.otpInput,
-                        { color: isError ? t.colors.errorFg : t.colors.textPrimary },
+                        {
+                          color: isError ? t.colors.errorFg : t.colors.textPrimary,
+                          fontFamily: 'Lora_500Bold',
+                          fontSize: 24,
+                          fontWeight: '700',
+                          includeFontPadding: false,
+                          textAlignVertical: 'center',
+                        },
                       ]}
                       accessibilityLabel={`OTP digit ${i + 1}`}
                     />
@@ -238,13 +245,7 @@ const styles = StyleSheet.create({
     width: TILE_SIZE,
     height: TILE_SIZE,
     textAlign: 'center',
-    // Lora Bold — explicit family so RN doesn't fall back to system font
-    fontFamily: 'Lora_700Bold',
-    fontSize: 24,
-    fontWeight: '700',
     letterSpacing: 0,
-    includeFontPadding: false,   // Android: removes extra top/bottom padding
-    textAlignVertical: 'center', // Android: vertically centres inside the fixed height
     backgroundColor: 'transparent',
   },
 

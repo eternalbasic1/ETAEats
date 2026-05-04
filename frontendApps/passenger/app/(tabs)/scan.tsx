@@ -489,7 +489,17 @@ function EnterPanel({ chars, inputRefs, onCharChange, onKeyPress, onSubmit }: En
                   keyboardType="default"
                   caretHidden
                   selectTextOnFocus
-                  style={[styles.codeInput, { color: t.colors.textPrimary }]}
+                  style={[
+                    styles.codeInput,
+                    {
+                      color: t.colors.textPrimary,
+                      fontFamily: 'Lora_500Bold',
+                      fontSize: 22,
+                      fontWeight: '700',
+                      includeFontPadding: false,
+                      textAlignVertical: 'center',
+                    },
+                  ]}
                   accessibilityLabel={`Character ${i + 1} of ${TOKEN_LENGTH}`}
                 />
               </View>
@@ -822,12 +832,7 @@ const styles = StyleSheet.create({
     width: CODE_TILE_SIZE,
     height: CODE_TILE_SIZE,
     textAlign: 'center',
-    fontFamily: 'Lora_700Bold',
-    fontSize: 22,
-    fontWeight: '700',
     letterSpacing: 0,
-    includeFontPadding: false,
-    textAlignVertical: 'center',
     backgroundColor: 'transparent',
     textTransform: 'uppercase',
   },
