@@ -60,7 +60,7 @@ export default function OrdersScreen() {
       )}
 
       {orders.map((order: any) => (
-        <Pressable key={order.id} style={styles.orderCard} onPress={() => {}}>
+        <Pressable key={order.id} style={styles.orderCard} onPress={() => router.push(`/order/${order.id}`)}>
           <Card tone="default" padding="md" radius="card">
             <View style={styles.row}>
               <View style={{ flex: 1 }}>

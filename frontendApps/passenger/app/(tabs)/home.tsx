@@ -1,13 +1,14 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Button, Card, Badge, EmptyState, SectionHeader, Spinner } from '@eta/ui-components';
-import { useAuthStore } from '@eta/auth';
+import { useAuthStore, tokenStore } from '@eta/auth';
 import { api } from '@eta/api-client';
-import { formatINR } from '@eta/utils';
+import { getEnv } from '@eta/utils';
 import { router } from 'expo-router';
-import { useQuery } from '@tanstack/react-query';
-import { Package, QrCode, ArrowRight } from 'lucide-react-native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useUserSocket } from '@eta/realtime';
+import { Package, ArrowRight } from 'lucide-react-native';
 import { JourneyCard } from '../../components/JourneyCard';
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending',
@@ -31,6 +32,7 @@ export default function HomeScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const { user, isAuthenticated, hasHydrated } = useAuthStore();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (hasHydrated && !isAuthenticated) {
@@ -38,10 +40,67 @@ export default function HomeScreen() {
     }
   }, [hasHydrated, isAuthenticated]);
 
+  // ── Load access token for WebSocket ───────────────────────────────────────
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  useEffect(() => {
+    tokenStore.get().then((tok) => setAccessToken(tok?.access ?? null));
+  }, [isAuthenticated]);
+
+  // ── Orders query ──────────────────────────────────────────────────────────
   const { data, isLoading } = useQuery({
     queryKey: ['orders', 'home'],
     queryFn: () => api.get('/orders/my/?page_size=8').then((r: any) => r.data),
     enabled: isAuthenticated,
+    // Refetch every 20 s as a fallback while there's an active order
+    refetchInterval: () => {
+      const orders = queryClient.getQueryData<{ results: any[] }>(['orders', 'home'])?.results ?? [];
+      const hasActive = orders.some((o) => !['PICKED_UP', 'CANCELLED'].includes(o.status));
+      return hasActive ? 20_000 : false;
+    },
+  });
+
+  // ── WebSocket: optimistically patch order status in cache ─────────────────
+  const env = getEnv();
+
+  const onWsMessage = useCallback(
+    (payload: unknown) => {
+      const msg = payload as { data?: { order_id?: string; status?: string } };
+      const { order_id, status } = msg?.data ?? {};
+      if (!order_id || !status) return;
+
+      // Patch the status badge instantly — no network round-trip needed
+      queryClient.setQueryData<{ results: any[] }>(['orders', 'home'], (prev) => {
+        if (!prev) return prev;
+        return {
+          ...prev,
+          results: prev.results.map((o) =>
+            o.id === order_id ? { ...o, status } : o,
+          ),
+        };
+      });
+
+      // Also patch the individual order cache if it's loaded
+      queryClient.setQueryData<Record<string, unknown>>(['order', order_id], (prev) => {
+        if (!prev) return prev;
+        return { ...prev, status };
+      });
+
+      // Full refetch in background to get timestamps etc.
+      queryClient.invalidateQueries({ queryKey: ['orders', 'home'] });
+      queryClient.invalidateQueries({ queryKey: ['orders'] });
+    },
+    [queryClient],
+  );
+
+  const hasActiveOrder = (data?.results ?? []).some(
+    (o: any) => !['PICKED_UP', 'CANCELLED'].includes(o.status),
+  );
+
+  useUserSocket({
+    accessToken,
+    wsBaseUrl: env.wsBaseUrl,
+    onMessage: onWsMessage,
+    enabled: !!accessToken && isAuthenticated && hasActiveOrder,
   });
 
   if (!hasHydrated || !isAuthenticated) return null;
@@ -88,7 +147,7 @@ export default function HomeScreen() {
       {activeOrder && (
         <Pressable
           style={styles.activeOrderWrap}
-          onPress={() => {}}
+          onPress={() => router.push(`/order/${activeOrder.id}`)}
         >
           <Card tone="powder" padding="md" radius="card">
             <View style={styles.activeOrderRow}>
@@ -143,7 +202,7 @@ export default function HomeScreen() {
         )}
 
         {recentOrders.map((order: any) => (
-          <Pressable key={order.id} style={styles.orderCard} onPress={() => {}}>
+          <Pressable key={order.id} style={styles.orderCard} onPress={() => router.push(`/order/${order.id}`)}>
             <Card tone="default" padding="md" radius="card">
               <View style={styles.orderCardHeader}>
                 <View style={{ flex: 1 }}>
