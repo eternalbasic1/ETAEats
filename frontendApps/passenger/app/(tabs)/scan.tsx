@@ -8,7 +8,6 @@ import {
   ScrollView,
   Animated,
   Linking,
-  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Button } from '@eta/ui-components';
@@ -457,48 +456,45 @@ function EnterPanel({ chars, inputRefs, onCharChange, onKeyPress, onSubmit }: En
           </View>
         </View>
 
-        {/* Progress dots */}
-        <View style={styles.progressRow}>
-          {Array.from({ length: TOKEN_LENGTH }).map((_, i) => (
-            <View
-              key={i}
-              style={[
-                styles.progressDot,
-                {
-                  backgroundColor:
-                    i < filled ? t.colors.primary : t.colors.borderStrong,
-                  transform: [{ scale: i < filled ? 1 : 0.7 }],
-                },
-              ]}
-            />
-          ))}
-        </View>
-
-        {/* Code boxes */}
+        {/* Code tiles — square, same pattern as OTP screen */}
         <View style={styles.codeRow}>
-          {Array.from({ length: TOKEN_LENGTH }).map((_, i) => (
-            <TextInput
-              key={i}
-              ref={(ref) => { inputRefs.current[i] = ref; }}
-              value={chars[i] || ''}
-              onChangeText={(text) => onCharChange(i, text)}
-              onKeyPress={({ nativeEvent }) => onKeyPress(i, nativeEvent.key)}
-              maxLength={TOKEN_LENGTH}
-              autoCapitalize="characters"
-              autoCorrect={false}
-              keyboardType={Platform.OS === 'ios' ? 'default' : 'visible-password'}
-              style={[
-                styles.codeBox,
-                {
-                  backgroundColor: chars[i] ? t.colors.accentPowderBlue + '22' : t.colors.surface2,
-                  borderColor: chars[i] ? t.colors.primary : t.colors.border,
-                  color: t.colors.textPrimary,
-                },
-              ]}
-              selectTextOnFocus
-              accessibilityLabel={`Character ${i + 1} of ${TOKEN_LENGTH}`}
-            />
-          ))}
+          {Array.from({ length: TOKEN_LENGTH }).map((_, i) => {
+            const isFilled = !!chars[i];
+            const isActive = filled === i || (filled >= TOKEN_LENGTH && i === TOKEN_LENGTH - 1);
+            return (
+              <View
+                key={i}
+                style={[
+                  styles.codeTile,
+                  {
+                    backgroundColor: t.colors.surface,
+                    borderColor: isActive
+                      ? t.colors.primary
+                      : isFilled
+                        ? t.colors.borderStrong
+                        : t.colors.border,
+                    borderWidth: isActive ? 2 : 1.5,
+                  },
+                ]}
+              >
+                <TextInput
+                  ref={(ref) => { inputRefs.current[i] = ref; }}
+                  value={chars[i] || ''}
+                  onChangeText={(text) => onCharChange(i, text)}
+                  onKeyPress={({ nativeEvent }) => onKeyPress(i, nativeEvent.key)}
+                  maxLength={1}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  spellCheck={false}
+                  keyboardType="default"
+                  caretHidden
+                  selectTextOnFocus
+                  style={[styles.codeInput, { color: t.colors.textPrimary }]}
+                  accessibilityLabel={`Character ${i + 1} of ${TOKEN_LENGTH}`}
+                />
+              </View>
+            );
+          })}
         </View>
 
         {/* Hint */}
@@ -700,6 +696,7 @@ export default function ScanScreen() {
 const VIEWFINDER_SIZE = 240;
 const CORNER_SIZE = 24;
 const CORNER_THICKNESS = 3;
+const CODE_TILE_SIZE = 52;
 
 const styles = StyleSheet.create({
   // ── Screen
@@ -798,7 +795,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
-    marginBottom: 16,
+    marginBottom: 20,
   },
   enterIconCircle: {
     width: 40,
@@ -807,30 +804,31 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  progressRow: {
-    flexDirection: 'row',
-    gap: 6,
-    marginBottom: 14,
-    paddingHorizontal: 2,
-  },
-  progressDot: {
-    flex: 1,
-    height: 4,
-    borderRadius: 999,
-  },
+
+  // ── Code tiles (matches OTP tile style)
   codeRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 7,
+    gap: 10,
   },
-  codeBox: {
+  codeTile: {
     flex: 1,
-    height: 54,
+    height: CODE_TILE_SIZE,
     borderRadius: 12,
-    borderWidth: 1.5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  codeInput: {
+    width: CODE_TILE_SIZE,
+    height: CODE_TILE_SIZE,
     textAlign: 'center',
+    fontFamily: 'Lora_700Bold',
     fontSize: 22,
     fontWeight: '700',
+    letterSpacing: 0,
+    includeFontPadding: false,
+    textAlignVertical: 'center',
+    backgroundColor: 'transparent',
     textTransform: 'uppercase',
   },
   hintRow: {
