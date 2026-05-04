@@ -122,16 +122,23 @@ export default function HomeScreen() {
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: t.colors.bg }]}
+      style={[styles.scrollView, { backgroundColor: t.colors.bg }]}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 100 }]}
     >
-      {/* Sky block — explicit sky bg, bleeds full width */}
+      {/* Sky-colored overscroll fill — sits above content via large negative
+          marginTop. Only visible when iOS bounces past the top edge. */}
+      <View
+        style={[styles.skyOverscrollPanel, { backgroundColor: skyColor }]}
+        pointerEvents="none"
+      />
+
+      {/* Sky-colored header block — matches JourneyCard sky seamlessly */}
       <View style={[styles.skyBlock, { backgroundColor: skyColor, marginTop: -(insets.top + 16), paddingTop: insets.top + 16 }]}>
-        <Text style={{ ...t.typography.label, color: skyColor === '#0F172A' ? 'rgba(255,255,255,0.5)' : t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
-          Good to see you, {firstName}
-        </Text>
-        <JourneyCard />
-      </View>
+          <Text style={{ ...t.typography.label, color: skyColor === '#0F172A' ? 'rgba(255,255,255,0.5)' : t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
+            Good to see you, {firstName}
+          </Text>
+          <JourneyCard />
+        </View>
 
       {/* CTAs */}
       <View style={styles.ctaRow}>
@@ -245,6 +252,16 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  // Positioned above the scroll content via negative top.
+  // Only visible during iOS top overscroll bounce — never overlaps real UI.
+  skyOverscrollPanel: {
+    position: 'absolute',
+    top: -500,
+    left: 0,
+    right: 0,
+    height: 500,
+  },
+  scrollView: { flex: 1 },
   content: { paddingHorizontal: 20 },
   skyBlock: {
     marginHorizontal: -20,
