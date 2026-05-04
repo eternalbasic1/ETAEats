@@ -4,7 +4,8 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@eta/ui-components';
-import { passengerTheme } from '../theme/passengerTheme';
+import { passengerTheme, passengerNightTheme } from '../theme/passengerTheme';
+import { useTimeOfDay } from '../hooks/useTimeOfDay';
 import { useAuthStore, setAppPrefix, tokenStore } from '@eta/auth';
 import { initEnv, getEnv } from '@eta/utils';
 import {
@@ -35,6 +36,8 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const hydrate = useAuthStore((s) => s.hydrate);
+  const { isNight } = useTimeOfDay();
+  const activeTheme = isNight ? passengerNightTheme : passengerTheme;
 
   const [fontsLoaded] = useFonts({
     Lora: Lora_400Regular,
@@ -104,16 +107,16 @@ export default function RootLayout() {
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider theme={passengerTheme}>
+      <ThemeProvider theme={activeTheme}>
         <QueryClientProvider client={queryClient}>
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: '#F5F5F2' },
+              contentStyle: { backgroundColor: isNight ? '#0F172A' : '#F5F5F2' },
               animation: 'slide_from_right',
             }}
           />
-          <StatusBar style="dark" />
+          <StatusBar style={isNight ? 'light' : 'dark'} />
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>

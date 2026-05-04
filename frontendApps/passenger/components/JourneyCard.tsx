@@ -78,13 +78,13 @@ const NightSky = () => (
       <Stop offset="0.6" stopColor="#1E293B" stopOpacity="1" />
       <Stop offset="1"   stopColor="#334155" stopOpacity="1" />
     </LinearGradient>
-    {/* Bottom fade — smooth ease-in curve */}
+    {/* Bottom fade — fades to the night bg color #0F172A */}
     <LinearGradient id="nightFade" x1="0" y1="0" x2="0" y2="1">
-      <Stop offset="0"    stopColor="#F5F5F2" stopOpacity="0"    />
-      <Stop offset="0.3"  stopColor="#F5F5F2" stopOpacity="0.08" />
-      <Stop offset="0.6"  stopColor="#F5F5F2" stopOpacity="0.4"  />
-      <Stop offset="0.85" stopColor="#F5F5F2" stopOpacity="0.82" />
-      <Stop offset="1"    stopColor="#F5F5F2" stopOpacity="1"    />
+      <Stop offset="0"    stopColor="#0F172A" stopOpacity="0"    />
+      <Stop offset="0.3"  stopColor="#0F172A" stopOpacity="0.08" />
+      <Stop offset="0.6"  stopColor="#0F172A" stopOpacity="0.4"  />
+      <Stop offset="0.85" stopColor="#0F172A" stopOpacity="0.82" />
+      <Stop offset="1"    stopColor="#0F172A" stopOpacity="1"    />
     </LinearGradient>
     {/* Street-lamp cone glow */}
     <RadialGradient id="lampGlow" cx="50%" cy="0%" r="100%" fx="50%" fy="0%">
