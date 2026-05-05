@@ -56,6 +56,15 @@ export const OrderItemSchema = z.object({
 
 export type OrderItem = z.infer<typeof OrderItemSchema>;
 
+export const ValidatePromoResponseSchema = z.object({
+  valid: z.boolean(),
+  discount_amount: z.string(),
+  final_total: z.string(),
+  message: z.string(),
+});
+
+export type ValidatePromoResponse = z.infer<typeof ValidatePromoResponseSchema>;
+
 export const OrderSchema = z.object({
   id: z.string(),
   passenger: z.string(),
@@ -66,6 +75,8 @@ export const OrderSchema = z.object({
   status: OrderStatusSchema,
   payment_status: PaymentStatusSchema,
   total_amount: z.string(),
+  promo_code: z.string().optional().default(''),
+  discount_amount: z.string().optional().default('0.00'),
   items: z.array(OrderItemSchema),
   razorpay_order_id: z.string(),
   razorpay_payment_id: z.string(),

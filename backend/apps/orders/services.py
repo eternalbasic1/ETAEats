@@ -8,7 +8,8 @@ import logging
 from decimal import Decimal
 from typing import Iterable, Optional
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
+from django.db.models import F
 from django.utils import timezone
 
 from apps.accounts.exceptions import DomainError
@@ -149,7 +150,10 @@ def cart_total(cart: Cart) -> Decimal:
 # ---------- Order --------------------------------------------------------
 
 @transaction.atomic
-def checkout(cart: Cart, *, user: User, bus: Bus) -> Order:
+def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order:
+    from apps.promos.models import PromoCode, PromoRedemption
+    from apps.promos.services import check_promo_eligibility
+
     items: Iterable[CartItem] = list(cart.items.select_related('menu_item'))
     if not items:
         raise DomainError('Cart is empty.', code='cart_empty')
@@ -158,11 +162,33 @@ def checkout(cart: Cart, *, user: User, bus: Bus) -> Order:
 
     total = sum((i.menu_item.price * i.quantity for i in items), start=Decimal('0.00'))
 
+    normalized_promo = (promo_code or '').upper().strip()
+    discount = Decimal('0.00')
+    payable = total
+    promo_locked: PromoCode | None = None
+
+    if normalized_promo:
+        try:
+            promo_locked = PromoCode.objects.select_for_update().get(code=normalized_promo)
+        except PromoCode.DoesNotExist:
+            raise DomainError('Invalid promo code.', code='promo_invalid')
+
+        check_promo_eligibility(
+            promo_locked,
+            cart_total=total,
+            user=user,
+            restaurant_id=cart.restaurant_id,
+        )
+        discount = promo_locked.calculate_discount(total)
+        payable = total - discount
+
     order = Order.objects.create(
         passenger=user,
         bus=bus,
         restaurant=cart.restaurant,
-        total_amount=total,
+        total_amount=payable,
+        promo_code=normalized_promo if normalized_promo else '',
+        discount_amount=discount,
     )
     OrderItem.objects.bulk_create([
         OrderItem(
@@ -174,6 +200,22 @@ def checkout(cart: Cart, *, user: User, bus: Bus) -> Order:
         )
         for i in items
     ])
+
+    if promo_locked is not None:
+        try:
+            PromoRedemption.objects.create(
+                promo_code=promo_locked,
+                user=user,
+                order=order,
+                discount_applied=discount,
+            )
+        except IntegrityError:
+            raise DomainError(
+                'You have already used this promo code.',
+                code='promo_already_used',
+            )
+        PromoCode.objects.filter(pk=promo_locked.pk).update(used_count=F('used_count') + 1)
+
     # Clear the cart after checkout
     cart.items.all().delete()
     clear_cart_context_if_empty(cart)
