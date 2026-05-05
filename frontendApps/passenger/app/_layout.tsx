@@ -6,6 +6,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@eta/ui-components';
 import { passengerTheme, passengerNightTheme } from '../theme/passengerTheme';
 import { useTimeOfDay } from '../hooks/useTimeOfDay';
+import { useVersionCheck } from '../hooks/useVersionCheck';
+import ForceUpdateScreen from '../components/ForceUpdateScreen';
 import { useAuthStore, setAppPrefix, tokenStore } from '@eta/auth';
 import { initEnv, getEnv } from '@eta/utils';
 import {
@@ -38,6 +40,7 @@ export default function RootLayout() {
   const hydrate = useAuthStore((s) => s.hydrate);
   const { isNight } = useTimeOfDay();
   const activeTheme = isNight ? passengerNightTheme : passengerTheme;
+  const { isLoading: versionCheckLoading, forceUpdate, updateMessage, androidStoreUrl, iosStoreUrl } = useVersionCheck();
 
   const [fontsLoaded] = useFonts({
     Lora: Lora_400Regular,
@@ -88,7 +91,7 @@ export default function RootLayout() {
         if (state.isAuthenticated && !state.user) {
           try {
             const { data: me } = await authEndpoints.me();
-            useAuthStore.getState().setUser(me);
+            useAuthStore.getState().setUser(me as any);
           } catch {
             await useAuthStore.getState().clearAuth();
           }
@@ -103,7 +106,9 @@ export default function RootLayout() {
     bootstrap();
   }, [hydrate]);
 
-  if (!ready || !fontsLoaded) return null;
+  if (!ready || !fontsLoaded || versionCheckLoading) return null;
+
+  if (forceUpdate) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
 
   return (
     <SafeAreaProvider>

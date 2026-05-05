@@ -14,6 +14,8 @@ import {
 } from '@eta/api-client';
 import Constants from 'expo-constants';
 import * as SplashScreen from 'expo-splash-screen';
+import { useVersionCheck } from '../hooks/useVersionCheck';
+import ForceUpdateScreen from '../components/ForceUpdateScreen';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +28,7 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const hydrate = useAuthStore((s) => s.hydrate);
+  const { isLoading: versionCheckLoading, forceUpdate, updateMessage, androidStoreUrl, iosStoreUrl } = useVersionCheck();
 
   useEffect(() => {
     async function bootstrap() {
@@ -80,7 +83,9 @@ export default function RootLayout() {
     bootstrap();
   }, [hydrate]);
 
-  if (!ready) return null;
+  if (!ready || versionCheckLoading) return null;
+
+  if (forceUpdate) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
 
   return (
     <SafeAreaProvider>

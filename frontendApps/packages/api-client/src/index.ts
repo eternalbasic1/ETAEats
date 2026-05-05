@@ -13,3 +13,5 @@ export { fleetEndpoints } from './endpoints/fleet';
 export { paymentEndpoints } from './endpoints/payments';
 export type { RazorpayOrderResponse, RazorpayConfirmPayload } from './endpoints/payments';
 export { notificationEndpoints } from './endpoints/notifications';
+export { appConfigEndpoints } from './endpoints/appConfig';
+export type { VersionCheckParams, VersionCheckResponse } from './endpoints/appConfig';
