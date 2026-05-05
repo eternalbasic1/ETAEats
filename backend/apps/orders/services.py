@@ -216,9 +216,9 @@ def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order
             )
         PromoCode.objects.filter(pk=promo_locked.pk).update(used_count=F('used_count') + 1)
 
-    # Clear the cart after checkout
-    cart.items.all().delete()
-    clear_cart_context_if_empty(cart)
+    # Cart items are intentionally kept here so the user can recover them
+    # if payment is cancelled or fails. The cart is cleared in mark_payment()
+    # once payment is confirmed as CAPTURED.
     return order
 
 
@@ -296,4 +296,9 @@ def mark_payment(order: Order, *, status: str, razorpay_payment_id: str = '') ->
     order.save(update_fields=['payment_status', 'razorpay_payment_id', 'updated_at'])
     if status == PaymentStatus.CAPTURED and order.status == OrderStatus.PENDING:
         advance_status(order, OrderStatus.CONFIRMED)
+        # Payment confirmed — now safe to clear the cart so the user starts fresh.
+        cart = Cart.objects.filter(user=order.passenger).first()
+        if cart:
+            cart.items.all().delete()
+            clear_cart_context_if_empty(cart)
     return order

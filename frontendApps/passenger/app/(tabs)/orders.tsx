@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, Badge, EmptyState, Spinner } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
@@ -11,11 +11,18 @@ import { Package } from 'lucide-react-native';
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending', CONFIRMED: 'Confirmed', PREPARING: 'Preparing',
   READY: 'Ready', PICKED_UP: 'Picked up', CANCELLED: 'Cancelled',
+  PAYMENT_FAILED: 'Payment failed',
 };
 const STATUS_TONE: Record<string, 'cream' | 'powder' | 'peach' | 'mint' | 'neutral' | 'error'> = {
   PENDING: 'cream', CONFIRMED: 'powder', PREPARING: 'powder',
   READY: 'peach', PICKED_UP: 'mint', CANCELLED: 'error',
+  PAYMENT_FAILED: 'error',
 };
+
+function getDisplayStatus(order: any): string {
+  if (order.status === 'PENDING' && order.payment_status === 'FAILED') return 'PAYMENT_FAILED';
+  return order.status;
+}
 
 export default function OrdersScreen() {
   const t = useTheme();
@@ -26,11 +33,18 @@ export default function OrdersScreen() {
     if (hasHydrated && !isAuthenticated) router.replace('/(auth)/login');
   }, [hasHydrated, isAuthenticated]);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['orders'],
     queryFn: () => api.get('/orders/my/').then((r: any) => r.data),
     enabled: hasHydrated && isAuthenticated,
   });
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   if (!hasHydrated || !isAuthenticated) return null;
 
@@ -40,6 +54,7 @@ export default function OrdersScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: t.colors.bg }]}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 100 }]}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <Text style={{ ...t.typography.label, color: t.colors.textMuted }}>HISTORY</Text>
       <Text style={[styles.title, { ...t.typography.h1, color: t.colors.textPrimary }]}>
@@ -74,7 +89,7 @@ export default function OrdersScreen() {
                   })}
                 </Text>
               </View>
-              <Badge variant={STATUS_TONE[order.status] ?? 'neutral'} label={STATUS_LABEL[order.status] ?? order.status} />
+              <Badge variant={STATUS_TONE[getDisplayStatus(order)] ?? 'neutral'} label={STATUS_LABEL[getDisplayStatus(order)] ?? order.status} />
             </View>
             <Text style={{ ...t.typography.bodySm, color: t.colors.textTertiary, marginTop: 8 }} numberOfLines={2}>
               {order.items?.map((i: any) => `${i.menu_item_name} ×${i.quantity}`).join(' · ')}

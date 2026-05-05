@@ -51,6 +51,23 @@ class ConfirmRazorpayPaymentView(APIView):
         return Response(OrderSerializer(order).data)
 
 
+class CancelRazorpayPaymentView(APIView):
+    permission_classes = [IsAuthenticated, IsPassenger]
+
+    def post(self, request):
+        from apps.orders import services as order_services
+        from apps.orders.models import PaymentStatus
+
+        order_id = request.data.get('order_id')
+        if not order_id:
+            return Response({'error': {'code': 'validation_error', 'message': 'order_id is required.'}}, status=400)
+        order = get_object_or_404(Order, pk=order_id, passenger=request.user)
+        # Only mark as failed if still unpaid — don't overwrite a captured payment
+        if order.payment_status == PaymentStatus.UNPAID:
+            order_services.mark_payment(order, status=PaymentStatus.FAILED)
+        return Response(OrderSerializer(order).data)
+
+
 class RazorpayWebhookView(APIView):
     """
     Razorpay → us. Signature verified in service. We always 200 on receipt

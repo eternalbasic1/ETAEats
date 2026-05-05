@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, RefreshControl } from 'react-native';
 import { useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -33,7 +33,7 @@ export default function MenuTabScreen() {
   const restaurantId = restaurant ? String(restaurant.id) : null;
   const { cartId, items: cartItems, setCart, setItems } = useCartStore();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['menu', restaurantId],
     queryFn: () =>
       api.get(`/restaurants/menu-items/?restaurant=${restaurantId}&page_size=100`).then((r: any) => r.data),
@@ -41,6 +41,13 @@ export default function MenuTabScreen() {
   });
 
   const allItems = useMemo(() => data?.results ?? [], [data]);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   async function handleAdd(item: any) {
     if (!bus) return;
@@ -147,7 +154,9 @@ export default function MenuTabScreen() {
         </View>
       ) : null}
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: totalCartItems > 0 ? 160 : 100 }]}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: totalCartItems > 0 ? 160 : 100 }]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {isLoading && (
           <View style={styles.center}><Spinner /></View>
         )}

@@ -270,6 +270,14 @@ export default function CheckoutScreen() {
 
   function handlePaymentDismiss(reason: string) {
     setRpOptions(null);
+    const orderId = pendingOrderId;
+    setPendingOrderId(null);
+    // Mark the order as payment-failed on the backend so it doesn't sit as PENDING/UNPAID
+    if (orderId) {
+      api.post('/payments/razorpay/cancel/', { order_id: orderId }).catch(() => {
+        // Best-effort — if this fails the order stays UNPAID, which is acceptable
+      });
+    }
     if (reason !== 'User cancelled') {
       Alert.alert('Payment not completed', reason);
     }
