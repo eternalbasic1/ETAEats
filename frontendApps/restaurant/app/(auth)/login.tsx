@@ -27,22 +27,39 @@ export default function LoginScreen() {
 
   const { requestOTP, verifyOTP, loading } = useAuth({
     requestOtpFn: async (phoneNumber: string) => {
-      await authEndpoints.requestOtp({ phone_number: phoneNumber });
+      try {
+        await authEndpoints.requestOtp({ phone_number: phoneNumber });
+      } catch (e: any) {
+        setRoleError(e?.message ?? 'Not registered with us. Please contact support.');
+        throw e;
+      }
     },
     verifyOtpFn: async (phoneNumber: string, code: string) => {
-      const res = await authEndpoints.verifyOtp({ phone_number: phoneNumber, code });
-      return {
-        user: {
+      try {
+        const res = await authEndpoints.verifyOtp({ phone_number: phoneNumber, code, app_type: 'restaurant' });
+        const user = {
           id: res.data.user.id,
           phone_number: res.data.user.phone_number,
           role: res.data.user.role as any,
           full_name: res.data.user.full_name,
           email: res.data.user.email,
-          gender: res.data.user.gender,
-          memberships: res.data.user.memberships,
-        },
-        tokens: res.data.tokens,
-      };
+          gender: res.data.user.gender ?? '',
+          memberships: res.data.user.memberships ?? [],
+        };
+        if (user.role !== 'RESTAURANT_STAFF') {
+          setRoleError("You don't have access to this app. Please contact support.");
+          throw new Error('role_mismatch');
+        }
+        return { user, tokens: res.data.tokens };
+      } catch (e: any) {
+        // Interceptor transforms Axios errors into DomainError — read e.message directly
+        if (e?.code === 'role_mismatch' || e?.statusCode === 403) {
+          setRoleError(e?.message ?? "You don't have access to this app. Please contact support.");
+        } else if (e?.message && e?.message !== 'role_mismatch') {
+          setRoleError(e.message);
+        }
+        throw e;
+      }
     },
     logoutFn: async (refreshToken: string) => {
       await authEndpoints.logout(refreshToken).catch(() => {});
@@ -65,13 +82,7 @@ export default function LoginScreen() {
   const handleVerifyOTP = useCallback(
     async (code: string) => {
       setRoleError(null);
-      const result = await verifyOTP(phone, code);
-      if (result.success && result.user) {
-        if (result.user.role !== 'RESTAURANT_STAFF') {
-          setRoleError('This app is for restaurant staff only. Please use the correct app for your role.');
-          return;
-        }
-      }
+      await verifyOTP(phone, code);
     },
     [phone, verifyOTP],
   );

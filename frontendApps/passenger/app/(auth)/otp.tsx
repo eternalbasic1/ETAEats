@@ -29,8 +29,13 @@ export default function OTPScreen() {
       const res = await authEndpoints.verifyOtp({
         phone_number: `+91${phone}`,
         code: otp,
+        app_type: 'passenger',
       });
       const { user, tokens } = res.data;
+      if (user.role !== 'PASSENGER') {
+        setError("You don't have access to this app. Please contact support.");
+        return;
+      }
       await setAuth(
         {
           id: user.id,
@@ -38,19 +43,19 @@ export default function OTPScreen() {
           role: user.role as any,
           full_name: user.full_name,
           email: user.email,
-          gender: user.gender,
-          memberships: user.memberships,
+          gender: user.gender ?? '',
+          memberships: user.memberships ?? [],
         },
         tokens.access,
         tokens.refresh,
       );
       router.replace('/(tabs)/home');
     } catch (e: any) {
-      setError(
-        e?.response?.data?.error?.message
-          ?? e?.response?.data?.detail
-          ?? 'Invalid OTP. Try again.',
-      );
+      if (e?.statusCode === 403 || e?.code === 'role_mismatch') {
+        setError(e?.message ?? "You don't have access to this app. Please contact support.");
+      } else {
+        setError(e?.message ?? 'Invalid OTP. Try again.');
+      }
     } finally {
       setLoading(false);
     }

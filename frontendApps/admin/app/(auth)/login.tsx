@@ -30,11 +30,7 @@ export default function AdminLoginScreen() {
       await authEndpoints.requestOtp({ phone_number: `+91${phone}` });
       setStep('otp');
     } catch (e: any) {
-      setError(
-        e?.response?.data?.error?.message
-          ?? e?.response?.data?.detail
-          ?? 'Could not send OTP. Try again.',
-      );
+      setError(e?.message ?? 'Could not send OTP. Try again.');
     } finally {
       setLoading(false);
     }
@@ -48,10 +44,11 @@ export default function AdminLoginScreen() {
       const res = await authEndpoints.verifyOtp({
         phone_number: `+91${phone}`,
         code: otp,
+        app_type: 'admin',
       });
       const { user, tokens } = res.data;
 
-      if (user.role !== 'ADMIN') {
+      if (user.role !== 'ADMIN' && user.role !== 'BUS_OPERATOR') {
         setRejectedRole(user.role);
         setStep('role_error');
         return;
@@ -72,11 +69,11 @@ export default function AdminLoginScreen() {
       );
       router.replace('/(dashboard)/overview');
     } catch (e: any) {
-      setError(
-        e?.response?.data?.error?.message
-          ?? e?.response?.data?.detail
-          ?? 'Invalid OTP. Try again.',
-      );
+      if (e?.statusCode === 403 || e?.code === 'role_mismatch') {
+        setError(e?.message ?? "You don't have access to this app. Please contact support.");
+      } else {
+        setError(e?.message ?? 'Invalid OTP. Try again.');
+      }
     } finally {
       setLoading(false);
     }

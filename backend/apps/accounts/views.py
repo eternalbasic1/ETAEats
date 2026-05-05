@@ -49,7 +49,8 @@ class VerifyOTPView(APIView):
         serializer.is_valid(raise_exception=True)
         phone = str(serializer.validated_data['phone_number'])
         code = serializer.validated_data['code']
-        user = services.verify_otp(phone, code)
+        app_type = serializer.validated_data['app_type']
+        user = services.verify_otp(phone, code, app_type=app_type)
         tokens = services.issue_tokens(user)
         return Response(
             {'user': UserSerializer(user).data, 'tokens': tokens},

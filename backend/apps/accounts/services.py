@@ -18,8 +18,14 @@ from django.db import transaction
 from django.utils import timezone
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .exceptions import OTPError
+from .exceptions import OTPError, RoleMismatchError
 from .models import OTPCode, OTPPurpose, User, UserRole
+
+ALLOWED_ROLES: dict[str, list[str]] = {
+    'passenger':  [UserRole.PASSENGER],
+    'restaurant': [UserRole.RESTAURANT_STAFF],
+    'admin':      [UserRole.ADMIN, UserRole.BUS_OPERATOR],
+}
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +54,7 @@ def request_otp(phone_number: str, purpose: str = OTPPurpose.LOGIN) -> OTPCode:
     if purpose == OTPPurpose.LOGIN:
         if not User.objects.filter(phone_number=phone_number).exists():
             raise OTPError(
-                'No account found. Please sign up.',
+                'No account found. Please contact Support.',
                 code='user_not_found',
             )
 
@@ -100,6 +106,7 @@ def verify_otp(
     phone_number: str,
     code: str,
     purpose: str = OTPPurpose.LOGIN,
+    app_type: str | None = None,
 ) -> User:
     """
     Verify an OTP and return the matching User (created on first login
@@ -135,6 +142,15 @@ def verify_otp(
     user = User.objects.filter(phone_number=phone_number).first()
     if user is None:
         raise OTPError('No account for this phone number.', code='user_not_found')
+
+    # Role check — after OTP is consumed, before tokens are issued
+    if app_type is not None:
+        allowed = ALLOWED_ROLES.get(app_type, [])
+        if user.role not in allowed:
+            raise RoleMismatchError(
+                "You don't have access to this app. Please contact support.",
+                code='role_mismatch',
+            )
 
     user.last_login_at = now
     user.save(update_fields=['last_login_at'])
