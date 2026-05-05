@@ -9,8 +9,9 @@ import { router } from 'expo-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useFocusEffect } from 'expo-router';
 import { useUserSocket } from '@eta/realtime';
-import { Package, ArrowRight } from 'lucide-react-native';
+import { Package, ArrowRight, ShoppingCart } from 'lucide-react-native';
 import { JourneyCard, getSkyTopColor } from '../../components/JourneyCard';
+import { useCartStore } from '../../stores/cart.store';
 const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending',
   CONFIRMED: 'Confirmed',
@@ -143,6 +144,7 @@ export default function HomeScreen() {
   const orders = data?.results ?? [];
   const activeOrder = orders.find(isOrderActive);
   const recentOrders = orders.slice(0, 4);
+  const totalCartItems = useCartStore((s) => s.totalItems());
 
   return (
     <ScrollView
@@ -159,9 +161,24 @@ export default function HomeScreen() {
 
       {/* Sky-colored header block — matches JourneyCard sky seamlessly */}
       <View style={[styles.skyBlock, { backgroundColor: skyColor, marginTop: -(insets.top + 16), paddingTop: insets.top + 16 }]}>
-          <Text style={{ ...t.typography.label, color: skyColor === '#0F172A' ? 'rgba(255,255,255,0.5)' : t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
-            Good to see you, {firstName}
-          </Text>
+          <View style={styles.skyBlockHeader}>
+            <Text style={{ ...t.typography.label, color: skyColor === '#0F172A' ? 'rgba(255,255,255,0.5)' : t.colors.textMuted, textTransform: 'uppercase', letterSpacing: 1, paddingHorizontal: 4 }}>
+              Good to see you, {firstName}
+            </Text>
+            {totalCartItems > 0 && (
+              <Pressable
+                onPress={() => router.push('/cart')}
+                style={styles.cartBtn}
+                accessibilityLabel={`Cart, ${totalCartItems} item${totalCartItems > 1 ? 's' : ''}`}
+                accessibilityRole="button"
+              >
+                <ShoppingCart size={16} color="#1F2937" strokeWidth={2} />
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{totalCartItems > 99 ? '99+' : totalCartItems}</Text>
+                </View>
+              </Pressable>
+            )}
+          </View>
           <JourneyCard />
         </View>
 
@@ -294,6 +311,38 @@ const styles = StyleSheet.create({
     marginHorizontal: -20,
     paddingHorizontal: 20,
     paddingBottom: 0,
+  },
+  skyBlockHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    marginBottom: 0,
+  },
+  cartBtn: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: 'rgba(255,255,255,0.5)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: -2,
+    right: -2,
+    minWidth: 16,
+    height: 16,
+    borderRadius: 8,
+    backgroundColor: '#EF4444',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 2,
+  },
+  cartBadgeText: {
+    fontSize: 9,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
   heroTitle: { marginTop: 12, maxWidth: 340 },
   heroSub: { marginTop: 12, maxWidth: 360 },
