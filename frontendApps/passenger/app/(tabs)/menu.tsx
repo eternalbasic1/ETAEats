@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, Spinner, EmptyState, Button } from '@eta/ui-components';
 import { api } from '@eta/api-client';
@@ -15,6 +17,17 @@ export default function MenuTabScreen() {
   const insets = useSafeAreaInsets();
   const activeJourney = useJourneyStore((s) => s.activeJourney);
   const touchJourney = useJourneyStore((s) => s.touchJourney);
+  const invalidateIfExpired = useJourneyStore((s) => s.invalidateIfExpired);
+  const clearCart = useCartStore((s) => s.clearCart);
+
+  // Check expiry every time the menu tab comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      const expired = invalidateIfExpired();
+      if (expired) clearCart();
+    }, [invalidateIfExpired, clearCart]),
+  );
+
   const bus = activeJourney?.bus ?? null;
   const restaurant = activeJourney?.restaurant ?? null;
   const restaurantId = restaurant ? String(restaurant.id) : null;
