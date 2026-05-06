@@ -3,6 +3,8 @@ from phonenumber_field.serializerfields import PhoneNumberField
 
 from .models import Membership, User
 
+APP_TYPE_CHOICES = ['passenger', 'restaurant', 'admin']
+
 
 class OTPRequestSerializer(serializers.Serializer):
     phone_number = PhoneNumberField()
@@ -11,6 +13,16 @@ class OTPRequestSerializer(serializers.Serializer):
 class OTPVerifySerializer(serializers.Serializer):
     phone_number = PhoneNumberField()
     code = serializers.CharField(min_length=4, max_length=8)
+    app_type = serializers.ChoiceField(choices=APP_TYPE_CHOICES)
+
+
+class SignupSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+    full_name = serializers.CharField(required=True, min_length=2)
+
+    class Meta:
+        model = User
+        fields = ('phone_number', 'email', 'full_name')
 
 
 class TokenPairSerializer(serializers.Serializer):

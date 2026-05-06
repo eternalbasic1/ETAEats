@@ -67,6 +67,14 @@ class MenuItemViewSet(viewsets.ModelViewSet):
             ).distinct()
         return qs
 
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        # Auto-restore availability when restocked
+        qty = instance.quantity_available
+        if qty is not None and qty > 0 and not instance.is_available:
+            instance.is_available = True
+            instance.save(update_fields=['is_available'])
+
     def destroy(self, request, *args, **kwargs):
         """
         Soft-delete menu items so historical OrderItem rows (PROTECT FK) keep
@@ -101,8 +109,12 @@ class ScanBusQRView(APIView):
                 status=200,
             )
         menu = selectors.menu_for_restaurant(restaurant)
+        from datetime import timedelta
+        duration_hours = float(bus.route.estimated_duration_hours) if bus.route_id else 8.0
+        expires_at = timezone.now() + timedelta(hours=duration_hours)
         return Response({
             'bus': {'id': bus.id, 'name': bus.bus_name, 'number_plate': bus.number_plate},
             'restaurant': RestaurantSerializer(restaurant).data,
             'menu': MenuItemSerializer(menu, many=True).data,
+            'expires_at': expires_at.isoformat(),
         })

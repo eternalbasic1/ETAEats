@@ -32,7 +32,6 @@ export function Chip({ label, active = false, onPress, accessibilityLabel }: Chi
         style={[
           {
             ...t.typography.bodySm,
-            fontFamily: t.fontFamily.sans,
             fontWeight: active ? '600' : '500',
             color: active ? t.colors.textOnDark : t.colors.textPrimary,
           },

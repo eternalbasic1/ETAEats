@@ -83,7 +83,7 @@ function ScanHubInner() {
         <p className="text-label text-text-muted">Step 1</p>
         <h1 className="mt-2 text-h2 lg:text-h1 text-text-primary">Find your bus&rsquo;s QR</h1>
         <p className="mt-2 text-body-sm text-text-tertiary max-w-md">
-          Scan the sticker inside your bus — usually on the seat back or ceiling — or enter the 6-character code printed below it.
+          Scan the sticker inside your bus, usually on the seat back or ceiling or enter the 6-character code printed below it.
         </p>
 
         {fromMenu && (

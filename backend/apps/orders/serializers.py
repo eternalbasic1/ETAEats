@@ -58,7 +58,7 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = (
             'id', 'passenger', 'bus', 'bus_name', 'restaurant', 'restaurant_name',
-            'status', 'payment_status', 'total_amount', 'items',
+            'status', 'payment_status', 'total_amount', 'promo_code', 'discount_amount', 'items',
             'razorpay_order_id', 'razorpay_payment_id',
             'confirmed_at', 'ready_at', 'picked_up_at',
             'cancelled_reason', 'created_at', 'updated_at',
@@ -69,6 +69,7 @@ class OrderSerializer(serializers.ModelSerializer):
 class CheckoutSerializer(serializers.Serializer):
     cart_id = serializers.UUIDField()
     bus_id = serializers.IntegerField()
+    promo_code = serializers.CharField(required=False, allow_blank=True, default='')
 
 
 class AdvanceStatusSerializer(serializers.Serializer):

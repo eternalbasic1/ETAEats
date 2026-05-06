@@ -41,7 +41,6 @@ export function Badge({ label, variant = 'neutral' }: BadgeProps) {
         style={[
           {
             ...t.typography.label,
-            fontFamily: t.fontFamily.sans,
             color: v.text,
             letterSpacing: 0.44,
           },

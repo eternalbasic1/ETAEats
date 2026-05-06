@@ -1,11 +1,14 @@
-import { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator } from 'react-native';
+import { useEffect, useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, Button } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
-import { authEndpoints } from '@eta/api-client';
+import { api, authEndpoints } from '@eta/api-client';
 import { router } from 'expo-router';
 import { Phone, Mail, Shield, Info, LogOut } from 'lucide-react-native';
+
+import { useJourneyStore } from '../../stores/journey.store';
+import { useCartStore } from '../../stores/cart.store';
 
 export default function ProfileScreen() {
   const t = useTheme();
@@ -13,6 +16,8 @@ export default function ProfileScreen() {
   const { user, isAuthenticated, hasHydrated } = useAuthStore();
   const clearAuth = useAuthStore((s) => s.clearAuth);
   const setUser = useAuthStore((s) => s.setUser);
+  const clearCart = useCartStore((s) => s.clearCart);
+  const clearJourney = useJourneyStore((s) => s.clearJourney);
 
   useEffect(() => {
     if (hasHydrated && !isAuthenticated) router.replace('/(auth)/login');
@@ -23,6 +28,16 @@ export default function ProfileScreen() {
       authEndpoints.me().then(({ data }) => setUser(data)).catch(() => {});
     }
   }, [hasHydrated, isAuthenticated, user]);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const { data } = await authEndpoints.me();
+      setUser(data as any);
+    } catch {}
+    setRefreshing(false);
+  }, [setUser]);
 
   if (!hasHydrated || !isAuthenticated) return null;
 
@@ -39,6 +54,15 @@ export default function ProfileScreen() {
   const initial = fullName[0]?.toUpperCase() ?? '?';
 
   async function handleLogout() {
+    try {
+      const { data } = await api.get('/orders/cart/');
+      if (data?.items?.length) {
+        await Promise.all(data.items.map((item: any) => api.delete(`/orders/cart/items/${item.id}/`)));
+      }
+    } catch {}
+    
+    clearCart();
+    clearJourney();
     await clearAuth();
     router.replace('/(auth)/login');
   }
@@ -61,6 +85,7 @@ export default function ProfileScreen() {
     <ScrollView
       style={[styles.container, { backgroundColor: t.colors.bg }]}
       contentContainerStyle={[styles.content, { paddingTop: insets.top + 16, paddingBottom: 100 }]}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
       <Text style={{ ...t.typography.label, color: t.colors.textMuted }}>ACCOUNT</Text>
       <Text style={[styles.title, { ...t.typography.h1, color: t.colors.textPrimary }]}>

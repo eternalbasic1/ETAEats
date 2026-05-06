@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
+import { Platform, StyleSheet, View } from 'react-native';
 import { useAuthStore } from '@eta/auth';
-import { useTheme } from '@eta/ui-components';
+import { Spinner, useTheme } from '@eta/ui-components';
 
 export default function Index() {
   const { isAuthenticated, hasHydrated } = useAuthStore();
@@ -9,8 +9,11 @@ export default function Index() {
 
   if (!hasHydrated) {
     return (
-      <View style={[styles.container, { backgroundColor: t.colors.bg }]}>
-        <ActivityIndicator size="large" color={t.colors.primary} />
+      <View
+        style={[styles.container, { backgroundColor: t.colors.bg }]}
+        collapsable={Platform.OS === 'android' ? false : undefined}
+      >
+        <Spinner size="large" color="primary" />
       </View>
     );
   }

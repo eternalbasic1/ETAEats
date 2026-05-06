@@ -45,7 +45,6 @@ export function ConnectionBadge({ state }: ConnectionBadgeProps) {
       <Text
         style={{
           ...t.typography.caption,
-          fontFamily: t.fontFamily.sans,
           fontWeight: '600',
           color: c.text,
         }}

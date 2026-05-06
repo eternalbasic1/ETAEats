@@ -43,6 +43,13 @@ const menuItemSchema = z.object({
     ),
   category: z.number({ required_error: 'Category is required' }).positive(),
   is_available: z.boolean().default(true),
+  quantity_available: z
+    .string()
+    .optional()
+    .refine(
+      (v) => v === '' || v === undefined || (!isNaN(Number(v)) && Number(v) >= 0 && Number.isInteger(Number(v))),
+      'Enter 0 or a whole number',
+    ),
 });
 
 type MenuItemForm = z.infer<typeof menuItemSchema>;
@@ -61,6 +68,7 @@ interface MenuItemData {
   prep_time_minutes: number;
   is_available: boolean;
   category: number;
+  quantity_available?: number | null;
 }
 
 export default function MenuItemScreen() {
@@ -111,6 +119,7 @@ export default function MenuItemScreen() {
       prep_time_minutes: '',
       category: undefined as unknown as number,
       is_available: true,
+      quantity_available: '',
     },
   });
 
@@ -123,6 +132,7 @@ export default function MenuItemScreen() {
         prep_time_minutes: String(existingItem.prep_time_minutes),
         category: existingItem.category,
         is_available: existingItem.is_available,
+        quantity_available: existingItem.quantity_available != null ? String(existingItem.quantity_available) : '',
       });
     }
   }, [existingItem, reset]);
@@ -137,6 +147,7 @@ export default function MenuItemScreen() {
         category: data.category,
         restaurant: restaurantId!,
         is_available: data.is_available,
+        quantity_available: data.quantity_available === '' || data.quantity_available === undefined ? null : Number(data.quantity_available),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
@@ -154,6 +165,7 @@ export default function MenuItemScreen() {
         prep_time_minutes: Number(data.prep_time_minutes),
         category: data.category,
         is_available: data.is_available,
+        quantity_available: data.quantity_available === '' || data.quantity_available === undefined ? null : Number(data.quantity_available),
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['menuItems'] });
@@ -206,7 +218,7 @@ export default function MenuItemScreen() {
           { backgroundColor: t.colors.bg },
         ]}
       >
-        <Spinner size="lg" />
+        <Spinner size="large" />
       </View>
     );
   }
@@ -360,6 +372,25 @@ export default function MenuItemScreen() {
                 )}
               />
             </View>
+          </View>
+
+          <View style={styles.fieldGroup}>
+            <Controller
+              control={control}
+              name="quantity_available"
+              render={({ field: { onChange, onBlur, value } }) => (
+                <Input
+                  label="STOCK QTY"
+                  placeholder="Leave blank for unlimited"
+                  value={value ?? ''}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  error={errors.quantity_available?.message}
+                  keyboardType="number-pad"
+                  hint="units available (blank = unlimited)"
+                />
+              )}
+            />
           </View>
 
           {/* Category picker */}

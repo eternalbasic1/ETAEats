@@ -43,6 +43,7 @@ export default function ScanResolveScreen() {
             address: data.restaurant.address || '',
             hygieneRating: data.restaurant.hygiene_rating || null,
           },
+          expiresAt: data.expires_at,
           source: 'manual',
         });
 

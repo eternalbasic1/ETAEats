@@ -31,6 +31,11 @@ class OTPError(DomainError):
     code = 'otp_error'
 
 
+class RoleMismatchError(DomainError):
+    status_code = 403
+    code = 'role_mismatch'
+
+
 def api_exception_handler(exc, context):
     if isinstance(exc, DomainError):
         return Response(

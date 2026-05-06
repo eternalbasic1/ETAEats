@@ -4,6 +4,10 @@ import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { ThemeProvider } from '@eta/ui-components';
+import { passengerTheme, passengerNightTheme } from '../theme/passengerTheme';
+import { useTimeOfDay } from '../hooks/useTimeOfDay';
+import { useVersionCheck } from '../hooks/useVersionCheck';
+import ForceUpdateScreen from '../components/ForceUpdateScreen';
 import { useAuthStore, setAppPrefix, tokenStore } from '@eta/auth';
 import { initEnv, getEnv } from '@eta/utils';
 import {
@@ -14,6 +18,14 @@ import {
 } from '@eta/api-client';
 import Constants from 'expo-constants';
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
+import {
+  Lora_400Regular,
+  Lora_500Medium,
+  Lora_600SemiBold,
+  Lora_700Bold,
+  Lora_400Regular_Italic,
+} from '@expo-google-fonts/lora';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -26,6 +38,18 @@ const queryClient = new QueryClient({
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
   const hydrate = useAuthStore((s) => s.hydrate);
+  const { isNight } = useTimeOfDay();
+  const activeTheme = isNight ? passengerNightTheme : passengerTheme;
+  const { isLoading: versionCheckLoading, forceUpdate, updateMessage, androidStoreUrl, iosStoreUrl } = useVersionCheck();
+
+  const [fontsLoaded] = useFonts({
+    Lora: Lora_400Regular,
+    Lora_400Regular,
+    Lora_500Medium,
+    Lora_600SemiBold,
+    Lora_700Bold,
+    Lora_400Regular_Italic,
+  });
 
   useEffect(() => {
     async function bootstrap() {
@@ -67,7 +91,7 @@ export default function RootLayout() {
         if (state.isAuthenticated && !state.user) {
           try {
             const { data: me } = await authEndpoints.me();
-            useAuthStore.getState().setUser(me);
+            useAuthStore.getState().setUser(me as any);
           } catch {
             await useAuthStore.getState().clearAuth();
           }
@@ -82,20 +106,22 @@ export default function RootLayout() {
     bootstrap();
   }, [hydrate]);
 
-  if (!ready) return null;
+  if (!ready || !fontsLoaded || versionCheckLoading) return null;
+
+  if (forceUpdate) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
 
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
+      <ThemeProvider theme={activeTheme}>
         <QueryClientProvider client={queryClient}>
           <Stack
             screenOptions={{
               headerShown: false,
-              contentStyle: { backgroundColor: '#F5F5F2' },
+              contentStyle: { backgroundColor: isNight ? '#0F172A' : '#F5F5F2' },
               animation: 'slide_from_right',
             }}
           />
-          <StatusBar style="dark" />
+          <StatusBar style={isNight ? 'light' : 'dark'} />
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>

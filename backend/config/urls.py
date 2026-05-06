@@ -11,7 +11,9 @@ api_v1 = [
     path('restaurants/', include('apps.restaurants.urls')),
     path('orders/', include('apps.orders.urls')),
     path('payments/', include('apps.payments.urls')),
+    path('promos/', include('apps.promos.urls')),
     path('notifications/', include('apps.notifications.urls')),
+    path('app-config/', include('apps.appconfig.urls')),
 ]
 
 urlpatterns = [

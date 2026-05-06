@@ -10,6 +10,7 @@ import {
   UtensilsCrossed,
   Users,
   ChevronRight,
+  Tag,
 } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { useCallback } from 'react';
@@ -185,6 +186,27 @@ export default function OverviewScreen() {
               onPress={() => router.push('/(dashboard)/restaurants')}
             />
           </View>
+
+          <View style={styles.promoSection}>
+            <SectionHeader label="PASSENGER PROMOS" />
+          </View>
+          <Card tone="mint" padding="md" radius="card" border style={styles.promoInfoCard}>
+            <View style={styles.promoInfoRow}>
+              <View style={[styles.promoIcon, { backgroundColor: t.colors.surface }]}>
+                <Tag size={20} color={t.colors.accentMutedMintInk} strokeWidth={1.8} />
+              </View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={{ ...t.typography.body, color: t.colors.textPrimary, fontWeight: '600' }}>
+                  Promo codes at checkout
+                </Text>
+                <Text style={{ ...t.typography.bodySm, color: t.colors.textTertiary, marginTop: 6 }}>
+                  Passengers apply codes in the ETA Eats app on the checkout screen. Percentage and flat
+                  discounts are validated in real time. Create, schedule, and cap redemptions in Django
+                  Admin under Promos → Promo codes.
+                </Text>
+              </View>
+            </View>
+          </Card>
         </>
       )}
     </ScrollView>
@@ -222,5 +244,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 12,
+  },
+  promoSection: { marginTop: 16 },
+  promoInfoCard: { marginTop: 4 },
+  promoInfoRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
+  promoIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

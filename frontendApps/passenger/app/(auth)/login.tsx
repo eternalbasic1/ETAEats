@@ -6,6 +6,7 @@ import { Button, Input, Card } from '@eta/ui-components';
 import { useTheme } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
 import { authEndpoints } from '@eta/api-client';
+import Logo from '../../assets/logo.svg';
 
 function formatPhoneDisplay(digits: string): string {
   const clean = digits.replace(/\D/g, '').slice(0, 10);
@@ -38,10 +39,15 @@ export default function LoginScreen() {
       await authEndpoints.requestOtp({ phone_number: `+91${digits}` });
       router.push({ pathname: '/(auth)/otp', params: { phone: digits } });
     } catch (e: any) {
+      const errCode = e?.response?.data?.error?.code;
+      if (errCode === 'user_not_found') {
+        router.push({ pathname: '/(auth)/signup', params: { phone: digits } });
+        return;
+      }
       setError(
         e?.response?.data?.error?.message
           ?? e?.response?.data?.detail
-          ?? 'Could not send OTP. Try again.',
+          ?? 'User not Found. Please Register',
       );
     } finally {
       setLoading(false);
@@ -61,9 +67,7 @@ export default function LoginScreen() {
         >
           {/* Brand */}
           <View style={styles.brand}>
-            <Text style={{ ...t.typography.h2, color: t.colors.textPrimary, fontWeight: '700' }}>
-              ETA Eats
-            </Text>
+            <Logo width={140} height={140} />
           </View>
 
           {/* Form card */}
@@ -103,6 +107,16 @@ export default function LoginScreen() {
               loading={loading}
               fullWidth
               size="lg"
+            />
+
+            <Button
+              label="New User? Create account"
+              variant="secondary"
+              onPress={() => router.push({ pathname: '/(auth)/signup', params: { phone: digits } })}
+              disabled={loading}
+              fullWidth
+              size="lg"
+              style={{ marginTop: 12 }}
             />
 
             <Text style={[styles.footer, { ...t.typography.caption, color: t.colors.textMuted }]}>

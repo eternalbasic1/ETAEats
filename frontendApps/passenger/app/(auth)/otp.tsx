@@ -6,6 +6,7 @@ import { Button, Card } from '@eta/ui-components';
 import { useTheme } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
 import { authEndpoints } from '@eta/api-client';
+import Logo from '../../assets/logo.svg';
 
 export default function OTPScreen() {
   const t = useTheme();
@@ -28,8 +29,13 @@ export default function OTPScreen() {
       const res = await authEndpoints.verifyOtp({
         phone_number: `+91${phone}`,
         code: otp,
+        app_type: 'passenger',
       });
       const { user, tokens } = res.data;
+      if (user.role !== 'PASSENGER') {
+        setError("You don't have access to this app. Please contact support.");
+        return;
+      }
       await setAuth(
         {
           id: user.id,
@@ -37,19 +43,19 @@ export default function OTPScreen() {
           role: user.role as any,
           full_name: user.full_name,
           email: user.email,
-          gender: user.gender,
-          memberships: user.memberships,
+          gender: user.gender ?? '',
+          memberships: user.memberships ?? [],
         },
         tokens.access,
         tokens.refresh,
       );
       router.replace('/(tabs)/home');
     } catch (e: any) {
-      setError(
-        e?.response?.data?.error?.message
-          ?? e?.response?.data?.detail
-          ?? 'Invalid OTP. Try again.',
-      );
+      if (e?.statusCode === 403 || e?.code === 'role_mismatch') {
+        setError(e?.message ?? "You don't have access to this app. Please contact support.");
+      } else {
+        setError(e?.message ?? 'Invalid OTP. Try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -103,9 +109,7 @@ export default function OTPScreen() {
         >
           <Card tone="default" padding="lg" radius="card" border>
             {/* Brand */}
-            <Text style={{ ...t.typography.h4, color: t.colors.textPrimary, fontWeight: '700' }}>
-              ETA Eats
-            </Text>
+            <Logo width={80} height={80} />
             <Text style={{ ...t.typography.caption, color: t.colors.textMuted, marginTop: 2 }}>
               Secure passenger sign-in
             </Text>
@@ -125,34 +129,71 @@ export default function OTPScreen() {
               </Text>
             </View>
 
-            {/* OTP boxes */}
+            {/* OTP tiles */}
             <View style={styles.otpRow}>
-              {Array.from({ length: 6 }).map((_, i) => (
-                <TextInput
-                  key={i}
-                  ref={(ref) => { inputRefs.current[i] = ref; }}
-                  value={otpChars[i] || ''}
-                  onChangeText={(text) => handleOtpChange(i, text)}
-                  onKeyPress={({ nativeEvent }) => handleOtpKeyPress(i, nativeEvent.key)}
-                  keyboardType="number-pad"
-                  maxLength={1}
-                  autoFocus={i === 0}
-                  style={[
-                    styles.otpBox,
-                    {
-                      backgroundColor: t.colors.surface2,
-                      borderColor: otpChars[i] ? t.colors.primary : t.colors.border,
-                      color: t.colors.textPrimary,
-                    },
-                  ]}
-                  selectTextOnFocus
-                />
-              ))}
+              {Array.from({ length: 6 }).map((_, i) => {
+                const isFilled  = !!otpChars[i];
+                // active = the next empty slot; if all filled, last cell stays active
+                const isActive  = !error && (otp.length === i || (otp.length >= 6 && i === 5));
+                const isError   = !!error;
+                return (
+                  <View
+                    key={i}
+                    style={[
+                      styles.otpTile,
+                      {
+                        backgroundColor: t.colors.surface,
+                        borderColor: isError
+                          ? t.colors.errorFg
+                          : isActive
+                            ? t.colors.primary
+                            : isFilled
+                              ? t.colors.borderStrong
+                              : t.colors.border,
+                        borderWidth: isActive ? 2 : 1.5,
+                      },
+                    ]}
+                  >
+                    <TextInput
+                      ref={(ref) => { inputRefs.current[i] = ref; }}
+                      value={otpChars[i] || ''}
+                      onChangeText={(text) => handleOtpChange(i, text)}
+                      onKeyPress={({ nativeEvent }) => handleOtpKeyPress(i, nativeEvent.key)}
+                      keyboardType="number-pad"
+                      maxLength={1}
+                      autoFocus={i === 0}
+                      caretHidden
+                      selectTextOnFocus
+                      style={[
+                        styles.otpInput,
+                        {
+                          color: isError ? t.colors.errorFg : t.colors.textPrimary,
+                          fontFamily: 'Lora_500Bold',
+                          fontSize: 24,
+                          fontWeight: '700',
+                          includeFontPadding: false,
+                          textAlignVertical: 'center',
+                        },
+                      ]}
+                      accessibilityLabel={`OTP digit ${i + 1}`}
+                    />
+                  </View>
+                );
+              })}
             </View>
 
-            {error ? (
-              <Text style={[styles.errorText, { color: '#B91C1C' }]}>{error}</Text>
-            ) : null}
+            {/* Status line below tiles */}
+            <View style={styles.statusRow}>
+              {error ? (
+                <Text style={[styles.statusText, { color: t.colors.errorFg }]}>
+                  {error}
+                </Text>
+              ) : loading ? (
+                <Text style={[styles.statusText, { color: t.colors.textMuted }]}>
+                  Verifying your OTP…
+                </Text>
+              ) : null}
+            </View>
 
             <Button
               label="Verify & continue"
@@ -161,16 +202,16 @@ export default function OTPScreen() {
               loading={loading}
               fullWidth
               size="lg"
-              style={{ marginTop: 24 }}
+              style={{ marginTop: 20 }}
             />
 
             <View style={styles.links}>
-              <Pressable onPress={handleResend} disabled={loading}>
-                <Text style={{ ...t.typography.bodySm, color: t.colors.textTertiary, fontWeight: '500' }}>
+              <Pressable onPress={handleResend} disabled={loading} hitSlop={10}>
+                <Text style={{ ...t.typography.bodySm, color: t.colors.primary, fontWeight: '600' }}>
                   Resend OTP
                 </Text>
               </Pressable>
-              <Pressable onPress={() => router.back()}>
+              <Pressable onPress={() => router.back()} hitSlop={10}>
                 <Text style={{ ...t.typography.bodySm, color: t.colors.textTertiary, fontWeight: '500' }}>
                   Change number
                 </Text>
@@ -183,35 +224,52 @@ export default function OTPScreen() {
   );
 }
 
+const TILE_SIZE = 52;
+
 const styles = StyleSheet.create({
   container: { flex: 1 },
   content: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 16 },
   mt3: { marginTop: 12 },
   mt2: { marginTop: 8 },
+
+  // ── OTP tiles
   otpRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginTop: 28,
+    gap: 10,
+    marginTop: 32,
   },
-  otpBox: {
+  otpTile: {
     flex: 1,
-    height: 52,
-    borderRadius: 10,
-    borderWidth: 1,
-    textAlign: 'center',
-    fontSize: 20,
-    fontWeight: '600',
+    height: TILE_SIZE,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
   },
-  errorText: {
+  otpInput: {
+    width: TILE_SIZE,
+    height: TILE_SIZE,
+    textAlign: 'center',
+    letterSpacing: 0,
+    backgroundColor: 'transparent',
+  },
+
+  // ── Status line
+  statusRow: {
+    minHeight: 22,
     marginTop: 12,
-    fontSize: 13,
-    textAlign: 'center',
+    alignItems: 'flex-start',
   },
+  statusText: {
+    fontSize: 13,
+    fontWeight: '500',
+  },
+
+  // ── Footer links
   links: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginTop: 20,
-    paddingHorizontal: 4,
+    paddingHorizontal: 2,
   },
 });

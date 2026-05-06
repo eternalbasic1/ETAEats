@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { asyncStorage } from './mmkv';
 
-const JOURNEY_TTL_HOURS = 4;
+const JOURNEY_TTL_FALLBACK_HOURS = 8;
 
 interface BusInfo {
   id: number;
@@ -34,6 +34,7 @@ interface JourneyState {
     qrToken: string;
     bus: BusInfo;
     restaurant: RestaurantInfo;
+    expiresAt?: string;
     source?: 'camera' | 'manual';
   }) => JourneyContext;
   touchJourney: () => void;
@@ -60,7 +61,7 @@ export const useJourneyStore = create<JourneyState>()(
     (set, get) => ({
       activeJourney: null,
 
-      setJourneyFromScan: ({ qrToken, bus, restaurant, source = 'manual' }) => {
+      setJourneyFromScan: ({ qrToken, bus, restaurant, expiresAt, source = 'manual' }) => {
         const stamp = nowISO();
         const journey: JourneyContext = {
           journeyId: makeJourneyId(),
@@ -69,7 +70,7 @@ export const useJourneyStore = create<JourneyState>()(
           restaurant,
           source,
           scannedAt: stamp,
-          expiresAt: expiryISO(JOURNEY_TTL_HOURS),
+          expiresAt: expiresAt ?? expiryISO(JOURNEY_TTL_FALLBACK_HOURS),
           lastUsedAt: stamp,
         };
         set({ activeJourney: journey });

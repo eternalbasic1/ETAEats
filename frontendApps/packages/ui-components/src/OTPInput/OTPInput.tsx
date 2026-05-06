@@ -105,12 +105,10 @@ export function OTPInput({
           style={[
             styles.cell,
             {
+              ...t.typography.h2,
               borderColor: error ? t.colors.errorFg : values[i] ? t.colors.borderStrong : t.colors.border,
               borderRadius: t.radius.sm,
               color: t.colors.textPrimary,
-              fontFamily: t.fontFamily.sans,
-              fontSize: t.typography.h2.fontSize,
-              fontWeight: t.typography.h2.fontWeight,
             },
           ]}
           selectionColor={t.colors.accentPowderBlue}

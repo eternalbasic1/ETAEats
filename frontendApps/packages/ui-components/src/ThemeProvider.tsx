@@ -4,10 +4,15 @@ import type { Theme } from '@eta/ui-tokens';
 
 const ThemeContext = createContext<Theme>(lightTheme);
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  return (
-    <ThemeContext.Provider value={lightTheme}>{children}</ThemeContext.Provider>
-  );
+export function ThemeProvider({
+  children,
+  theme = lightTheme,
+}: {
+  children: React.ReactNode;
+  /** Optional override (e.g. passenger app pins concrete Lora font faces). */
+  theme?: Theme;
+}) {
+  return <ThemeContext.Provider value={theme}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): Theme {

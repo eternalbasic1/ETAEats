@@ -74,7 +74,6 @@ export function Toast({
       <Text
         style={{
           ...t.typography.bodySm,
-          fontFamily: t.fontFamily.sans,
           fontWeight: '600',
           color: v.text,
         }}

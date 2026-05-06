@@ -78,7 +78,6 @@ export function Stepper({
         },
         counterText: {
           ...t.typography.button,
-          fontFamily: t.fontFamily.sans,
           color: t.colors.textOnDark,
           textAlign: 'center',
         },
