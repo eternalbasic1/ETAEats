@@ -92,9 +92,6 @@ export default function HomePage() {
         {/* Greeting — desktop only shows without BrandMark which sits in the rail */}
         <div className="flex items-center justify-between lg:hidden mb-6">
           <BrandMark size="sm" compact />
-          <Badge variant="mint" size="sm" dot>
-            Live
-          </Badge>
         </div>
 
         {/* Editorial hero */}

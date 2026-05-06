@@ -8,7 +8,8 @@ import logging
 from decimal import Decimal
 from typing import Iterable, Optional
 
-from django.db import transaction
+from django.db import IntegrityError, transaction
+from django.db.models import F
 from django.utils import timezone
 
 from apps.accounts.exceptions import DomainError
@@ -76,6 +77,8 @@ def add_item(cart: Cart, menu_item: MenuItem, quantity: int = 1) -> CartItem:
     if quantity < 1:
         raise DomainError('Quantity must be at least 1.', code='invalid_quantity')
     if not menu_item.is_available or menu_item.deleted_at:
+        raise DomainError('Item is unavailable.', code='item_unavailable')
+    if menu_item.quantity_available is not None and menu_item.quantity_available == 0:
         raise DomainError('Item is unavailable.', code='item_unavailable')
 
     # If previous operations emptied this cart, drop stale bus/restaurant pins.
@@ -147,7 +150,10 @@ def cart_total(cart: Cart) -> Decimal:
 # ---------- Order --------------------------------------------------------
 
 @transaction.atomic
-def checkout(cart: Cart, *, user: User, bus: Bus) -> Order:
+def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order:
+    from apps.promos.models import PromoCode, PromoRedemption
+    from apps.promos.services import check_promo_eligibility
+
     items: Iterable[CartItem] = list(cart.items.select_related('menu_item'))
     if not items:
         raise DomainError('Cart is empty.', code='cart_empty')
@@ -156,11 +162,33 @@ def checkout(cart: Cart, *, user: User, bus: Bus) -> Order:
 
     total = sum((i.menu_item.price * i.quantity for i in items), start=Decimal('0.00'))
 
+    normalized_promo = (promo_code or '').upper().strip()
+    discount = Decimal('0.00')
+    payable = total
+    promo_locked: PromoCode | None = None
+
+    if normalized_promo:
+        try:
+            promo_locked = PromoCode.objects.select_for_update().get(code=normalized_promo)
+        except PromoCode.DoesNotExist:
+            raise DomainError('Invalid promo code.', code='promo_invalid')
+
+        check_promo_eligibility(
+            promo_locked,
+            cart_total=total,
+            user=user,
+            restaurant_id=cart.restaurant_id,
+        )
+        discount = promo_locked.calculate_discount(total)
+        payable = total - discount
+
     order = Order.objects.create(
         passenger=user,
         bus=bus,
         restaurant=cart.restaurant,
-        total_amount=total,
+        total_amount=payable,
+        promo_code=normalized_promo if normalized_promo else '',
+        discount_amount=discount,
     )
     OrderItem.objects.bulk_create([
         OrderItem(
@@ -172,9 +200,25 @@ def checkout(cart: Cart, *, user: User, bus: Bus) -> Order:
         )
         for i in items
     ])
-    # Clear the cart after checkout
-    cart.items.all().delete()
-    clear_cart_context_if_empty(cart)
+
+    if promo_locked is not None:
+        try:
+            PromoRedemption.objects.create(
+                promo_code=promo_locked,
+                user=user,
+                order=order,
+                discount_applied=discount,
+            )
+        except IntegrityError:
+            raise DomainError(
+                'You have already used this promo code.',
+                code='promo_already_used',
+            )
+        PromoCode.objects.filter(pk=promo_locked.pk).update(used_count=F('used_count') + 1)
+
+    # Cart items are intentionally kept here so the user can recover them
+    # if payment is cancelled or fails. The cart is cleared in mark_payment()
+    # once payment is confirmed as CAPTURED.
     return order
 
 
@@ -196,6 +240,7 @@ def advance_status(order: Order, new_status: str, *, reason: str = '') -> Order:
     if new_status == OrderStatus.CONFIRMED:
         order.confirmed_at = now
         update_fields.append('confirmed_at')
+        _deduct_stock_for_order(order)
     elif new_status == OrderStatus.READY:
         order.ready_at = now
         update_fields.append('ready_at')
@@ -210,6 +255,40 @@ def advance_status(order: Order, new_status: str, *, reason: str = '') -> Order:
     return order
 
 
+def _deduct_stock_for_order(order: Order) -> None:
+    """
+    Lock and deduct stock for all finite-stock items in the order.
+    Must be called from within an existing atomic transaction.
+    """
+    order_items = list(order.items.select_related('menu_item'))
+    finite_item_ids = [
+        oi.menu_item_id
+        for oi in order_items
+        if oi.menu_item.quantity_available is not None
+    ]
+    if not finite_item_ids:
+        return
+
+    locked = {
+        mi.pk: mi
+        for mi in MenuItem.objects.select_for_update().filter(pk__in=finite_item_ids)
+    }
+
+    to_update: list[MenuItem] = []
+    for oi in order_items:
+        mi = locked.get(oi.menu_item_id)
+        if mi is None or mi.quantity_available is None:
+            continue
+        new_qty = max(0, mi.quantity_available - oi.quantity)
+        mi.quantity_available = new_qty
+        if new_qty == 0:
+            mi.is_available = False
+        to_update.append(mi)
+
+    if to_update:
+        MenuItem.objects.bulk_update(to_update, ['quantity_available', 'is_available'])
+
+
 def mark_payment(order: Order, *, status: str, razorpay_payment_id: str = '') -> Order:
     order.payment_status = status
     if razorpay_payment_id:
@@ -217,4 +296,9 @@ def mark_payment(order: Order, *, status: str, razorpay_payment_id: str = '') ->
     order.save(update_fields=['payment_status', 'razorpay_payment_id', 'updated_at'])
     if status == PaymentStatus.CAPTURED and order.status == OrderStatus.PENDING:
         advance_status(order, OrderStatus.CONFIRMED)
+        # Payment confirmed — now safe to clear the cart so the user starts fresh.
+        cart = Cart.objects.filter(user=order.passenger).first()
+        if cart:
+            cart.items.all().delete()
+            clear_cart_context_if_empty(cart)
     return order

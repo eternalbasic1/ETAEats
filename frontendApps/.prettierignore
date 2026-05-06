@@ -1,0 +1,8 @@
+node_modules
+dist
+.expo
+ios/build
+android/build
+android/app/build
+*.tsbuildinfo
+pnpm-lock.yaml

@@ -57,7 +57,9 @@ LOCAL_APPS = [
     'apps.restaurants',
     'apps.orders',
     'apps.payments',
+    'apps.promos',
     'apps.notifications',
+    'apps.appconfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

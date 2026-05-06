@@ -134,6 +134,8 @@ class Order(TimeStampedModel):
         default=PaymentStatus.UNPAID,
     )
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    promo_code = models.CharField(max_length=50, blank=True, default='')
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     razorpay_order_id = models.CharField(max_length=200, blank=True, default='')
     razorpay_payment_id = models.CharField(max_length=200, blank=True, default='')
     cancelled_reason = models.CharField(max_length=255, blank=True, default='')

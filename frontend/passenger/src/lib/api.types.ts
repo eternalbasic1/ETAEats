@@ -105,6 +105,13 @@ export interface OrderItem {
   line_total: string
 }
 
+export interface ValidatePromoResponse {
+  valid: boolean
+  discount_amount: string
+  final_total: string
+  message: string
+}
+
 export interface Order {
   id: string
   passenger: string
@@ -115,6 +122,8 @@ export interface Order {
   status: OrderStatus
   payment_status: PaymentStatus
   total_amount: string
+  promo_code: string
+  discount_amount: string
   items: OrderItem[]
   razorpay_order_id: string
   razorpay_payment_id: string

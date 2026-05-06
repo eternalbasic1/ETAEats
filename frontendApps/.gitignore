@@ -1,0 +1,63 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Expo
+.expo/
+.expo-shared/
+dist/
+web-build/
+
+# Native build outputs
+ios/build/
+ios/Pods/
+ios/*.xcworkspace/xcuserdata/
+android/build/
+android/app/build/
+android/.gradle/
+android/captures/
+android/local.properties
+*.keystore
+!debug.keystore
+
+# Bundles
+*.jsbundle
+
+# Logs
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+pnpm-debug.*
+
+# Environment files (contain non-secret config but may include local IPs)
+.env
+.env.local
+.env.development
+.env.staging
+.env.production
+
+# EAS / secrets
+eas-secrets/
+google-services.json
+GoogleService-Info.plist
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test / coverage
+coverage/
+*.lcov
+
+# TS build cache
+*.tsbuildinfo

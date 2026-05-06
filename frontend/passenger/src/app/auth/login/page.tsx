@@ -8,9 +8,15 @@ import { BrandMark } from '@/components/layout/BrandMark'
 import { useAuth } from '@/hooks/useAuth'
 import { useAuthStore } from '@/stores/auth.store'
 
+function formatPhoneForDisplay(digits: string) {
+  const clean = digits.replace(/\D/g, '').slice(0, 10)
+  if (clean.length <= 5) return clean
+  return `${clean.slice(0, 5)} ${clean.slice(5)}`
+}
+
 export default function LoginPage() {
   const router = useRouter()
-  const [phone, setPhone] = useState('')
+  const [phoneDigits, setPhoneDigits] = useState('')
   const { isAuthenticated, hasHydrated } = useAuthStore()
   const { requestOTP, loading } = useAuth()
 
@@ -20,12 +26,11 @@ export default function LoginPage() {
   }, [hasHydrated, isAuthenticated, router])
 
   async function handleContinue() {
-    const normalized = phone.replace(/\D/g, '').slice(0, 10)
-    if (normalized.length !== 10) return
-    const ok = await requestOTP(`+91${normalized}`)
+    if (phoneDigits.length !== 10) return
+    const ok = await requestOTP(`+91${phoneDigits}`)
     if (!ok) return
     toast.success('OTP sent')
-    router.push(`/auth/otp?phone=${normalized}`)
+    router.push(`/auth/otp?phone=${phoneDigits}`)
   }
 
   return (
@@ -67,12 +72,12 @@ export default function LoginPage() {
             <div className="mt-7">
               <Input
                 label="Mobile number"
-                placeholder="10-digit number"
+                placeholder="99999 99999"
                 inputMode="numeric"
                 type="tel"
                 leading={<span className="font-medium text-text-secondary">+91</span>}
-                value={phone}
-                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                value={formatPhoneForDisplay(phoneDigits)}
+                onChange={(e) => setPhoneDigits(e.target.value.replace(/\D/g, '').slice(0, 10))}
               />
             </div>
 
@@ -82,7 +87,7 @@ export default function LoginPage() {
               className="mt-6"
               onClick={handleContinue}
               loading={loading}
-              disabled={phone.length < 10 || loading}
+              disabled={phoneDigits.length < 10 || loading}
             >
               Continue
             </Button>
