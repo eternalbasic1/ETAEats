@@ -33,8 +33,7 @@ const SHAKE_DUR = 50;
 export default function CheckoutScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
-  const items = useCartStore((s) => s.items);
-  const { cartId, busId, restaurantId, clearCart } = useCartStore();
+  const { busId, restaurantId, items, clearCart } = useCartStore();
   const subtotal = items.reduce((sum, i) => sum + parseFloat(i.line_total), 0);
   const { activeJourney } = useJourneyStore();
   const bus = activeJourney?.bus ?? null;
@@ -200,10 +199,9 @@ export default function CheckoutScreen() {
   }
 
   async function handlePay() {
-    const effectiveCartId = cartId;
     const effectiveBusId = busId ?? bus?.id ?? null;
 
-    if (!effectiveCartId || !effectiveBusId) {
+    if (!effectiveBusId || items.length === 0) {
       Alert.alert('Error', 'Cart session expired. Please go back and try again.');
       return;
     }
@@ -211,9 +209,9 @@ export default function CheckoutScreen() {
     setLoading(true);
     try {
       const { data: order } = await api.post('/orders/checkout/', {
-        cart_id: effectiveCartId,
         bus_id: effectiveBusId,
         promo_code: appliedCode ?? '',
+        lines: items.map((i) => ({ menu_item: i.menu_item, quantity: i.quantity })),
       });
 
       setPendingOrderId(order.id);
@@ -235,8 +233,13 @@ export default function CheckoutScreen() {
         },
       });
     } catch (e: any) {
-      const msg = e?.response?.data?.error?.message ?? 'Could not create order. Please try again.';
-      Alert.alert('Error', msg);
+      const code = e?.response?.data?.error?.code;
+      const msg =
+        code === 'out_of_stock'
+          ? (e?.response?.data?.error?.message ??
+            'One or more items are no longer in stock. Adjust your cart and try again.')
+          : (e?.response?.data?.error?.message ?? 'Could not create order. Please try again.');
+      Alert.alert(code === 'out_of_stock' ? 'Out of stock' : 'Error', msg);
     } finally {
       setLoading(false);
     }
@@ -331,7 +334,7 @@ export default function CheckoutScreen() {
           </View>
           <View style={{ marginTop: 16 }}>
             {items.map((item) => (
-              <View key={item.id} style={[styles.lineItem, { marginBottom: 10 }]}>
+              <View key={item.menu_item} style={[styles.lineItem, { marginBottom: 10 }]}>
                 <Text style={{ ...t.typography.bodySm, color: t.colors.textSecondary, flex: 1 }} numberOfLines={1}>
                   {item.menu_item_name} <Text style={{ color: t.colors.textMuted }}>x {item.quantity}</Text>
                 </Text>

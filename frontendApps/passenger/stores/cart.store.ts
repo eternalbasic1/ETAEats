@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import { asyncStorage } from './mmkv';
 
+/** Local line; checkout uses `lines` payload (no server cart item ids). */
 export interface CartItem {
-  id: number;
   menu_item: number;
   menu_item_name: string;
   quantity: number;
@@ -16,8 +16,9 @@ interface CartState {
   busId: number | null;
   restaurantId: number | null;
   items: CartItem[];
-  setCart: (cartId: string, busId: number | null, restaurantId: number | null, items: CartItem[]) => void;
+  setCart: (cartId: string | null, busId: number | null, restaurantId: number | null, items: CartItem[]) => void;
   setItems: (items: CartItem[]) => void;
+  setLocalCart: (busId: number, restaurantId: number, items: CartItem[]) => void;
   clearCart: () => void;
   totalItems: () => number;
   totalPrice: () => number;
@@ -35,6 +36,9 @@ export const useCartStore = create<CartState>()(
         set({ cartId, busId, restaurantId, items }),
 
       setItems: (items) => set({ items }),
+
+      setLocalCart: (busId, restaurantId, items) =>
+        set({ cartId: null, busId, restaurantId, items }),
 
       clearCart: () =>
         set({ cartId: null, busId: null, restaurantId: null, items: [] }),
