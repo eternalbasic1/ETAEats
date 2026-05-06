@@ -4,9 +4,12 @@ export interface OtpRequestPayload {
   phone_number: string;
 }
 
+export type AppType = 'passenger' | 'restaurant' | 'admin';
+
 export interface OtpVerifyPayload {
   phone_number: string;
   code: string;
+  app_type: AppType;
 }
 
 export interface AuthTokens {

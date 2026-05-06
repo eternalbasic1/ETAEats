@@ -13,7 +13,7 @@ export const orderEndpoints = {
   removeCartItem: (itemId: number) =>
     api.delete(`/orders/cart/items/${itemId}/`),
 
-  checkout: (payload: { cart_id: number; bus_id: number }) =>
+  checkout: (payload: { cart_id: string; bus_id: number; promo_code?: string }) =>
     api.post('/orders/checkout/', payload),
 
   myOrders: (params?: { page?: number; page_size?: number; status?: string }) =>

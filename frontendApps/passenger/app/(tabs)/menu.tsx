@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
+import { useState, useMemo, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Pressable, RefreshControl } from 'react-native';
+import { useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, Spinner, EmptyState, Button } from '@eta/ui-components';
 import { api } from '@eta/api-client';
@@ -15,12 +17,23 @@ export default function MenuTabScreen() {
   const insets = useSafeAreaInsets();
   const activeJourney = useJourneyStore((s) => s.activeJourney);
   const touchJourney = useJourneyStore((s) => s.touchJourney);
+  const invalidateIfExpired = useJourneyStore((s) => s.invalidateIfExpired);
+  const clearCart = useCartStore((s) => s.clearCart);
+
+  // Check expiry every time the menu tab comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      const expired = invalidateIfExpired();
+      if (expired) clearCart();
+    }, [invalidateIfExpired, clearCart]),
+  );
+
   const bus = activeJourney?.bus ?? null;
   const restaurant = activeJourney?.restaurant ?? null;
   const restaurantId = restaurant ? String(restaurant.id) : null;
   const { cartId, items: cartItems, setCart, setItems } = useCartStore();
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ['menu', restaurantId],
     queryFn: () =>
       api.get(`/restaurants/menu-items/?restaurant=${restaurantId}&page_size=100`).then((r: any) => r.data),
@@ -28,6 +41,13 @@ export default function MenuTabScreen() {
   });
 
   const allItems = useMemo(() => data?.results ?? [], [data]);
+
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }, [refetch]);
 
   async function handleAdd(item: any) {
     if (!bus) return;
@@ -134,7 +154,9 @@ export default function MenuTabScreen() {
         </View>
       ) : null}
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: totalCartItems > 0 ? 160 : 100 }]}>
+      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: totalCartItems > 0 ? 160 : 100 }]}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
         {isLoading && (
           <View style={styles.center}><Spinner /></View>
         )}
@@ -150,7 +172,11 @@ export default function MenuTabScreen() {
 
         {allItems.map((item: any) => {
           const cartItem = cartItems.find((ci) => ci.menu_item === item.id);
-          const unavailable = !item.is_available;
+          const outOfStock =
+            item.quantity_available !== null &&
+            item.quantity_available !== undefined &&
+            item.quantity_available === 0;
+          const unavailable = !item.is_available || outOfStock;
 
           return (
             <View
@@ -169,6 +195,16 @@ export default function MenuTabScreen() {
                     {item.description}
                   </Text>
                 ) : null}
+                {item.quantity_available !== null &&
+                 item.quantity_available !== undefined &&
+                 item.quantity_available > 0 &&
+                 item.quantity_available <= 5 && (
+                  <View style={[styles.lowStockBadge, { backgroundColor: t.colors.warningBg, borderRadius: 4, paddingHorizontal: 6, paddingVertical: 2, alignSelf: 'flex-start', marginTop: 4 }]}>
+                    <Text style={{ fontSize: 11, fontWeight: '600', color: t.colors.warningFg }}>
+                      Only {item.quantity_available} left
+                    </Text>
+                  </View>
+                )}
                 <View style={styles.priceRow}>
                   <Text style={{ ...t.typography.h4, color: t.colors.textPrimary }}>₹{item.price}</Text>
                   {item.prep_time_minutes ? (
@@ -273,4 +309,5 @@ const styles = StyleSheet.create({
     flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
     borderRadius: 16, paddingHorizontal: 20, paddingVertical: 16,
   },
+  lowStockBadge: {},
 });

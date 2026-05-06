@@ -84,6 +84,7 @@ class MenuItem(TimeStampedModel):
         validators=[MinValueValidator(1), MaxValueValidator(120)],
     )
     deleted_at = models.DateTimeField(null=True, blank=True)
+    quantity_available = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Menu Item'

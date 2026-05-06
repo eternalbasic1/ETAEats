@@ -49,6 +49,7 @@ interface MenuItem {
   is_available: boolean;
   category: number;
   category_name?: string;
+  quantity_available?: number | null;
 }
 
 export default function MenuScreen() {
@@ -232,6 +233,18 @@ export default function MenuScreen() {
                 {item.prep_time_minutes} min
               </Text>
             </View>
+            {item.quantity_available !== null && item.quantity_available !== undefined && (
+              <Text
+                style={{
+                  ...t.typography.caption,
+                  fontFamily: t.fontFamily.sans,
+                  color: item.quantity_available === 0 ? t.colors.errorFg : t.colors.textTertiary,
+                  marginTop: 4,
+                }}
+              >
+                {item.quantity_available === 0 ? 'Out of stock' : `${item.quantity_available} in stock`}
+              </Text>
+            )}
           </View>
 
           <View style={styles.itemActions}>

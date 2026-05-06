@@ -111,7 +111,12 @@ class CheckoutView(APIView):
             raise PermissionDenied('This cart belongs to another user.')
 
         bus = get_object_or_404(Bus, pk=serializer.validated_data['bus_id'], is_active=True)
-        order = services.checkout(cart, user=request.user, bus=bus)
+        order = services.checkout(
+            cart,
+            user=request.user,
+            bus=bus,
+            promo_code=serializer.validated_data.get('promo_code') or '',
+        )
         return Response(OrderSerializer(order).data, status=http_status.HTTP_201_CREATED)
 
 

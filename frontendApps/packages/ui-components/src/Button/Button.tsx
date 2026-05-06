@@ -14,6 +14,16 @@ import { useTheme } from '../ThemeProvider';
 import type { Theme } from '@eta/ui-tokens';
 import { JsSpinnerRing } from '../Spinner/JsSpinnerRing';
 
+// Haptics are optional — gracefully no-op if expo-haptics isn't installed
+let impactLight: (() => void) | null = null;
+try {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const Haptics = require('expo-haptics');
+  impactLight = () => Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+} catch {
+  // expo-haptics not available in this app
+}
+
 type ButtonVariant =
   | 'primary'
   | 'secondary'
@@ -51,6 +61,9 @@ const PADDING_H: Record<ButtonSize, number> = {
 };
 
 function variantStyles(variant: ButtonVariant, t: Theme) {
+  // On iOS, secondary and outline get a frosted-glass treatment
+  const glassOverride = Platform.OS === 'ios' && (variant === 'secondary' || variant === 'outline');
+
   const map: Record<
     ButtonVariant,
     { bg: string; text: string; border?: string; spinnerColor: string }
@@ -61,15 +74,15 @@ function variantStyles(variant: ButtonVariant, t: Theme) {
       spinnerColor: t.colors.textOnDark,
     },
     secondary: {
-      bg: t.colors.surface,
+      bg: glassOverride ? 'rgba(255,255,255,0.18)' : t.colors.surface,
       text: t.colors.textPrimary,
-      border: t.colors.border,
+      border: glassOverride ? 'rgba(255,255,255,0.35)' : t.colors.border,
       spinnerColor: t.colors.textPrimary,
     },
     outline: {
-      bg: t.colors.transparent,
+      bg: glassOverride ? 'rgba(255,255,255,0.12)' : t.colors.transparent,
       text: t.colors.textPrimary,
-      border: t.colors.borderStrong,
+      border: glassOverride ? 'rgba(255,255,255,0.35)' : t.colors.borderStrong,
       spinnerColor: t.colors.textPrimary,
     },
     ghost: {
@@ -93,7 +106,7 @@ function variantStyles(variant: ButtonVariant, t: Theme) {
       spinnerColor: t.colors.successFg,
     },
   };
-  return map[variant];
+  return { ...map[variant], glassOverride };
 }
 
 export function Button({
@@ -124,6 +137,13 @@ export function Button({
           justifyContent: 'center',
           alignSelf: fullWidth ? 'stretch' : 'auto',
           ...(vs.border ? { borderWidth: 1, borderColor: vs.border } : {}),
+          // iOS glassmorphic: subtle shadow to reinforce the frosted look
+          ...(vs.glassOverride ? {
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+          } : {}),
         },
         pressed: {
           opacity: 0.82,
@@ -151,9 +171,15 @@ export function Button({
     [theme, variant, size, fullWidth, vs],
   );
 
+  const handlePress: PressableProps['onPress'] = (e) => {
+    if (Platform.OS === 'ios' && impactLight) impactLight();
+    rest.onPress?.(e);
+  };
+
   return (
     <Pressable
       {...rest}
+      onPress={handlePress}
       disabled={disabled || loading}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}
