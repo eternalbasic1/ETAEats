@@ -234,12 +234,38 @@ export default function CheckoutScreen() {
       });
     } catch (e: any) {
       const code = e?.response?.data?.error?.code;
-      const msg =
-        code === 'out_of_stock'
-          ? (e?.response?.data?.error?.message ??
-            'One or more items are no longer in stock. Adjust your cart and try again.')
-          : (e?.response?.data?.error?.message ?? 'Could not create order. Please try again.');
-      Alert.alert(code === 'out_of_stock' ? 'Out of stock' : 'Error', msg);
+      const serverMsg = e?.response?.data?.error?.message;
+      const details = e?.response?.data?.error?.details ?? {};
+
+      let title = 'Error';
+      let msg = serverMsg ?? 'Could not create order. Please try again.';
+
+      if (code === 'out_of_stock') {
+        title = 'Out of stock';
+        // Try to find the item name from our local cart
+        const affectedId = details?.menu_item;
+        const affectedItem = affectedId
+          ? items.find((i) => i.menu_item === affectedId)
+          : null;
+        msg = affectedItem
+          ? `"${affectedItem.menu_item_name}" doesn't have enough stock for the quantity you selected. Please reduce it and try again.`
+          : (serverMsg ?? 'One or more items are no longer in stock. Adjust your cart and try again.');
+      } else if (code === 'item_unavailable') {
+        title = 'Item unavailable';
+        const affectedId = details?.menu_item;
+        const affectedItem = affectedId ? items.find((i) => i.menu_item === affectedId) : null;
+        msg = affectedItem
+          ? `"${affectedItem.menu_item_name}" is no longer available. Please remove it from your cart.`
+          : (serverMsg ?? 'One or more items are no longer available.');
+      } else if (code === 'cart_empty') {
+        title = 'Empty cart';
+        msg = 'Your cart is empty. Add some items before placing an order.';
+      } else if (code === 'promo_invalid' || code === 'promo_already_used') {
+        title = 'Promo code';
+        msg = serverMsg ?? 'There was an issue with your promo code.';
+      }
+
+      Alert.alert(title, msg);
     } finally {
       setLoading(false);
     }
