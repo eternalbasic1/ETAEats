@@ -1,58 +1,57 @@
 /**
- * AnimatedSplash — Premium launch experience for ETA Eats
+ * AnimatedSplash — Premium ETA Eats launch screen
  *
- * Cinematic sequence:
- *   0ms    Background warms in
- *   180ms  Ambient glow blooms
- *   480ms  Logo card arrives (spring, from below)
- *   760ms  Brand name reveals per-character
- *   1150ms Tagline fades up
- *   ongoing Logo breathes + shimmer sweeps
- *   exit   Content lifts + fades — app "opens"
+ * Design: Clean warm cream background, SVG logo renders transparently,
+ * no card box, no visible circles. Subtle depth via layered opacity blobs
+ * that are so soft they read as light, not shapes.
+ *
+ * Sequence:
+ *   0ms    Warm background fades in
+ *   300ms  Logo scales up from 0.7 + fades in (spring)
+ *   700ms  Brand name reveals per-character
+ *   1100ms Tagline fades up
+ *   1500ms Bottom wordmark appears
+ *   ongoing Logo breathes (1.0 → 1.018)
+ *   exit   Everything scales up 1.05 + fades — app "opens"
  */
 
 import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
-  Image,
   StyleSheet,
   Dimensions,
   StatusBar,
   Animated,
   Easing,
 } from 'react-native';
+import LogoSvg from '../assets/logo.svg';
 
 const { width: W, height: H } = Dimensions.get('window');
-const LOGO_SIZE   = 82;
-const CARD_SIZE   = LOGO_SIZE + 28;
-const MIN_SPLASH  = 3400;
+const LOGO_SIZE  = 96;
+const MIN_SPLASH = 3200;
 
-const BRAND = 'ETA Eats'.split('');
+const BRAND   = 'ETA Eats'.split('');
 const TAGLINE = 'Pre-order on the go';
 
 interface Props { ready: boolean; onDone: () => void; }
 
 export default function AnimatedSplash({ ready, onDone }: Props) {
 
-  // ── Animated values ────────────────────────────────────────────────────────
-  const bgOpacity      = useRef(new Animated.Value(0)).current;
-  const glowOpacity    = useRef(new Animated.Value(0)).current;
-  const glowScale      = useRef(new Animated.Value(0.35)).current;
-  const logoOpacity    = useRef(new Animated.Value(0)).current;
-  const logoScale      = useRef(new Animated.Value(0.55)).current;
-  const logoY          = useRef(new Animated.Value(22)).current;
-  const breatheScale   = useRef(new Animated.Value(1)).current;
-  const shimmerX       = useRef(new Animated.Value(-CARD_SIZE)).current;
-  const charOps        = useRef(BRAND.map(() => new Animated.Value(0))).current;
-  const charYs         = useRef(BRAND.map(() => new Animated.Value(10))).current;
-  const taglineOp      = useRef(new Animated.Value(0)).current;
-  const taglineY       = useRef(new Animated.Value(12)).current;
-  const bottomOp       = useRef(new Animated.Value(0)).current;
-  // Exit — whole content lifts + fades
-  const exitOp         = useRef(new Animated.Value(1)).current;
-  const exitScale      = useRef(new Animated.Value(1)).current;
-  const exitY          = useRef(new Animated.Value(0)).current;
+  // ── Values ─────────────────────────────────────────────────────────────────
+  const bgOp       = useRef(new Animated.Value(0)).current;
+  const logoOp     = useRef(new Animated.Value(0)).current;
+  const logoScale  = useRef(new Animated.Value(0.68)).current;
+  const logoY      = useRef(new Animated.Value(16)).current;
+  const breathe    = useRef(new Animated.Value(1)).current;
+  const charOps    = useRef(BRAND.map(() => new Animated.Value(0))).current;
+  const charYs     = useRef(BRAND.map(() => new Animated.Value(8))).current;
+  const tagOp      = useRef(new Animated.Value(0)).current;
+  const tagY       = useRef(new Animated.Value(10)).current;
+  const bottomOp   = useRef(new Animated.Value(0)).current;
+  const exitOp     = useRef(new Animated.Value(1)).current;
+  const exitScale  = useRef(new Animated.Value(1)).current;
+  const exitY      = useRef(new Animated.Value(0)).current;
 
   // ── Coordination ───────────────────────────────────────────────────────────
   const readyRef   = useRef(false);
@@ -64,105 +63,71 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
     if (exitingRef.current || !readyRef.current || !minRef.current) return;
     exitingRef.current = true;
     breatheRef.current?.stop();
-
     Animated.parallel([
       Animated.timing(exitOp, {
-        toValue: 0,
-        duration: 700,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        toValue: 0, duration: 680,
+        easing: Easing.out(Easing.cubic), useNativeDriver: true,
       }),
       Animated.timing(exitScale, {
-        toValue: 1.06,
-        duration: 700,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        toValue: 1.05, duration: 680,
+        easing: Easing.out(Easing.cubic), useNativeDriver: true,
       }),
       Animated.timing(exitY, {
-        toValue: -20,
-        duration: 700,
-        easing: Easing.out(Easing.cubic),
-        useNativeDriver: true,
+        toValue: -16, duration: 680,
+        easing: Easing.out(Easing.cubic), useNativeDriver: true,
       }),
     ]).start(({ finished }) => { if (finished) onDone(); });
   }
 
   useEffect(() => {
-    const SP = { tension: 48, friction: 9, useNativeDriver: true };
+    const SP = { tension: 50, friction: 10, useNativeDriver: true };
 
     // Background
-    Animated.timing(bgOpacity, {
-      toValue: 1, duration: 700,
+    Animated.timing(bgOp, {
+      toValue: 1, duration: 600,
       easing: Easing.out(Easing.cubic), useNativeDriver: true,
     }).start();
 
-    // Glow bloom
+    // Logo
     Animated.sequence([
-      Animated.delay(180),
+      Animated.delay(300),
       Animated.parallel([
-        Animated.timing(glowOpacity, {
-          toValue: 0.48, duration: 1100,
-          easing: Easing.out(Easing.cubic), useNativeDriver: true,
-        }),
-        Animated.spring(glowScale, { toValue: 1, ...SP }),
-      ]),
-    ]).start();
-
-    // Logo card
-    Animated.sequence([
-      Animated.delay(480),
-      Animated.parallel([
-        Animated.timing(logoOpacity, {
-          toValue: 1, duration: 520,
+        Animated.timing(logoOp, {
+          toValue: 1, duration: 550,
           easing: Easing.out(Easing.cubic), useNativeDriver: true,
         }),
         Animated.spring(logoScale, { toValue: 1, ...SP }),
         Animated.spring(logoY,     { toValue: 0, ...SP }),
       ]),
     ]).start(() => {
-      // Breathing pulse
+      // Breathing
       breatheRef.current = Animated.loop(
         Animated.sequence([
-          Animated.timing(breatheScale, {
-            toValue: 1.022, duration: 2400,
+          Animated.timing(breathe, {
+            toValue: 1.018, duration: 2600,
             easing: Easing.inOut(Easing.sin), useNativeDriver: true,
           }),
-          Animated.timing(breatheScale, {
-            toValue: 1, duration: 2400,
+          Animated.timing(breathe, {
+            toValue: 1, duration: 2600,
             easing: Easing.inOut(Easing.sin), useNativeDriver: true,
           }),
         ]),
       );
       breatheRef.current.start();
-
-      // Shimmer — 2 sweeps then stops
-      Animated.loop(
-        Animated.sequence([
-          Animated.delay(600),
-          Animated.timing(shimmerX, {
-            toValue: CARD_SIZE * 1.4, duration: 820,
-            easing: Easing.inOut(Easing.quad), useNativeDriver: true,
-          }),
-          Animated.timing(shimmerX, {
-            toValue: -CARD_SIZE, duration: 0, useNativeDriver: true,
-          }),
-        ]),
-        { iterations: 2 },
-      ).start();
     });
 
     // Brand name — staggered per character
     Animated.parallel(
       BRAND.map((_, i) =>
         Animated.sequence([
-          Animated.delay(760 + i * 52),
+          Animated.delay(700 + i * 50),
           Animated.parallel([
             Animated.timing(charOps[i], {
-              toValue: 1, duration: 400,
+              toValue: 1, duration: 420,
               easing: Easing.out(Easing.cubic), useNativeDriver: true,
             }),
             Animated.timing(charYs[i], {
-              toValue: 0, duration: 400,
+              toValue: 0, duration: 420,
               easing: Easing.out(Easing.cubic), useNativeDriver: true,
             }),
           ]),
@@ -172,14 +137,14 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
 
     // Tagline
     Animated.sequence([
-      Animated.delay(1200),
+      Animated.delay(1150),
       Animated.parallel([
-        Animated.timing(taglineOp, {
-          toValue: 1, duration: 650,
+        Animated.timing(tagOp, {
+          toValue: 1, duration: 600,
           easing: Easing.out(Easing.cubic), useNativeDriver: true,
         }),
-        Animated.timing(taglineY, {
-          toValue: 0, duration: 650,
+        Animated.timing(tagY, {
+          toValue: 0, duration: 600,
           easing: Easing.out(Easing.cubic), useNativeDriver: true,
         }),
       ]),
@@ -194,7 +159,7 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
       }),
     ]).start();
 
-    // Min display time
+    // Min time
     const t = setTimeout(() => { minRef.current = true; triggerExit(); }, MIN_SPLASH);
     return () => { clearTimeout(t); breatheRef.current?.stop(); };
   }, []);
@@ -215,60 +180,35 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
       {/* ── Background ──────────────────────────────────────────────────── */}
-      <Animated.View style={[StyleSheet.absoluteFill, { opacity: bgOpacity }]}>
+      <Animated.View style={[StyleSheet.absoluteFill, { opacity: bgOp }]}>
+        {/* Warm cream base */}
         <View style={styles.bgBase} />
-        {/* Warm amber bloom — top centre */}
-        <View style={styles.blobAmber} />
-        {/* Cool blue whisper — bottom right */}
-        <View style={styles.blobBlue} />
-        {/* Soft inner vignette */}
-        <View style={styles.vignette} />
+        {/* Very soft warm light — top, barely visible */}
+        <View style={styles.lightTop} />
+        {/* Very soft cool whisper — bottom right */}
+        <View style={styles.lightBottom} />
       </Animated.View>
 
-      {/* ── Ambient glow ────────────────────────────────────────────────── */}
-      <Animated.View
-        pointerEvents="none"
-        style={[
-          styles.glow,
-          { opacity: glowOpacity, transform: [{ scale: glowScale }] },
-        ]}
-      />
-
-      {/* ── Centre stage ────────────────────────────────────────────────── */}
+      {/* ── Centre content ───────────────────────────────────────────────── */}
       <View style={styles.stage}>
 
-        {/* Logo card */}
+        {/* Logo — SVG renders transparently on the background */}
         <Animated.View
           style={[
-            styles.card,
+            styles.logoWrap,
             {
-              opacity: logoOpacity,
+              opacity: logoOp,
               transform: [
                 { translateY: logoY },
-                { scale: Animated.multiply(logoScale, breatheScale) },
+                { scale: Animated.multiply(logoScale, breathe) },
               ],
             },
           ]}
         >
-          {/* Layered glass surface */}
-          <View style={styles.cardGlass} />
-          <View style={styles.cardRim} />
-
-          {/* Logo */}
-          <Image
-            source={require('../assets/logo.png')}
-            style={styles.logo}
-            resizeMode="contain"
+          <LogoSvg
+            width={LOGO_SIZE}
+            height={LOGO_SIZE}
           />
-
-          {/* Shimmer sweep */}
-          <Animated.View
-            pointerEvents="none"
-            style={[styles.shimmer, { transform: [{ translateX: shimmerX }, { rotate: '18deg' }] }]}
-          />
-
-          {/* Top-edge specular highlight */}
-          <View style={styles.specular} pointerEvents="none" />
         </Animated.View>
 
         {/* Brand name */}
@@ -278,7 +218,7 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
               key={i}
               style={[
                 styles.brandChar,
-                ch === ' ' && { width: 11 },
+                ch === ' ' && { width: 12 },
                 { opacity: charOps[i], transform: [{ translateY: charYs[i] }] },
               ]}
             >
@@ -287,11 +227,14 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
           ))}
         </View>
 
+        {/* Thin accent line between brand and tagline */}
+        <Animated.View style={[styles.accentLine, { opacity: tagOp }]} />
+
         {/* Tagline */}
         <Animated.Text
           style={[
             styles.tagline,
-            { opacity: taglineOp, transform: [{ translateY: taglineY }] },
+            { opacity: tagOp, transform: [{ translateY: tagY }] },
           ]}
         >
           {TAGLINE}
@@ -300,12 +243,8 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
 
       {/* ── Bottom wordmark ──────────────────────────────────────────────── */}
       <Animated.View style={[styles.bottom, { opacity: bottomOp }]}>
-        <View style={styles.bottomLine} />
-        <View style={styles.bottomRow}>
-          <View style={styles.dot} />
-          <Text style={styles.bottomText}>FOOD  ·  TRAVEL  ·  ETA</Text>
-          <View style={styles.dot} />
-        </View>
+        <View style={styles.bottomSep} />
+        <Text style={styles.bottomText}>FOOD  ·  TRAVEL  ·  ETA</Text>
       </Animated.View>
     </Animated.View>
   );
@@ -320,156 +259,101 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
 
-  // Background
+  // Background — three layers, all very subtle
   bgBase: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#F6F3EE',
+    backgroundColor: '#F5F2ED',  // warm parchment — premium, not clinical
   },
-  blobAmber: {
+  lightTop: {
     position: 'absolute',
-    top: -H * 0.12,
-    left: W * 0.05,
-    width: W * 0.9,
-    height: H * 0.52,
+    top: -H * 0.25,
+    alignSelf: 'center',
+    width: W * 1.2,
+    height: H * 0.65,
     borderRadius: W,
-    backgroundColor: '#FFF5E6',
-    opacity: 0.85,
+    backgroundColor: '#FFF8F0',
+    opacity: 0.6,
   },
-  blobBlue: {
+  lightBottom: {
     position: 'absolute',
-    bottom: -H * 0.08,
-    right: -W * 0.1,
-    width: W * 0.7,
-    height: H * 0.38,
+    bottom: -H * 0.15,
+    right: -W * 0.2,
+    width: W * 0.8,
+    height: H * 0.45,
     borderRadius: W,
-    backgroundColor: '#EBF2FF',
-    opacity: 0.5,
-  },
-  vignette: {
-    ...StyleSheet.absoluteFillObject,
-    borderWidth: 72,
-    borderColor: 'rgba(0,0,0,0.035)',
-  },
-
-  // Glow
-  glow: {
-    position: 'absolute',
-    width: W * 0.78,
-    height: W * 0.78,
-    borderRadius: W * 0.39,
-    backgroundColor: '#F59E0B',
+    backgroundColor: '#EDF3FF',
+    opacity: 0.35,
   },
 
   // Stage
   stage: {
     alignItems: 'center',
+    gap: 0,
   },
 
-  // Card
-  card: {
-    width: CARD_SIZE,
-    height: CARD_SIZE,
-    borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    overflow: 'hidden',
-    marginBottom: 36,
-    // Multi-layer shadow for depth
-    shadowColor: '#B8720A',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.2,
-    shadowRadius: 32,
-    elevation: 18,
-  },
-  cardGlass: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255,255,255,0.94)',
-    borderRadius: 30,
-    borderWidth: 1.2,
-    borderColor: 'rgba(255,255,255,0.98)',
-  },
-  cardRim: {
-    ...StyleSheet.absoluteFillObject,
-    borderRadius: 30,
-    borderWidth: 1,
-    borderColor: 'rgba(245,158,11,0.14)',
-    backgroundColor: 'transparent',
-  },
-  logo: {
+  // Logo — no card, no box, just the SVG floating
+  logoWrap: {
     width: LOGO_SIZE,
     height: LOGO_SIZE,
-    zIndex: 2,
-  },
-  shimmer: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    width: 24,
-    backgroundColor: 'rgba(255,255,255,0.6)',
-    zIndex: 3,
-  },
-  specular: {
-    position: 'absolute',
-    top: 0,
-    left: 14,
-    right: 14,
-    height: 1.2,
-    backgroundColor: 'rgba(255,255,255,0.95)',
-    borderRadius: 1,
-    zIndex: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 40,
+    // Soft shadow so logo has depth against background
+    shadowColor: '#8B6914',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
   },
 
   // Brand name
   brandRow: {
     flexDirection: 'row',
     alignItems: 'baseline',
-    marginBottom: 12,
+    marginBottom: 14,
   },
   brandChar: {
-    fontSize: 40,
+    fontSize: 42,
     fontWeight: '700',
-    color: '#18120A',
-    letterSpacing: -0.8,
-    lineHeight: 48,
+    color: '#1A1208',
+    letterSpacing: -1,
+    lineHeight: 50,
+  },
+
+  // Accent line
+  accentLine: {
+    width: 32,
+    height: 1,
+    backgroundColor: '#C4A06A',
+    marginBottom: 14,
+    borderRadius: 1,
   },
 
   // Tagline
   tagline: {
-    fontSize: 11.5,
+    fontSize: 11,
     fontWeight: '400',
     color: '#9C7E55',
-    letterSpacing: 3.2,
+    letterSpacing: 3.5,
     textTransform: 'uppercase',
   },
 
   // Bottom
   bottom: {
     position: 'absolute',
-    bottom: 44,
+    bottom: 48,
     alignItems: 'center',
     gap: 10,
   },
-  bottomLine: {
-    width: 40,
+  bottomSep: {
+    width: 32,
     height: 1,
-    backgroundColor: 'rgba(180,150,110,0.35)',
-    marginBottom: 2,
-  },
-  bottomRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  dot: {
-    width: 3,
-    height: 3,
-    borderRadius: 1.5,
-    backgroundColor: '#C8A87A',
+    backgroundColor: 'rgba(180,150,100,0.3)',
+    marginBottom: 4,
   },
   bottomText: {
-    fontSize: 9.5,
+    fontSize: 9,
     fontWeight: '500',
-    color: '#C8A87A',
-    letterSpacing: 3,
+    color: '#C4A06A',
+    letterSpacing: 3.2,
   },
 });
