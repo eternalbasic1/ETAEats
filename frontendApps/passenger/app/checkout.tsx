@@ -8,7 +8,7 @@ import {
   Alert,
   Animated,
   Easing,
-  KeyboardAvoidingView,
+  Keyboard,
   Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -53,7 +53,30 @@ export default function CheckoutScreen() {
   const [validateLoading, setValidateLoading] = useState(false);
   const [inputFlashError, setInputFlashError] = useState(false);
 
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
   const lockedSubtotalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => {
+      setKeyboardVisible(true);
+      // Scroll to bottom so promo input is visible above keyboard
+      setTimeout(() => {
+        scrollRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
   const displayTotal = payableTotal != null ? payableTotal : subtotal;
   const restaurantIdForApi = restaurantId ?? restaurant?.id ?? null;
 
@@ -315,11 +338,7 @@ export default function CheckoutScreen() {
   }
 
   return (
-    <KeyboardAvoidingView
-      style={[styles.container, { backgroundColor: t.colors.bg }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
-    >
+    <View style={[styles.container, { backgroundColor: t.colors.bg }]}>
       <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: t.colors.border }]}>
         <Pressable onPress={() => (router.canGoBack() ? router.back() : router.push('/cart'))} hitSlop={12}>
           <ArrowLeft size={20} color={t.colors.textPrimary} />
@@ -328,8 +347,15 @@ export default function CheckoutScreen() {
       </View>
 
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: 140 }]}
+        ref={scrollRef}
+        contentContainerStyle={[
+          styles.content,
+          // When keyboard is hidden, leave room for the floating CTA
+          // When keyboard is visible, just add normal bottom padding so content scrolls freely
+          { paddingBottom: keyboardVisible ? 32 : insets.bottom + 100 },
+        ]}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         <Card tone="powder" padding="md" radius="card">
           <Text style={{ ...t.typography.label, color: t.colors.accentPowderBlueInk }}>PICKUP FROM</Text>
@@ -501,15 +527,18 @@ export default function CheckoutScreen() {
         </View>
       </ScrollView>
 
-      <View style={[styles.floatingCta, { paddingBottom: insets.bottom + 12 }]}>
-        <Button
-          label={`Pay ₹${displayTotal.toFixed(0)} securely`}
-          onPress={handlePay}
-          loading={loading}
-          fullWidth
-          size="lg"
-        />
-      </View>
+      {/* CTA hidden while keyboard is open so it doesn't overlap the promo input */}
+      {!keyboardVisible && (
+        <View style={[styles.floatingCta, { paddingBottom: insets.bottom + 12 }]}>
+          <Button
+            label={`Pay ₹${displayTotal.toFixed(0)} securely`}
+            onPress={handlePay}
+            loading={loading}
+            fullWidth
+            size="lg"
+          />
+        </View>
+      )}
 
       {rpOptions && (
         <RazorpayCheckout
@@ -519,7 +548,7 @@ export default function CheckoutScreen() {
           onDismiss={handlePaymentDismiss}
         />
       )}
-    </KeyboardAvoidingView>
+    </View>
   );
 }
 
