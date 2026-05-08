@@ -8,6 +8,8 @@ import {
   Alert,
   Animated,
   Easing,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, Button, Input, IconButton } from '@eta/ui-components';
@@ -313,7 +315,11 @@ export default function CheckoutScreen() {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: t.colors.bg }]}>
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: t.colors.bg }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 24}
+    >
       <View style={[styles.header, { paddingTop: insets.top + 8, borderBottomColor: t.colors.border }]}>
         <Pressable onPress={() => (router.canGoBack() ? router.back() : router.push('/cart'))} hitSlop={12}>
           <ArrowLeft size={20} color={t.colors.textPrimary} />
@@ -321,7 +327,10 @@ export default function CheckoutScreen() {
         <Text style={{ ...t.typography.h4, color: t.colors.textPrimary }}>Review & pay</Text>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 140 }]}>
+      <ScrollView
+        contentContainerStyle={[styles.content, { paddingBottom: 140 }]}
+        keyboardShouldPersistTaps="handled"
+      >
         <Card tone="powder" padding="md" radius="card">
           <Text style={{ ...t.typography.label, color: t.colors.accentPowderBlueInk }}>PICKUP FROM</Text>
           <View style={[styles.infoRow, { marginTop: 12 }]}>
@@ -434,6 +443,10 @@ export default function CheckoutScreen() {
                     onChangeText={(x) => setPromoDraft(x.toUpperCase())}
                     returnKeyType="done"
                     onSubmitEditing={applyPromo}
+                    autoCorrect={false}
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
                   />
                 </View>
                 <Button
@@ -506,7 +519,7 @@ export default function CheckoutScreen() {
           onDismiss={handlePaymentDismiss}
         />
       )}
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
