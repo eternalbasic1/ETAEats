@@ -44,8 +44,13 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
   const logoScale  = useRef(new Animated.Value(0.68)).current;
   const logoY      = useRef(new Animated.Value(16)).current;
   const breathe    = useRef(new Animated.Value(1)).current;
-  const charOps    = useRef(BRAND.map(() => new Animated.Value(0))).current;
-  const charYs     = useRef(BRAND.map(() => new Animated.Value(8))).current;
+  const brandChars = useRef(
+    BRAND.map((ch) => ({
+      ch,
+      op: new Animated.Value(0),
+      y: new Animated.Value(8),
+    })),
+  ).current;
   const tagOp      = useRef(new Animated.Value(0)).current;
   const tagY       = useRef(new Animated.Value(10)).current;
   const bottomOp   = useRef(new Animated.Value(0)).current;
@@ -118,15 +123,15 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
 
     // Brand name — staggered per character
     Animated.parallel(
-      BRAND.map((_, i) =>
+      brandChars.map(({ op, y }, i) =>
         Animated.sequence([
           Animated.delay(700 + i * 50),
           Animated.parallel([
-            Animated.timing(charOps[i], {
+            Animated.timing(op, {
               toValue: 1, duration: 420,
               easing: Easing.out(Easing.cubic), useNativeDriver: true,
             }),
-            Animated.timing(charYs[i], {
+            Animated.timing(y, {
               toValue: 0, duration: 420,
               easing: Easing.out(Easing.cubic), useNativeDriver: true,
             }),
@@ -213,13 +218,13 @@ export default function AnimatedSplash({ ready, onDone }: Props) {
 
         {/* Brand name */}
         <View style={styles.brandRow}>
-          {BRAND.map((ch, i) => (
+          {brandChars.map(({ ch, op, y }, i) => (
             <Animated.Text
               key={i}
               style={[
                 styles.brandChar,
                 ch === ' ' && { width: 12 },
-                { opacity: charOps[i], transform: [{ translateY: charYs[i] }] },
+                { opacity: op, transform: [{ translateY: y }] },
               ]}
             >
               {ch}

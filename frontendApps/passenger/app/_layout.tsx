@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -113,34 +114,41 @@ export default function RootLayout() {
 
   if (forceUpdate && bootstrapReady) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
 
+  const stackBg = isNight ? '#0F172A' : '#F5F5F2';
+
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={styles.flex}>
       <ThemeProvider theme={activeTheme}>
         <QueryClientProvider client={queryClient}>
-          {/* Animated splash sits on top until bootstrap is done and animation completes */}
-          {!splashDone && (
-            <AnimatedSplash
-              ready={bootstrapReady}
-              onDone={() => setSplashDone(true)}
-            />
-          )}
-          {/* Only mount the Stack after the splash has fully faded out —
-              prevents the onboarding/home screen from showing through the
-              semi-transparent splash during the fade-out */}
-          {splashDone && (
-            <>
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: isNight ? '#0F172A' : '#F7F5F0' },
-                  animation: 'slide_from_right',
-                }}
+          <View style={styles.flex}>
+            {/* Mount navigation as soon as bootstrap + version check are done so the first
+                real screen paints *under* the splash. Keeping splash-only-then-stack caused
+                one frame with no navigator → black flash before onboarding. */}
+            {bootstrapReady && (
+              <>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: stackBg },
+                    animation: 'slide_from_right',
+                  }}
+                />
+                <StatusBar style={isNight ? 'light' : 'dark'} />
+              </>
+            )}
+            {(!bootstrapReady || !splashDone) && (
+              <AnimatedSplash
+                ready={bootstrapReady}
+                onDone={() => setSplashDone(true)}
               />
-              <StatusBar style={isNight ? 'light' : 'dark'} />
-            </>
-          )}
+            )}
+          </View>
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  flex: { flex: 1 },
+});
