@@ -6,6 +6,8 @@ from __future__ import annotations
 
 import logging
 from decimal import Decimal
+from collections import defaultdict
+from datetime import timedelta
 from typing import Iterable, Optional
 
 from django.db import IntegrityError, transaction
@@ -98,6 +100,9 @@ def add_item(cart: Cart, menu_item: MenuItem, quantity: int = 1) -> CartItem:
         menu_item=menu_item,
         defaults={'quantity': quantity},
     )
+    target_qty = quantity if created else item.quantity + quantity
+    if menu_item.quantity_available is not None and menu_item.quantity_available < target_qty:
+        raise DomainError('Not enough stock for this item.', code='out_of_stock', details={'menu_item': menu_item.pk})
     if not created:
         item.quantity += quantity
         item.save(update_fields=['quantity'])
@@ -111,6 +116,9 @@ def update_item_quantity(item: CartItem, quantity: int) -> Optional[CartItem]:
         item.delete()
         clear_cart_context_if_empty(cart)
         return None
+    mi = item.menu_item
+    if mi.quantity_available is not None and mi.quantity_available < quantity:
+        raise DomainError('Not enough stock for this item.', code='out_of_stock', details={'menu_item': mi.pk})
     item.quantity = quantity
     item.save(update_fields=['quantity'])
     return item
@@ -149,18 +157,92 @@ def cart_total(cart: Cart) -> Decimal:
 
 # ---------- Order --------------------------------------------------------
 
-@transaction.atomic
-def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order:
+def _lock_menu_items_for_stock(order_items: list[OrderItem]) -> dict[int, MenuItem]:
+    finite_item_ids = sorted({
+        oi.menu_item_id
+        for oi in order_items
+        if oi.menu_item.quantity_available is not None
+    })
+    if not finite_item_ids:
+        return {}
+    return {
+        mi.pk: mi
+        for mi in MenuItem.objects.select_for_update().filter(pk__in=finite_item_ids).order_by('pk')
+    }
+
+
+def _reserve_inventory_for_order(order: Order) -> None:
+    """
+    Lock finite-stock MenuItem rows, validate capacity, decrement counts.
+    Sets order.inventory_reserved (caller must save if needed).
+    """
+    order_items = list(order.items.select_related('menu_item'))
+    locked = _lock_menu_items_for_stock(order_items)
+    to_update: list[MenuItem] = []
+    for oi in order_items:
+        mi = locked.get(oi.menu_item_id)
+        if mi is None:
+            continue
+        if mi.quantity_available is None:
+            continue
+        if mi.quantity_available < oi.quantity:
+            logger.info(
+                'out_of_stock checkout menu_item=%s need=%s have=%s order=%s',
+                mi.pk, oi.quantity, mi.quantity_available, order.pk,
+            )
+            raise DomainError(
+                'Not enough stock for one or more items.',
+                code='out_of_stock',
+                details={'menu_item': mi.pk},
+            )
+        mi.quantity_available = mi.quantity_available - oi.quantity
+        if mi.quantity_available == 0:
+            mi.is_available = False
+        to_update.append(mi)
+    if to_update:
+        MenuItem.objects.bulk_update(to_update, ['quantity_available', 'is_available'])
+    order.inventory_reserved = True
+
+
+def release_inventory_for_order(order: Order) -> None:
+    """
+    Restore finite-stock counts for a checkout-reserved order.
+    Idempotent if inventory_reserved is already False.
+    """
+    if not order.inventory_reserved:
+        return
+    order_items = list(order.items.select_related('menu_item'))
+    locked = _lock_menu_items_for_stock(order_items)
+    to_update: list[MenuItem] = []
+    for oi in order_items:
+        mi = locked.get(oi.menu_item_id)
+        if mi is None or mi.quantity_available is None:
+            continue
+        mi.quantity_available = mi.quantity_available + oi.quantity
+        if mi.quantity_available > 0:
+            mi.is_available = True
+        to_update.append(mi)
+    if to_update:
+        MenuItem.objects.bulk_update(to_update, ['quantity_available', 'is_available'])
+    Order.objects.filter(pk=order.pk).update(inventory_reserved=False)
+    order.inventory_reserved = False
+
+
+def _create_order_with_items(
+    *,
+    user: User,
+    bus: Bus,
+    restaurant: Restaurant,
+    lines: list[tuple[MenuItem, int]],
+    promo_code: str,
+) -> Order:
     from apps.promos.models import PromoCode, PromoRedemption
     from apps.promos.services import check_promo_eligibility
 
-    items: Iterable[CartItem] = list(cart.items.select_related('menu_item'))
-    if not items:
+    if not lines:
         raise DomainError('Cart is empty.', code='cart_empty')
-    if cart.restaurant_id is None:
-        raise DomainError('Cart has no restaurant.', code='cart_no_restaurant')
 
-    total = sum((i.menu_item.price * i.quantity for i in items), start=Decimal('0.00'))
+    total = sum((mi.price * qty for mi, qty in lines), start=Decimal('0.00'))
 
     normalized_promo = (promo_code or '').upper().strip()
     discount = Decimal('0.00')
@@ -177,7 +259,7 @@ def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order
             promo_locked,
             cart_total=total,
             user=user,
-            restaurant_id=cart.restaurant_id,
+            restaurant_id=restaurant.pk,
         )
         discount = promo_locked.calculate_discount(total)
         payable = total - discount
@@ -185,7 +267,7 @@ def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order
     order = Order.objects.create(
         passenger=user,
         bus=bus,
-        restaurant=cart.restaurant,
+        restaurant=restaurant,
         total_amount=payable,
         promo_code=normalized_promo if normalized_promo else '',
         discount_amount=discount,
@@ -193,12 +275,12 @@ def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order
     OrderItem.objects.bulk_create([
         OrderItem(
             order=order,
-            menu_item=i.menu_item,
-            menu_item_name=i.menu_item.name,
-            quantity=i.quantity,
-            unit_price=i.menu_item.price,
+            menu_item=mi,
+            menu_item_name=mi.name,
+            quantity=qty,
+            unit_price=mi.price,
         )
-        for i in items
+        for mi, qty in lines
     ])
 
     if promo_locked is not None:
@@ -216,10 +298,81 @@ def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order
             )
         PromoCode.objects.filter(pk=promo_locked.pk).update(used_count=F('used_count') + 1)
 
-    # Cart items are intentionally kept here so the user can recover them
-    # if payment is cancelled or fails. The cart is cleared in mark_payment()
-    # once payment is confirmed as CAPTURED.
+    _reserve_inventory_for_order(order)
+    order.save(update_fields=['inventory_reserved'])
     return order
+
+
+@transaction.atomic
+def checkout(cart: Cart, *, user: User, bus: Bus, promo_code: str = '') -> Order:
+    items: Iterable[CartItem] = list(cart.items.select_related('menu_item'))
+    if not items:
+        raise DomainError('Cart is empty.', code='cart_empty')
+    if cart.restaurant_id is None:
+        raise DomainError('Cart has no restaurant.', code='cart_no_restaurant')
+
+    lines = [(i.menu_item, i.quantity) for i in items]
+    return _create_order_with_items(
+        user=user,
+        bus=bus,
+        restaurant=cart.restaurant,
+        lines=lines,
+        promo_code=promo_code,
+    )
+
+
+@transaction.atomic
+def checkout_from_lines(
+    *,
+    user: User,
+    bus: Bus,
+    lines: list[tuple[int, int]],
+    promo_code: str = '',
+) -> Order:
+    """
+    Create an order from explicit menu lines (menu_item_id, quantity), merging
+    duplicate ids. Validates restaurant consistency and item availability.
+    """
+    if not lines:
+        raise DomainError('Cart is empty.', code='cart_empty')
+
+    merged: dict[int, int] = defaultdict(int)
+    for menu_item_id, qty in lines:
+        if qty < 1:
+            raise DomainError('Quantity must be at least 1.', code='invalid_quantity')
+        merged[menu_item_id] += qty
+
+    menu_item_ids = sorted(merged.keys())
+    menu_items = {
+        mi.pk: mi
+        for mi in MenuItem.objects.filter(pk__in=menu_item_ids).select_related('restaurant')
+    }
+    if len(menu_items) != len(merged):
+        raise DomainError('One or more menu items were not found.', code='invalid_menu_item')
+
+    resolved_lines: list[tuple[MenuItem, int]] = []
+    restaurant_id: int | None = None
+    for mid in menu_item_ids:
+        mi = menu_items[mid]
+        if not mi.is_available or mi.deleted_at:
+            raise DomainError('Item is unavailable.', code='item_unavailable', details={'menu_item': mid})
+        if restaurant_id is None:
+            restaurant_id = mi.restaurant_id
+        elif mi.restaurant_id != restaurant_id:
+            raise DomainError(
+                'Cart cannot mix items from different restaurants.',
+                code='restaurant_mismatch',
+            )
+        resolved_lines.append((mi, merged[mid]))
+
+    restaurant = menu_items[menu_item_ids[0]].restaurant
+    return _create_order_with_items(
+        user=user,
+        bus=bus,
+        restaurant=restaurant,
+        lines=resolved_lines,
+        promo_code=promo_code,
+    )
 
 
 @transaction.atomic
@@ -250,6 +403,7 @@ def advance_status(order: Order, new_status: str, *, reason: str = '') -> Order:
     elif new_status == OrderStatus.CANCELLED:
         order.cancelled_reason = reason[:255]
         update_fields.append('cancelled_reason')
+        release_inventory_for_order(order)
 
     order.save(update_fields=update_fields)
     return order
@@ -257,21 +411,23 @@ def advance_status(order: Order, new_status: str, *, reason: str = '') -> Order:
 
 def _deduct_stock_for_order(order: Order) -> None:
     """
-    Lock and deduct stock for all finite-stock items in the order.
-    Must be called from within an existing atomic transaction.
+    Legacy path: deduct at CONFIRMED when inventory was not reserved at checkout.
+    New checkouts set inventory_reserved=True and skip this.
     """
+    if order.inventory_reserved:
+        return
     order_items = list(order.items.select_related('menu_item'))
-    finite_item_ids = [
+    finite_item_ids = sorted({
         oi.menu_item_id
         for oi in order_items
         if oi.menu_item.quantity_available is not None
-    ]
+    })
     if not finite_item_ids:
         return
 
     locked = {
         mi.pk: mi
-        for mi in MenuItem.objects.select_for_update().filter(pk__in=finite_item_ids)
+        for mi in MenuItem.objects.select_for_update().filter(pk__in=finite_item_ids).order_by('pk')
     }
 
     to_update: list[MenuItem] = []
@@ -279,7 +435,13 @@ def _deduct_stock_for_order(order: Order) -> None:
         mi = locked.get(oi.menu_item_id)
         if mi is None or mi.quantity_available is None:
             continue
-        new_qty = max(0, mi.quantity_available - oi.quantity)
+        if mi.quantity_available < oi.quantity:
+            raise DomainError(
+                'Not enough stock to confirm this order.',
+                code='out_of_stock',
+                details={'menu_item': mi.pk},
+            )
+        new_qty = mi.quantity_available - oi.quantity
         mi.quantity_available = new_qty
         if new_qty == 0:
             mi.is_available = False
@@ -289,16 +451,56 @@ def _deduct_stock_for_order(order: Order) -> None:
         MenuItem.objects.bulk_update(to_update, ['quantity_available', 'is_available'])
 
 
+@transaction.atomic
 def mark_payment(order: Order, *, status: str, razorpay_payment_id: str = '') -> Order:
+    order = Order.objects.select_for_update().get(pk=order.pk)
+    prev_order_status = order.status
     order.payment_status = status
     if razorpay_payment_id:
         order.razorpay_payment_id = razorpay_payment_id
     order.save(update_fields=['payment_status', 'razorpay_payment_id', 'updated_at'])
     if status == PaymentStatus.CAPTURED and order.status == OrderStatus.PENDING:
         advance_status(order, OrderStatus.CONFIRMED)
-        # Payment confirmed — now safe to clear the cart so the user starts fresh.
         cart = Cart.objects.filter(user=order.passenger).first()
         if cart:
             cart.items.all().delete()
             clear_cart_context_if_empty(cart)
+    elif status == PaymentStatus.FAILED and prev_order_status == OrderStatus.PENDING:
+        advance_status(order, OrderStatus.CANCELLED, reason='payment_failed')
     return order
+
+
+def cancel_stale_pending_unpaid_orders(*, max_age: timedelta | None = None, limit: int = 500) -> int:
+    """
+    Cancel unpaid PENDING orders that still hold inventory reservations.
+    Suitable for Celery beat or a cron management command.
+    """
+    max_age = max_age or timedelta(minutes=30)
+    cutoff = timezone.now() - max_age
+    qs = (
+        Order.objects.filter(
+            status=OrderStatus.PENDING,
+            payment_status=PaymentStatus.UNPAID,
+            inventory_reserved=True,
+            created_at__lt=cutoff,
+        )
+        .order_by('created_at')
+        .values_list('pk', flat=True)[:limit]
+    )
+    cancelled = 0
+    for pk in qs:
+        try:
+            with transaction.atomic():
+                locked = Order.objects.select_for_update().get(pk=pk)
+                if (
+                    locked.status != OrderStatus.PENDING
+                    or locked.payment_status != PaymentStatus.UNPAID
+                    or not locked.inventory_reserved
+                    or locked.created_at >= cutoff
+                ):
+                    continue
+                advance_status(locked, OrderStatus.CANCELLED, reason='stale_unpaid_checkout')
+                cancelled += 1
+        except Exception:
+            logger.exception('cancel_stale_pending_unpaid_orders failed for order %s', pk)
+    return cancelled

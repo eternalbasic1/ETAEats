@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl }
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, Button } from '@eta/ui-components';
 import { useAuthStore } from '@eta/auth';
-import { api, authEndpoints } from '@eta/api-client';
+import { authEndpoints } from '@eta/api-client';
 import { router } from 'expo-router';
 import { Phone, Mail, Shield, Info, LogOut } from 'lucide-react-native';
 
@@ -54,13 +54,6 @@ export default function ProfileScreen() {
   const initial = fullName[0]?.toUpperCase() ?? '?';
 
   async function handleLogout() {
-    try {
-      const { data } = await api.get('/orders/cart/');
-      if (data?.items?.length) {
-        await Promise.all(data.items.map((item: any) => api.delete(`/orders/cart/items/${item.id}/`)));
-      }
-    } catch {}
-    
     clearCart();
     clearJourney();
     await clearAuth();

@@ -1,7 +1,6 @@
 import { View, Text, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, EmptyState, Button } from '@eta/ui-components';
-import { api } from '@eta/api-client';
 import { useAuthStore } from '@eta/auth';
 import { router } from 'expo-router';
 import { ArrowLeft, ShoppingBag, Trash2, Minus, Plus } from 'lucide-react-native';
@@ -11,27 +10,33 @@ export default function CartScreen() {
   const t = useTheme();
   const insets = useSafeAreaInsets();
   const { isAuthenticated } = useAuthStore();
-  const { cartId, items, setCart, totalPrice, clearCart } = useCartStore();
+  const { busId, restaurantId, items, setLocalCart, totalPrice } = useCartStore();
 
-  async function handleRemove(cartItemId: number) {
-    if (!cartId) return;
-    try {
-      const { data } = await api.delete(`/orders/cart/items/${cartItemId}/`);
-      setCart(cartId, data.bus, data.restaurant, data.items);
-    } catch {}
+  function handleRemove(menuItemId: number) {
+    if (busId == null || restaurantId == null) return;
+    setLocalCart(
+      busId,
+      restaurantId,
+      items.filter((i) => i.menu_item !== menuItemId),
+    );
   }
 
-  async function handleUpdate(cartItemId: number, quantity: number) {
-    if (!cartId) return;
-    try {
-      if (quantity <= 0) {
-        const { data } = await api.delete(`/orders/cart/items/${cartItemId}/`);
-        setCart(cartId, data.bus, data.restaurant, data.items);
-      } else {
-        const { data } = await api.patch(`/orders/cart/items/${cartItemId}/`, { quantity });
-        setCart(cartId, data.bus, data.restaurant, data.items);
-      }
-    } catch {}
+  function handleUpdate(menuItemId: number, quantity: number) {
+    if (busId == null || restaurantId == null) return;
+    if (quantity <= 0) {
+      handleRemove(menuItemId);
+      return;
+    }
+    const next = items.map((i) =>
+      i.menu_item === menuItemId
+        ? {
+            ...i,
+            quantity,
+            line_total: (Number(i.unit_price) * quantity).toFixed(2),
+          }
+        : i,
+    );
+    setLocalCart(busId, restaurantId, next);
   }
 
   function handleCheckout() {
@@ -77,7 +82,7 @@ export default function CartScreen() {
         <Card tone="default" padding="none" radius="card" style={{ paddingHorizontal: 20, paddingVertical: 8 }}>
           {items.map((item, idx) => (
             <View
-              key={item.id}
+              key={item.menu_item}
               style={[
                 styles.cartItem,
                 idx < items.length - 1 && { borderBottomWidth: 1, borderBottomColor: t.colors.borderSubtle },
@@ -96,17 +101,17 @@ export default function CartScreen() {
               </View>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                 <View style={[styles.stepper, { borderColor: t.colors.border }]}>
-                  <Pressable onPress={() => handleUpdate(item.id, item.quantity - 1)} style={styles.stepBtn} hitSlop={8}>
+                  <Pressable onPress={() => handleUpdate(item.menu_item, item.quantity - 1)} style={styles.stepBtn} hitSlop={8}>
                     <Minus size={14} color={t.colors.textPrimary} />
                   </Pressable>
                   <Text style={{ ...t.typography.body, color: t.colors.textPrimary, fontWeight: '600', minWidth: 20, textAlign: 'center' }}>
                     {item.quantity}
                   </Text>
-                  <Pressable onPress={() => handleUpdate(item.id, item.quantity + 1)} style={styles.stepBtn} hitSlop={8}>
+                  <Pressable onPress={() => handleUpdate(item.menu_item, item.quantity + 1)} style={styles.stepBtn} hitSlop={8}>
                     <Plus size={14} color={t.colors.textPrimary} />
                   </Pressable>
                 </View>
-                <Pressable onPress={() => handleRemove(item.id)} hitSlop={8} style={{ padding: 6 }}>
+                <Pressable onPress={() => handleRemove(item.menu_item)} hitSlop={8} style={{ padding: 6 }}>
                   <Trash2 size={16} strokeWidth={1.7} color={t.colors.textMuted} />
                 </Pressable>
               </View>

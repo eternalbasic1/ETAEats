@@ -139,6 +139,9 @@ class Order(TimeStampedModel):
     razorpay_order_id = models.CharField(max_length=200, blank=True, default='')
     razorpay_payment_id = models.CharField(max_length=200, blank=True, default='')
     cancelled_reason = models.CharField(max_length=255, blank=True, default='')
+    # When True, finite stock was decremented at checkout; skip deduct on CONFIRMED and
+    # restore on cancel. Legacy orders remain False (stock deducted only at CONFIRMED).
+    inventory_reserved = models.BooleanField(default=False)
     confirmed_at = models.DateTimeField(null=True, blank=True)
     ready_at = models.DateTimeField(null=True, blank=True)
     picked_up_at = models.DateTimeField(null=True, blank=True)

@@ -66,10 +66,29 @@ class OrderSerializer(serializers.ModelSerializer):
         read_only_fields = fields
 
 
+class CheckoutLineSerializer(serializers.Serializer):
+    menu_item = serializers.IntegerField()
+    quantity = serializers.IntegerField(min_value=1)
+
+
 class CheckoutSerializer(serializers.Serializer):
-    cart_id = serializers.UUIDField()
+    cart_id = serializers.UUIDField(required=False, allow_null=True)
     bus_id = serializers.IntegerField()
     promo_code = serializers.CharField(required=False, allow_blank=True, default='')
+    lines = CheckoutLineSerializer(many=True, required=False)
+
+    def validate(self, data):
+        cart_id = data.get('cart_id')
+        raw_lines = data.get('lines')
+        lines_list = list(raw_lines) if raw_lines is not None else []
+        has_cart = cart_id is not None
+        has_lines = len(lines_list) > 0
+        if has_cart == has_lines:
+            raise serializers.ValidationError(
+                'Provide exactly one of: cart_id (server cart) or lines (non-empty list of items).',
+            )
+        data['lines'] = lines_list
+        return data
 
 
 class AdvanceStatusSerializer(serializers.Serializer):

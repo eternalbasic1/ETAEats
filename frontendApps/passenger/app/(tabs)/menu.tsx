@@ -31,7 +31,7 @@ export default function MenuTabScreen() {
   const bus = activeJourney?.bus ?? null;
   const restaurant = activeJourney?.restaurant ?? null;
   const restaurantId = restaurant ? String(restaurant.id) : null;
-  const { cartId, items: cartItems, setCart, setItems } = useCartStore();
+  const { items: cartItems, setLocalCart } = useCartStore();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['menu', restaurantId],
@@ -49,19 +49,26 @@ export default function MenuTabScreen() {
     setRefreshing(false);
   }, [refetch]);
 
-  async function handleAdd(item: any) {
-    if (!bus) return;
+  function handleAdd(item: any) {
+    if (!bus || !restaurant) return;
     const existing = cartItems.find((ci) => ci.menu_item === item.id);
-    const optimistic: CartItem[] = existing
+    const currentQty = existing?.quantity ?? 0;
+    // Enforce stock cap on FE
+    const cap: number | null = item.quantity_available ?? null;
+    if (cap !== null && currentQty >= cap) return;
+    const next: CartItem[] = existing
       ? cartItems.map((ci) =>
           ci.menu_item === item.id
-            ? { ...ci, quantity: ci.quantity + 1, line_total: (Number(ci.unit_price) * (ci.quantity + 1)).toFixed(2) }
+            ? {
+                ...ci,
+                quantity: ci.quantity + 1,
+                line_total: (Number(ci.unit_price) * (ci.quantity + 1)).toFixed(2),
+              }
             : ci,
         )
       : [
           ...cartItems,
           {
-            id: -Date.now(),
             menu_item: item.id,
             menu_item_name: item.name,
             quantity: 1,
@@ -69,38 +76,49 @@ export default function MenuTabScreen() {
             line_total: Number(item.price).toFixed(2),
           },
         ];
-    setItems(optimistic);
+    setLocalCart(bus.id, restaurant.id, next);
     touchJourney();
-    try {
-      const { data: cart } = await api.post('/orders/cart/', { menu_item: item.id, quantity: 1, bus_id: bus.id });
-      setCart(cart.id, cart.bus, cart.restaurant, cart.items);
-    } catch {
-      setItems(cartItems);
+  }
+
+  function handleIncrement(menuItemId: number, quantityAvailable: number | null) {
+    if (!bus || !restaurant) return;
+    const current = cartItems.find((i) => i.menu_item === menuItemId);
+    if (!current) return;
+    // Enforce stock cap on FE
+    if (quantityAvailable !== null && current.quantity >= quantityAvailable) return;
+    const qty = current.quantity + 1;
+    const next = cartItems.map((i) =>
+      i.menu_item === menuItemId
+        ? {
+            ...i,
+            quantity: qty,
+            line_total: (Number(i.unit_price) * qty).toFixed(2),
+          }
+        : i,
+    );
+    setLocalCart(bus.id, restaurant.id, next);
+    touchJourney();
+  }
+
+  function handleDecrement(menuItemId: number, quantity: number) {
+    if (!bus || !restaurant) return;
+    if (quantity <= 1) {
+      const next = cartItems.filter((i) => i.menu_item !== menuItemId);
+      setLocalCart(bus.id, restaurant.id, next);
+    } else {
+      const qty = quantity - 1;
+      const next = cartItems.map((i) =>
+        i.menu_item === menuItemId
+          ? {
+              ...i,
+              quantity: qty,
+              line_total: (Number(i.unit_price) * qty).toFixed(2),
+            }
+          : i,
+      );
+      setLocalCart(bus.id, restaurant.id, next);
     }
-  }
-
-  async function handleIncrement(cartItemId: number) {
-    const current = cartItems.find((i) => i.id === cartItemId);
-    if (!current || !cartId) return;
-    try {
-      const { data: cart } = await api.patch(`/orders/cart/items/${cartItemId}/`, { quantity: current.quantity + 1 });
-      setCart(cartId, cart.bus, cart.restaurant, cart.items);
-      touchJourney();
-    } catch {}
-  }
-
-  async function handleDecrement(cartItemId: number, quantity: number) {
-    if (!cartId) return;
-    try {
-      if (quantity <= 1) {
-        const { data: cart } = await api.delete(`/orders/cart/items/${cartItemId}/`);
-        setCart(cartId, cart.bus, cart.restaurant, cart.items);
-      } else {
-        const { data: cart } = await api.patch(`/orders/cart/items/${cartItemId}/`, { quantity: quantity - 1 });
-        setCart(cartId, cart.bus, cart.restaurant, cart.items);
-      }
-      touchJourney();
-    } catch {}
+    touchJourney();
   }
 
   const totalCartItems = cartItems.reduce((sum, i) => sum + i.quantity, 0);
@@ -218,19 +236,35 @@ export default function MenuTabScreen() {
 
               {!unavailable && (
                 <View style={styles.actionCol}>
-                  {cartItem ? (
-                    <View style={[styles.stepper, { backgroundColor: t.colors.surface, borderColor: t.colors.border }]}>
-                      <Pressable onPress={() => handleDecrement(cartItem.id, cartItem.quantity)} style={styles.stepperBtn} hitSlop={8}>
-                        <Minus size={16} color={t.colors.textPrimary} />
-                      </Pressable>
-                      <Text style={{ ...t.typography.body, color: t.colors.textPrimary, fontWeight: '600', minWidth: 24, textAlign: 'center' }}>
-                        {cartItem.quantity}
-                      </Text>
-                      <Pressable onPress={() => handleIncrement(cartItem.id)} style={styles.stepperBtn} hitSlop={8}>
-                        <Plus size={16} color={t.colors.textPrimary} />
-                      </Pressable>
-                    </View>
-                  ) : (
+                  {cartItem ? (() => {
+                    const cap: number | null = item.quantity_available ?? null;
+                    const atCap = cap !== null && cartItem.quantity >= cap;
+                    return (
+                      <View style={{ alignItems: 'center', gap: 4 }}>
+                        <View style={[styles.stepper, { backgroundColor: t.colors.surface, borderColor: t.colors.border }]}>
+                          <Pressable onPress={() => handleDecrement(cartItem.menu_item, cartItem.quantity)} style={styles.stepperBtn} hitSlop={8}>
+                            <Minus size={16} color={t.colors.textPrimary} />
+                          </Pressable>
+                          <Text style={{ ...t.typography.body, color: t.colors.textPrimary, fontWeight: '600', minWidth: 24, textAlign: 'center' }}>
+                            {cartItem.quantity}
+                          </Text>
+                          <Pressable
+                            onPress={() => handleIncrement(cartItem.menu_item, cap)}
+                            style={[styles.stepperBtn, atCap && { opacity: 0.3 }]}
+                            hitSlop={8}
+                            disabled={atCap}
+                          >
+                            <Plus size={16} color={t.colors.textPrimary} />
+                          </Pressable>
+                        </View>
+                        {atCap && (
+                          <Text style={{ fontSize: 10, color: t.colors.warningFg, fontWeight: '600' }}>
+                            Max available
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  })() : (
                     <Pressable onPress={() => handleAdd(item)} style={[styles.addBtn, { backgroundColor: t.colors.primary }]}>
                       <Text style={{ fontSize: 13, fontWeight: '600', color: t.colors.textOnDark, letterSpacing: 0.3 }}>Add</Text>
                     </Pressable>

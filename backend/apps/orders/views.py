@@ -99,24 +99,36 @@ class CheckoutView(APIView):
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        cart = get_object_or_404(Cart, pk=serializer.validated_data['cart_id'])
-
-        # Cart may be anonymous (user=null) if the passenger logged in after
-        # adding items. Assign it to the authenticated user now, or reject if
-        # it already belongs to someone else.
-        if cart.user_id is None:
-            cart.user = request.user
-            cart.save(update_fields=['user'])
-        elif cart.user_id != request.user.id:
-            raise PermissionDenied('This cart belongs to another user.')
-
         bus = get_object_or_404(Bus, pk=serializer.validated_data['bus_id'], is_active=True)
-        order = services.checkout(
-            cart,
-            user=request.user,
-            bus=bus,
-            promo_code=serializer.validated_data.get('promo_code') or '',
-        )
+        promo_code = serializer.validated_data.get('promo_code') or ''
+
+        if serializer.validated_data.get('cart_id'):
+            cart = get_object_or_404(Cart, pk=serializer.validated_data['cart_id'])
+
+            if cart.user_id is None:
+                cart.user = request.user
+                cart.save(update_fields=['user'])
+            elif cart.user_id != request.user.id:
+                raise PermissionDenied('This cart belongs to another user.')
+
+            order = services.checkout(
+                cart,
+                user=request.user,
+                bus=bus,
+                promo_code=promo_code,
+            )
+        else:
+            lines = [
+                (line['menu_item'], line['quantity'])
+                for line in serializer.validated_data['lines']
+            ]
+            order = services.checkout_from_lines(
+                user=request.user,
+                bus=bus,
+                lines=lines,
+                promo_code=promo_code,
+            )
+
         return Response(OrderSerializer(order).data, status=http_status.HTTP_201_CREATED)
 
 

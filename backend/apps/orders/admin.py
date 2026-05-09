@@ -12,11 +12,16 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'passenger', 'restaurant', 'bus', 'status', 'payment_status', 'total_amount', 'created_at')
+    list_display = (
+        'id', 'passenger', 'restaurant', 'bus', 'status', 'payment_status',
+        'inventory_reserved', 'total_amount', 'created_at',
+    )
     list_filter = ('status', 'payment_status', 'restaurant')
     search_fields = ('id', 'passenger__phone_number', 'razorpay_order_id')
     inlines = [OrderItemInline]
-    readonly_fields = ('id', 'created_at', 'updated_at', 'confirmed_at', 'ready_at', 'picked_up_at')
+    readonly_fields = (
+        'id', 'created_at', 'updated_at', 'confirmed_at', 'ready_at', 'picked_up_at', 'inventory_reserved',
+    )
 
 
 class CartItemInline(admin.TabularInline):

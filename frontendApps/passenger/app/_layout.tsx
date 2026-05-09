@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { View, StyleSheet } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -8,6 +9,7 @@ import { passengerTheme, passengerNightTheme } from '../theme/passengerTheme';
 import { useTimeOfDay } from '../hooks/useTimeOfDay';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import ForceUpdateScreen from '../components/ForceUpdateScreen';
+import AnimatedSplash from '../components/AnimatedSplash';
 import { useAuthStore, setAppPrefix, tokenStore } from '@eta/auth';
 import { initEnv, getEnv } from '@eta/utils';
 import {
@@ -37,6 +39,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
   const hydrate = useAuthStore((s) => s.hydrate);
   const { isNight } = useTimeOfDay();
   const activeTheme = isNight ? passengerNightTheme : passengerTheme;
@@ -100,30 +103,52 @@ export default function RootLayout() {
         console.warn('Bootstrap error:', e);
       } finally {
         setReady(true);
+        // Hide the native splash immediately — our AnimatedSplash takes over
         SplashScreen.hideAsync();
       }
     }
     bootstrap();
   }, [hydrate]);
 
-  if (!ready || !fontsLoaded || versionCheckLoading) return null;
+  const bootstrapReady = ready && fontsLoaded && !versionCheckLoading;
 
-  if (forceUpdate) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
+  if (forceUpdate && bootstrapReady) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
+
+  const stackBg = isNight ? '#0F172A' : '#F5F5F2';
 
   return (
-    <SafeAreaProvider>
+    <SafeAreaProvider style={styles.flex}>
       <ThemeProvider theme={activeTheme}>
         <QueryClientProvider client={queryClient}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: isNight ? '#0F172A' : '#F5F5F2' },
-              animation: 'slide_from_right',
-            }}
-          />
-          <StatusBar style={isNight ? 'light' : 'dark'} />
+          <View style={styles.flex}>
+            {/* Mount navigation as soon as bootstrap + version check are done so the first
+                real screen paints *under* the splash. Keeping splash-only-then-stack caused
+                one frame with no navigator → black flash before onboarding. */}
+            {bootstrapReady && (
+              <>
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: stackBg },
+                    animation: 'slide_from_right',
+                  }}
+                />
+                <StatusBar style={isNight ? 'light' : 'dark'} />
+              </>
+            )}
+            {(!bootstrapReady || !splashDone) && (
+              <AnimatedSplash
+                ready={bootstrapReady}
+                onDone={() => setSplashDone(true)}
+              />
+            )}
+          </View>
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  flex: { flex: 1 },
+});

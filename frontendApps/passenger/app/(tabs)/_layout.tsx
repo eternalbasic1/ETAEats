@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Platform, Animated, Dimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme } from '@eta/ui-components';
@@ -40,8 +40,8 @@ function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
   // Animated position for the sliding active indicator
   const slideAnim = useRef(new Animated.Value(state.index)).current;
-  // Track pill width so we can compute item width
-  const pillWidth = useRef(0);
+  // Track pill width so we can compute item width — useState triggers re-render on measure
+  const [pillWidth, setPillWidth] = useState(0);
 
   useEffect(() => {
     Animated.spring(slideAnim, {
@@ -52,8 +52,8 @@ function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     }).start();
   }, [state.index]);
 
-  const itemWidth = pillWidth.current > 0
-    ? (pillWidth.current - 12 - (TAB_COUNT - 1) * 4) / TAB_COUNT  // 12 = padding*2, 4 = gap
+  const itemWidth = pillWidth > 0
+    ? (pillWidth - 12 - (TAB_COUNT - 1) * 4) / TAB_COUNT  // 12 = padding*2, 4 = gap
     : 0;
 
   const translateX = slideAnim.interpolate({
@@ -70,7 +70,7 @@ function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           isIOS && styles.tabBarPillGlass,
         ]}
         onLayout={(e) => {
-          pillWidth.current = e.nativeEvent.layout.width;
+          setPillWidth(e.nativeEvent.layout.width);
         }}
       >
         {/* Sliding active indicator */}
