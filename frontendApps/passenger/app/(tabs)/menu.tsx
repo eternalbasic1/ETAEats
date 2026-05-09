@@ -52,6 +52,10 @@ export default function MenuTabScreen() {
   function handleAdd(item: any) {
     if (!bus || !restaurant) return;
     const existing = cartItems.find((ci) => ci.menu_item === item.id);
+    const currentQty = existing?.quantity ?? 0;
+    // Enforce stock cap on FE
+    const cap: number | null = item.quantity_available ?? null;
+    if (cap !== null && currentQty >= cap) return;
     const next: CartItem[] = existing
       ? cartItems.map((ci) =>
           ci.menu_item === item.id
@@ -76,10 +80,12 @@ export default function MenuTabScreen() {
     touchJourney();
   }
 
-  function handleIncrement(menuItemId: number) {
+  function handleIncrement(menuItemId: number, quantityAvailable: number | null) {
     if (!bus || !restaurant) return;
     const current = cartItems.find((i) => i.menu_item === menuItemId);
     if (!current) return;
+    // Enforce stock cap on FE
+    if (quantityAvailable !== null && current.quantity >= quantityAvailable) return;
     const qty = current.quantity + 1;
     const next = cartItems.map((i) =>
       i.menu_item === menuItemId
@@ -230,19 +236,35 @@ export default function MenuTabScreen() {
 
               {!unavailable && (
                 <View style={styles.actionCol}>
-                  {cartItem ? (
-                    <View style={[styles.stepper, { backgroundColor: t.colors.surface, borderColor: t.colors.border }]}>
-                      <Pressable onPress={() => handleDecrement(cartItem.menu_item, cartItem.quantity)} style={styles.stepperBtn} hitSlop={8}>
-                        <Minus size={16} color={t.colors.textPrimary} />
-                      </Pressable>
-                      <Text style={{ ...t.typography.body, color: t.colors.textPrimary, fontWeight: '600', minWidth: 24, textAlign: 'center' }}>
-                        {cartItem.quantity}
-                      </Text>
-                      <Pressable onPress={() => handleIncrement(cartItem.menu_item)} style={styles.stepperBtn} hitSlop={8}>
-                        <Plus size={16} color={t.colors.textPrimary} />
-                      </Pressable>
-                    </View>
-                  ) : (
+                  {cartItem ? (() => {
+                    const cap: number | null = item.quantity_available ?? null;
+                    const atCap = cap !== null && cartItem.quantity >= cap;
+                    return (
+                      <View style={{ alignItems: 'center', gap: 4 }}>
+                        <View style={[styles.stepper, { backgroundColor: t.colors.surface, borderColor: t.colors.border }]}>
+                          <Pressable onPress={() => handleDecrement(cartItem.menu_item, cartItem.quantity)} style={styles.stepperBtn} hitSlop={8}>
+                            <Minus size={16} color={t.colors.textPrimary} />
+                          </Pressable>
+                          <Text style={{ ...t.typography.body, color: t.colors.textPrimary, fontWeight: '600', minWidth: 24, textAlign: 'center' }}>
+                            {cartItem.quantity}
+                          </Text>
+                          <Pressable
+                            onPress={() => handleIncrement(cartItem.menu_item, cap)}
+                            style={[styles.stepperBtn, atCap && { opacity: 0.3 }]}
+                            hitSlop={8}
+                            disabled={atCap}
+                          >
+                            <Plus size={16} color={t.colors.textPrimary} />
+                          </Pressable>
+                        </View>
+                        {atCap && (
+                          <Text style={{ fontSize: 10, color: t.colors.warningFg, fontWeight: '600' }}>
+                            Max available
+                          </Text>
+                        )}
+                      </View>
+                    );
+                  })() : (
                     <Pressable onPress={() => handleAdd(item)} style={[styles.addBtn, { backgroundColor: t.colors.primary }]}>
                       <Text style={{ fontSize: 13, fontWeight: '600', color: t.colors.textOnDark, letterSpacing: 0.3 }}>Add</Text>
                     </Pressable>

@@ -8,6 +8,7 @@ import { passengerTheme, passengerNightTheme } from '../theme/passengerTheme';
 import { useTimeOfDay } from '../hooks/useTimeOfDay';
 import { useVersionCheck } from '../hooks/useVersionCheck';
 import ForceUpdateScreen from '../components/ForceUpdateScreen';
+import AnimatedSplash from '../components/AnimatedSplash';
 import { useAuthStore, setAppPrefix, tokenStore } from '@eta/auth';
 import { initEnv, getEnv } from '@eta/utils';
 import {
@@ -37,6 +38,7 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
+  const [splashDone, setSplashDone] = useState(false);
   const hydrate = useAuthStore((s) => s.hydrate);
   const { isNight } = useTimeOfDay();
   const activeTheme = isNight ? passengerNightTheme : passengerTheme;
@@ -100,28 +102,43 @@ export default function RootLayout() {
         console.warn('Bootstrap error:', e);
       } finally {
         setReady(true);
+        // Hide the native splash immediately — our AnimatedSplash takes over
         SplashScreen.hideAsync();
       }
     }
     bootstrap();
   }, [hydrate]);
 
-  if (!ready || !fontsLoaded || versionCheckLoading) return null;
+  const bootstrapReady = ready && fontsLoaded && !versionCheckLoading;
 
-  if (forceUpdate) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
+  if (forceUpdate && bootstrapReady) return <ForceUpdateScreen message={updateMessage} androidStoreUrl={androidStoreUrl} iosStoreUrl={iosStoreUrl} />;
 
   return (
     <SafeAreaProvider>
       <ThemeProvider theme={activeTheme}>
         <QueryClientProvider client={queryClient}>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: isNight ? '#0F172A' : '#F5F5F2' },
-              animation: 'slide_from_right',
-            }}
-          />
-          <StatusBar style={isNight ? 'light' : 'dark'} />
+          {/* Animated splash sits on top until bootstrap is done and animation completes */}
+          {!splashDone && (
+            <AnimatedSplash
+              ready={bootstrapReady}
+              onDone={() => setSplashDone(true)}
+            />
+          )}
+          {/* Only mount the Stack after the splash has fully faded out —
+              prevents the onboarding/home screen from showing through the
+              semi-transparent splash during the fade-out */}
+          {splashDone && (
+            <>
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: isNight ? '#0F172A' : '#F7F5F0' },
+                  animation: 'slide_from_right',
+                }}
+              />
+              <StatusBar style={isNight ? 'light' : 'dark'} />
+            </>
+          )}
         </QueryClientProvider>
       </ThemeProvider>
     </SafeAreaProvider>

@@ -8,6 +8,8 @@ import {
   Alert,
   Animated,
   Easing,
+  Keyboard,
+  Platform,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTheme, Card, Button, Input, IconButton } from '@eta/ui-components';
@@ -51,7 +53,30 @@ export default function CheckoutScreen() {
   const [validateLoading, setValidateLoading] = useState(false);
   const [inputFlashError, setInputFlashError] = useState(false);
 
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
   const lockedSubtotalRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+
+    const showSub = Keyboard.addListener(showEvent, () => {
+      setKeyboardVisible(true);
+      // Scroll to bottom so promo input is visible above keyboard
+      setTimeout(() => {
+        scrollRef.current?.scrollToEnd({ animated: true });
+      }, 100);
+    });
+    const hideSub = Keyboard.addListener(hideEvent, () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSub.remove();
+      hideSub.remove();
+    };
+  }, []);
   const displayTotal = payableTotal != null ? payableTotal : subtotal;
   const restaurantIdForApi = restaurantId ?? restaurant?.id ?? null;
 
@@ -234,12 +259,38 @@ export default function CheckoutScreen() {
       });
     } catch (e: any) {
       const code = e?.response?.data?.error?.code;
-      const msg =
-        code === 'out_of_stock'
-          ? (e?.response?.data?.error?.message ??
-            'One or more items are no longer in stock. Adjust your cart and try again.')
-          : (e?.response?.data?.error?.message ?? 'Could not create order. Please try again.');
-      Alert.alert(code === 'out_of_stock' ? 'Out of stock' : 'Error', msg);
+      const serverMsg = e?.response?.data?.error?.message;
+      const details = e?.response?.data?.error?.details ?? {};
+
+      let title = 'Error';
+      let msg = serverMsg ?? 'Could not create order. Please try again.';
+
+      if (code === 'out_of_stock') {
+        title = 'Out of stock';
+        // Try to find the item name from our local cart
+        const affectedId = details?.menu_item;
+        const affectedItem = affectedId
+          ? items.find((i) => i.menu_item === affectedId)
+          : null;
+        msg = affectedItem
+          ? `"${affectedItem.menu_item_name}" doesn't have enough stock for the quantity you selected. Please reduce it and try again.`
+          : (serverMsg ?? 'One or more items are no longer in stock. Adjust your cart and try again.');
+      } else if (code === 'item_unavailable') {
+        title = 'Item unavailable';
+        const affectedId = details?.menu_item;
+        const affectedItem = affectedId ? items.find((i) => i.menu_item === affectedId) : null;
+        msg = affectedItem
+          ? `"${affectedItem.menu_item_name}" is no longer available. Please remove it from your cart.`
+          : (serverMsg ?? 'One or more items are no longer available.');
+      } else if (code === 'cart_empty') {
+        title = 'Empty cart';
+        msg = 'Your cart is empty. Add some items before placing an order.';
+      } else if (code === 'promo_invalid' || code === 'promo_already_used') {
+        title = 'Promo code';
+        msg = serverMsg ?? 'There was an issue with your promo code.';
+      }
+
+      Alert.alert(title, msg);
     } finally {
       setLoading(false);
     }
@@ -295,7 +346,17 @@ export default function CheckoutScreen() {
         <Text style={{ ...t.typography.h4, color: t.colors.textPrimary }}>Review & pay</Text>
       </View>
 
-      <ScrollView contentContainerStyle={[styles.content, { paddingBottom: 140 }]}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={[
+          styles.content,
+          // When keyboard is hidden, leave room for the floating CTA
+          // When keyboard is visible, just add normal bottom padding so content scrolls freely
+          { paddingBottom: keyboardVisible ? 32 : insets.bottom + 100 },
+        ]}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      >
         <Card tone="powder" padding="md" radius="card">
           <Text style={{ ...t.typography.label, color: t.colors.accentPowderBlueInk }}>PICKUP FROM</Text>
           <View style={[styles.infoRow, { marginTop: 12 }]}>
@@ -408,6 +469,10 @@ export default function CheckoutScreen() {
                     onChangeText={(x) => setPromoDraft(x.toUpperCase())}
                     returnKeyType="done"
                     onSubmitEditing={applyPromo}
+                    autoCorrect={false}
+                    autoComplete="off"
+                    autoCapitalize="characters"
+                    spellCheck={false}
                   />
                 </View>
                 <Button
@@ -462,15 +527,18 @@ export default function CheckoutScreen() {
         </View>
       </ScrollView>
 
-      <View style={[styles.floatingCta, { paddingBottom: insets.bottom + 12 }]}>
-        <Button
-          label={`Pay ₹${displayTotal.toFixed(0)} securely`}
-          onPress={handlePay}
-          loading={loading}
-          fullWidth
-          size="lg"
-        />
-      </View>
+      {/* CTA hidden while keyboard is open so it doesn't overlap the promo input */}
+      {!keyboardVisible && (
+        <View style={[styles.floatingCta, { paddingBottom: insets.bottom + 12 }]}>
+          <Button
+            label={`Pay ₹${displayTotal.toFixed(0)} securely`}
+            onPress={handlePay}
+            loading={loading}
+            fullWidth
+            size="lg"
+          />
+        </View>
+      )}
 
       {rpOptions && (
         <RazorpayCheckout
